@@ -1,0 +1,133 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/awinic,aw8695-haptics.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Awinic AW8695 LRA Haptic Driver
+
+maintainers:
+  - Luca Weiss <luca.weiss@fairphone.com>
+
+properties:
+  compatible:
+    const: awinic,aw8695
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+    description: GPIO connected to INTN pin (edge falling)
+
+  reset-gpios:
+    maxItems: 1
+    description: GPIO connected to RSTN pin (active high)
+
+  awinic,f0-preset:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Default value for the f0 of LRA
+
+  awinic,f0-coefficient:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Coefficient between actual f0 and the value in the registers
+
+  awinic,f0-calibration-percent:
+    maxItems: 1
+    description: Limit of f0 deviation from awinic,f0-preset
+
+  awinic,drive-level:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Level of drive waveform in normal driving
+
+  awinic,f0-detection-play-time:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Drive waveform play times in the first period in the f0 detection
+
+  awinic,f0-detection-wait-time:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Waveform wait times in the f0 detection
+
+  awinic,f0-detection-repeat:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Repeat times in the f0 detection
+
+  awinic,f0-detection-trace:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Drive waveform play times in the second period and later in the f0 detection
+
+  awinic,boost-debug:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    minItems: 3
+    maxItems: 3
+    description: Values for BSTDBG1-3 registers
+
+  awinic,tset:
+    $ref: /schemas/types.yaml#/definitions/uint8
+    description: Value for TSET register
+
+  awinic,r-spare:
+    $ref: /schemas/types.yaml#/definitions/uint8
+    description: Value for R_SPARE register
+
+  awinic,bemf-upper-threshold:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Back EMF (electromotive force) upper threshold
+
+  awinic,bemf-lower-threshold:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Back EMF (electromotive force) lower threshold
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - reset-gpios
+  - awinic,f0-preset
+  - awinic,f0-coefficient
+  - awinic,f0-calibration-percent
+  - awinic,drive-level
+  - awinic,f0-detection-play-time
+  - awinic,f0-detection-wait-time
+  - awinic,f0-detection-repeat
+  - awinic,f0-detection-trace
+  - awinic,boost-debug
+  - awinic,tset
+  - awinic,r-spare
+  - awinic,bemf-upper-threshold
+  - awinic,bemf-lower-threshold
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    #include <dt-bindings/interrupt-controller/irq.h>
+    i2c {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        haptics@5a {
+            compatible = "awinic,aw8695";
+            reg = <0x5a>;
+            interrupts-extended = <&tlmm 85 IRQ_TYPE_EDGE_FALLING>;
+            reset-gpios = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+
+            awinic,f0-preset = <2350>;
+            awinic,f0-coefficient = <260>;
+            awinic,f0-calibration-percent = <7>;
+            awinic,drive-level = <125>;
+
+            awinic,f0-detection-play-time = <5>;
+            awinic,f0-detection-wait-time = <3>;
+            awinic,f0-detection-repeat = <2>;
+            awinic,f0-detection-trace = <15>;
+
+            awinic,boost-debug = /bits/ 8 <0x30 0xeb 0xd4>;
+            awinic,tset = /bits/ 8 <0x12>;
+            awinic,r-spare = /bits/ 8 <0x68>;
+
+            awinic,bemf-upper-threshold = <4104>;
+            awinic,bemf-lower-threshold = <1016>;
+        };
+    };
