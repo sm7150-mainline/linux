@@ -1,0 +1,169 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2023, Danila Tikhonov <danila@jiaxyga.com>
+ * Copyright (c) 2023, David Wronek <davidwronek@gmail.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/ {
+	/*
+	 * Xiaomi POCO X3 (karna)
+	 * Xiaomi POCO X3 NFC (surya)
+	 */
+	model = "Xiaomi POCO X3 NFC";
+	compatible = "xiaomi,surya", "qcom,sm7150";
+
+	qcom,board-id = <34 0>;
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
+		};
+	};
+
+	reserved-memory {
+		framebuffer_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			no-map;
+		};
+
+		/*
+		 * The rmtfs memory region in downstream is 'dynamically allocated'
+		 * but given the same address every time. Hard code it as this address is
+		 * where the modem firmware expects it to be.
+		 */
+		rmtfs_mem: memory@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x600000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&apps_rsc {
+	regulators-0 {
+		vreg_l18a_2p8: ldo18 {
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1904000>;
+		};
+	};
+
+	regulators-1 {
+		vreg_l7c_3p0: ldo7 {
+			//regulator-always-on;
+		};
+
+		vreg_l8c_1p8: ldo8 {
+			//regulator-always-on;
+		};
+	};
+};
+
+&pm8150l_flash {
+	status = "okay";
+};
+
+&pm8150l_lpg {
+	status = "okay";
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* awinic,aw8624 (haptic) @ 5a */
+};
+
+&i2c2 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nqx,nq-nci nxp55303 (nfc) @ 28 */
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ovti,wl2866d (cam regulator) @ 28 */
+
+	fsa4480: switcher@43 {
+		compatible = "fcs,fsa4480";
+		reg = <0x43>;
+
+		interrupts-extended = <&tlmm 42 IRQ_TYPE_LEVEL_LOW>;
+
+		vcc-supply = <&vreg_bob>;
+
+		mode-switch;
+		orientation-switch;
+	};
+
+	tas2564: codec@4c {
+		compatible = "ti,tas2564";
+		reg = <0x4c>;
+		#sound-dai-cells = <1>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&reset_stat_default>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <30 IRQ_TYPE_EDGE_FALLING>,
+			     <58 IRQ_TYPE_EDGE_FALLING>;
+		shutdown-gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		ti,vmon-slot-no = <0>;
+		ti,imon-slot-no = <0>;
+	};
+
+	/* ti,bq25968 (charger) @ 65 */
+};
+
+&ipa {
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
+	status = "okay";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/surya/adsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/surya/cdsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/surya/modem.mbn";
+	status = "okay";
+};
+
+&sdhc_2 {
+	cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&spi0 {
+	clock-frequency = <50000000>;
+	status = "okay";
+
+	/* novatek,NVT-ts @ 0 */
+};
+
+&tlmm {
+	gpio-reserved-ranges = <59 4>;
+};
