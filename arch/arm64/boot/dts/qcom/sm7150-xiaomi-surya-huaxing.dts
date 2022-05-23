@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-surya.dtsi"
+
+/ {
+	/*
+	 * Xiaomi POCO X3 (karna)
+	 * Xiaomi POCO X3 NFC (surya)
+	 */
+	model = "Xiaomi POCO X3 NFC (Huaxing)";
+	compatible = "xiaomi,surya", "qcom,sm7150";
+};
+
+&nt36xxx {
+	firmware-name = "novatek_ts_huaxing_fw.bin";
+};
+
+&panel {
+	compatible = "huaxing,nt36672c";
+};
