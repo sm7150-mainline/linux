@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * SM7150-AC Xiaomi POCO X3 NFC specific device tree
+ *
+ * Copyright (c) 2022, The Linux Foundation. All rights reserved.
+ */
+
+/dts-v1/;
+
+#include "sm7150.dtsi"
+#include "pm6150.dtsi"
+#include "pm8150l.dtsi"
+
+/ {
+	model = "Xiaomi POCO X3 NFC";
+	compatible = "xiaomi,surya", "qcom,sm7150";
+	chassis-type = "handset";
+
+	qcom,msm-id = <0x16d 0x00>;
+	qcom,board-id = <0x22 0x00>;
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+};
