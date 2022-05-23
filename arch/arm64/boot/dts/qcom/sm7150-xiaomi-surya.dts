@@ -1,0 +1,460 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ * Copyright (c) 2024, David Wronek <davidwronek@gmail.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/ {
+	/*
+	 * Xiaomi POCO X3 (karna)
+	 * Xiaomi POCO X3 NFC (surya)
+	 */
+	model = "Xiaomi POCO X3 NFC";
+	compatible = "xiaomi,surya", "qcom,sm7150";
+
+	qcom,board-id = <34 0>;
+
+	vreg_wide_ldo_avdd2: regulator-wide-ldo-avdd2 {
+		compatible = "regulator-fixed";
+		regulator-name = "wide_ldo_avdd2";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm6150l_gpios 4 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_uw_ldo_ois_drv: regulator-vreg-uw-ldo-ois-drv {
+		compatible = "regulator-fixed";
+		regulator-name = "uw_ldo_ois_drv";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&tlmm 65 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_camera_vdig: regulator-camera-vdig {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdig";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm6150l_gpios 12 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <233>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_camera_mipi_switch_en: gpio-camera-mipi-switch-en {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_mipi_switch_en";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm6150_gpios 2 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <233>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	reserved-memory {
+		rmtfs_mem: rmtfs@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&cci0_i2c0 {
+	/* Sony IMX682 Main @ 50 */
+};
+
+&cci0_i2c1 {
+	/* OmniVision ov02b1b Depth @ 50 */
+};
+
+&cci1_i2c0 {
+	/* Samsung S5K3T2 Front @ ? */
+	/* Sk Hynix Hi-259 Macro @ ? */
+	/* Sk Hynix Hi-1337 Ultrawide @ ? */
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/surya/a615_zap.mbn";
+	};
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	haptics@5a {
+		compatible = "awinic,aw8624";
+		reg = <0x5a>;
+		interrupts-extended = <&tlmm 26 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&tlmm 63 GPIO_ACTIVE_HIGH>;
+
+		awinic,f0-preset = <2050>;
+		awinic,f0-coefficient = <260>;
+		awinic,f0-calibration-percent = <7>;
+		awinic,drive-level = <100>;
+
+		awinic,f0-detection-play-time = <9>;
+		awinic,f0-detection-wait-time = <5>;
+		awinic,f0-detection-repeat = <1>;
+		awinic,f0-detection-trace = <15>;
+
+		awinic,boost-debug = /bits/ 8 <0x1b 0x1b 0x16>; // ?
+		awinic,tset = /bits/ 8 <0x11>;
+		awinic,r-spare = /bits/ 8 <0x68>;
+
+		awinic,bemf-upper-threshold = <4000>; // ?
+		awinic,bemf-lower-threshold = <2500>; // ?
+	};
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ovti,wl2866d (cam regulator) @ 28 */
+
+	tas2562: codec@4c { /* SPK */
+		compatible = "ti,tas2562";
+		reg = <0x4c>;
+		#sound-dai-cells = <1>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <30 IRQ_TYPE_NONE>;
+		shutdown-gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		ti,imon-slot-no = <0>;
+		ti,vmon-slot-no = <2>;
+		sound-name-prefix = "Right";
+	};
+
+	tas2564: codec@4d { /* EAR */
+		compatible = "ti,tas2564";
+		reg = <0x4d>;
+		#sound-dai-cells = <1>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <58 IRQ_TYPE_NONE>;
+		shutdown-gpios = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
+		ti,imon-slot-no = <1>;
+		ti,vmon-slot-no = <3>;
+		sound-name-prefix = "Left";
+	};
+
+	/* ti,bq25968 (charger) @ 65 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
+};
+
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA0",
+			  "SWR_TX_DATA1",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA0",
+			  "SWR_RX_DATA1",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "LPI_QCA_SB_DATA",
+			  "LPI_QCA_SB_CLK";
+};
+
+&nfc_default {
+	pins = "gpio12", "gpio31", "gpio36", "gpio94";
+};
+
+&nfc_sleep {
+	pins = "gpio12", "gpio31", "gpio36", "gpio94";
+};
+
+&panel {
+	compatible = "huaxing,nt36672c";
+
+	vddio-supply = <&vreg_l18a_2p8>;
+	/delete-property/ vdd3p3-supply;
+
+	backlight = <&pm6150l_wled>;
+
+	pinctrl-0 = <&panel_reset_pin &panel_te_pin &panel_esd_pin>;
+};
+
+&pm6150_gpios {
+	gpio-line-names = "BOARD_ADC0", /* GPIO_1 */
+			  "NC",
+			  "CAM_SW2_OE_2",
+			  "CAM_2M_DEPTH_IOVDD1P8_EN",
+			  "SLB",
+			  "PWDN",
+			  "NC",
+			  "WCSS_PWR_REQ",
+			  "NC",
+			  "PL_EN"; /* GPIO_10 */
+};
+
+&pm6150l_flash {
+	status = "okay";
+};
+
+&pm6150l_gpios {
+	gpio-line-names = "8M/13M_DVDD_1P1_EN", /* GPIO_1 */
+			  "KYPD_VOLP_N",
+			  "NC",
+			  "64M_AVDD0_1P8_EN",
+			  "LCD_NTC",
+			  "BOARD_ADC1",
+			  "SLB",
+			  "AUDIO_PA_RST2",
+			  "DISP0_RESET_N",
+			  "NVM_THERM", /* GPIO_10 */
+			  "GPIO11_ID",
+			  "20M_DVDD1_1P05_EN";
+};
+
+&pm6150l_lpg {
+	status = "okay";
+};
+
+&pm6150l_wled {
+	qcom,current-limit-microamp = <25000>;
+
+	status = "okay";
+};
+
+&q6afedai {
+	qi2s@20 {
+		reg = <TERTIARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/surya/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/surya/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/surya/modem.mbn";
+};
+
+&sdhc_2 {
+	status = "okay";
+};
+
+&sound {
+	compatible = "qcom,sm8250-sndcard";
+	pinctrl-0 = <&ter_mi2s_active>;
+	pinctrl-names = "default";
+	model = "POCO X3";
+
+	mm1-dai-link {
+		link-name = "MultiMedia1";
+		cpu {
+			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+		};
+	};
+
+	i2s-dai-link {
+		link-name = "I2S Playback";
+		cpu {
+			sound-dai = <&q6afedai TERTIARY_MI2S_RX>;
+		};
+
+		platform {
+			sound-dai = <&q6routing>;
+		};
+
+		codec {
+			sound-dai = <&tas2562 0>, <&tas2564 0>;
+		};
+	};
+};
+
+&spi0 {
+	clock-frequency = <8000000>;
+	status = "okay";
+
+	touchscreen@0 {
+		compatible = "novatek,nt36xxx-spi";
+		reg = <0>;
+
+		spi-max-frequency = <8000000>;
+
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-names = "default", "sleep";
+
+		reset-gpio = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 9 IRQ_TYPE_EDGE_FALLING>;
+
+		vio-supply = <&vreg_l18a_2p8>;
+
+		panel = <&panel>;
+
+		firmware-name =
+			"qcom/sm7150/surya/novatek_ts_huaxing_fw.bin";
+	};
+};
+
+&tlmm {
+	/* Reserved I/Os for FP */
+	gpio-reserved-ranges = <59 4>;
+
+	gpio-line-names = "GP_HP_SDA", /* GPIO_0 */
+			  "GP_HP_SCL",
+			  "NC",
+			  "NC",
+			  "LCD_ERR_INT_N",
+			  "ANT_CHECK",
+			  "DS28E16_1_WIRE",
+			  "LDM_ID1",
+			  "TP_RST",
+			  "TP_INT",
+			  "LCD_TE", /* GPIO_10 */
+			  "ALSPG_INT_N",
+			  "NFC_ENABLE",
+			  "CAM_MCLK0",
+			  "CAM_MCLK1",
+			  "CAM_MCLK2",
+			  "CAM_MCLK3",
+			  "CC_I2C_SDA0",
+			  "CC_I2C_SCL0",
+			  "CC_I2C_SDA1",
+			  "CC_I2C_SCL1", /* GPIO_20 */
+			  "CLK_BUFFER_2",
+			  "NC",
+			  "CAM4_RST_N",
+			  "CAM3_RST_N",
+			  "CAM1_RST_N",
+			  "HAPTIC_INT_N",
+			  "CC_I2C_SDA2",
+			  "CC_I2C_SCL2",
+			  "NC",
+			  "AUDIO_INT1",  /* GPIO_30 */
+			  "NFC_CLK_REQ",
+			  "CLK_BUFFER_3",
+			  "CLK_BUFFER_4",
+			  "NFC_I2C_SDA",
+			  "NFC_I2C_SCL",
+			  "NFC_DWL_REQ",
+			  "NFC_IRQ",
+			  "BT_UART_CTS",
+			  "BT_UART_RFR",
+			  "BT_UART_TX", /* GPIO_40 */
+			  "BT_UART_RX",
+			  "SVDD_PWR_REQ",
+			  "CHARGER_INT",
+			  "DBG_UART_TX",
+			  "DBG_UART_RX",
+			  "AUDIO_I2C_SDA",
+			  "AUDIO_I2C_SCL",
+			  "FORCE_USB_BOOT",
+			  "TS_SPI_MISO",
+			  "TS_SPI_MOSI", /* GPIO_50 */
+			  "TS_SPI_CLK",
+			  "TS_SPI_CS_N",
+			  "LPI_MI2S_1_SCK",
+			  "LPI_MI2S_1_WS",
+			  "LPI_MI2S_1_DATA0",
+			  "LPI_MI2S_1_DATA1",
+			  "CHIP_EN",
+			  "AUDIO_INT2",
+			  "FP_SPI_MISO",
+			  "FP_SPI_MOSI", /* GPIO_60 */
+			  "FP_SPI_CLK",
+			  "FP_SPI_CS",
+			  "HAPTIC_RST_N",
+			  "CAM5_RST_N",
+			  "DRV_VDD2P8_EN",
+			  "64M_AF_EN",
+			  "SAR_CAP_INI",
+			  "CLK_BUFFER_1",
+			  "SD_CARD_DET_N",
+			  "NC", /* GPIO_70 */
+			  "LDM_IDO",
+			  "CAM0_RST_N",
+			  "WLAN_SW_CTRL",
+			  "PRX_TUNER_SW3",
+			  "UIM2_DATA",
+			  "UIM2_CLK",
+			  "UIM2_RESET",
+			  "UIM2_PRESENT",
+			  "UIM1_DATA",
+			  "UIM1_CLK", /* GPIO_80 */
+			  "UIM1_RESET",
+			  "UIM1_PRESENT",
+			  "PRX_TUNER_SW1",
+			  "ANT_CHECK_DIV",
+			  "WMSS_RESET_N",
+			  "GINT1",
+			  "GINT2",
+			  "8M_AFVDD_2P8_EN",
+			  "FP_INT_N",
+			  "FP_RESET_N", /* GPIO_90 */
+			  "AUDIO_PA_RST1",
+			  "NC",
+			  "CAM2_RST_N",
+			  "SWITCH_SEL1",
+			  "DPDT_TUNER_SW",
+			  "QLINK_REQUEST",
+			  "QLINK_ENABLE",
+			  "LNA_PRX_B1_EN",
+			  "DRX_TUNER_SW4",
+			  "DRX_ANT_EN", /* GPIO_100 */
+			  "NC",
+			  "IR_EN_SPI_MOSI",
+			  "NC",
+			  "USB_PHY_PS",
+			  "RFFE5_DATA",
+			  "RFFE5_CLK",
+			  "LNA_DRX_B7B38B41_EN_v2",
+			  "MSS_LTE_COXM_TXD",
+			  "MSS_LTE_COXM_RXD",
+			  "RFFE2_DATA", /* GPIO_110 */
+			  "RFFE2_CLK",
+			  "RFFE1_DATA",
+			  "RFFE1_CLK";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/surya/venus.mbn";
+};
+
+&vreg_l18a_2p8 {
+	regulator-min-microvolt = <1696000>;
+	regulator-max-microvolt = <1904000>;
+};
