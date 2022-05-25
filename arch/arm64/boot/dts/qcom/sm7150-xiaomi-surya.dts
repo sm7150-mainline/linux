@@ -37,5 +37,28 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+
+		framebuffer_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
+			no-map;
+		};
+
+		ramoops@9d800000 {
+			compatible = "ramoops";
+			reg = <0x0 0x9d800000 0x0 0x00400000>;
+
+			record-size = <0x80000>;
+			pmsg-size = <0x200000>;
+			console-size = <0x100000>;
+		};
+
+		rmtfs_mem: memory@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <15>;
+		};
 	};
 };
