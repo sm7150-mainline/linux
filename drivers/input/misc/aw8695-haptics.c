@@ -657,6 +657,8 @@ static int aw8695_haptics_play(struct input_dev *dev, void *data,
 	return 0;
 }
 
+static void aw8695_hw_reset(struct aw8695_data *haptics); // FIXME
+
 static int aw8695_haptics_stop(struct aw8695_data *haptics)
 {
 	int err;
@@ -672,6 +674,8 @@ static int aw8695_haptics_stop(struct aw8695_data *haptics)
 			(read_buf & 0x0f) == 0, 2000, 2000 * 100);
 	if (err) {
 		dev_err(dev, "Did not enter standby: %d\n", err);
+		// FIXME
+		aw8695_hw_reset(haptics);
 		return err;
 	}
 
