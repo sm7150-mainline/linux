@@ -144,6 +144,7 @@
 #define Q6AFE_LPASS_CORE_AVTIMER_BLOCK			0x2
 #define Q6AFE_LPASS_CORE_HW_MACRO_BLOCK			0x3
 #define Q6AFE_LPASS_CORE_HW_DCODEC_BLOCK		0x4
+#define Q6AFE_LPASS_CORE_HW_VOTE_MAX			0x5
 
 /* Clock attribute for invalid use (reserved for internal usage) */
 #define Q6AFE_LPASS_CLK_ATTRIBUTE_INVALID		0x0
