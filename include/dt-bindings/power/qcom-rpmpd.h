@@ -48,6 +48,16 @@
 #define SM6375_VDD_LPI_CX	8
 #define SM6375_VDD_LPI_MX	9
 
+/* SM7150 Power Domain Indexes */
+#define SM7150_CX	0
+#define SM7150_CX_AO	1
+#define SM7150_GFX	2
+#define SM7150_LCX	3
+#define SM7150_LMX	4
+#define SM7150_MSS	5
+#define SM7150_MX	6
+#define SM7150_MX_AO	7
+
 /* SM8150 Power Domain Indexes */
 #define SM8150_MSS	0
 #define SM8150_EBI	1
