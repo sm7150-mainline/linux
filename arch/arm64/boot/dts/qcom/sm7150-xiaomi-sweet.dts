@@ -1,0 +1,289 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ * Copyright (c) 2024, Kali Prasad <kprasadvnsi@protonmail.com>
+ * Copyright (c) 2024, Salvatore Stella <salvatore.stella@univaq.it>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&adsp_mem {
+	reg = <0x0 0x95700000 0x0 0x2600000>;
+};
+
+&tz_mem {
+	reg = <0x0 0x86200000 0x0 0x4900000>;
+};
+
+/ {
+	model = "Xiaomi Redmi Note 10 Pro";
+	compatible = "xiaomi,sweet", "qcom,sm7150";
+
+	qcom,board-id = <46 0>;
+
+	chosen {
+		/*
+		 * Serial engine with the debug UART operates in SPI mode on sweet
+		 * So disable console and remove stdout-path
+		 */
+		/delete-property/ stdout-path;
+		bootargs = "console=null";
+	};
+
+	reserved-memory {
+		wlan_msa_mem: wlan@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97f10000 {
+			reg = <0x0 0x97f10000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97f15000 {
+			reg = <0x0 0x97f15000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+
+	sound {
+		compatible = "qcom,sm8250-sndcard";
+		pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
+		pinctrl-names = "default";
+		model = "Redmi Note 10 Pro";
+
+		mm1-dai-link {
+			link-name = "MultiMedia1";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		speaker_playback_dai {
+			link-name = "Primary Spkr Playback";
+			cpu {
+				sound-dai = <&q6afedai PRIMARY_MI2S_RX>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&speaker_amp>;
+			};
+		};
+	};
+
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+		regulator-name = "ibb";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+		regulator-name = "lab";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_ts_vddio: regulator-ts-vddio {
+		compatible = "regulator-fixed";
+		regulator-name = "vreg_ts_vddio";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+		startup-delay-us = <4000>;
+	};
+};
+
+&dispcc {
+	status = "okay";
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/xiaomi/sweet/a615_zap.mbn";
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* Speaker */
+        speaker_amp: audio-codec@34 {
+		compatible = "awinic,aw88263s";
+		reg = <0x34>;
+
+		reset-gpios = <&tlmm 64 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 93 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&amp_t_int_default>;
+
+		awinic,audio-channel = <0>;
+		awinic,sync-flag;
+
+		sound-name-prefix = "Speaker";
+		#sound-dai-cells = <0>;
+        };
+
+	/* Microphone */
+	mic_amp: audio-codec@35 {
+		compatible = "awinic,aw88263s";
+		reg = <0x35>;
+
+		reset-gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 56 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&amp_b_int_default>;
+
+		awinic,audio-channel = <1>;
+		awinic,sync-flag;
+
+		sound-name-prefix = "Microphone";
+		#sound-dai-cells = <0>;
+        };
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	touchscreen: goodix@5d {
+		compatible = "goodix,gt9896";
+		reg = <0x5d>;
+		interrupts-extended = <&tlmm 9 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
+		avdd-supply = <&vreg_l11c_3p3>;
+		vddio-supply = <&vreg_ts_vddio>;
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2400>;
+	};
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ovti,wl2866d (cam regulator) @ 28 */
+	/* lionsemi,ln8000 (charger) @ 51 */
+	/* awinic,aw8624 (haptics) @ 5a */
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/xiaomi/sweet/ipa_fws.mbn";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio66";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio66";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 66 GPIO_ACTIVE_HIGH>;
+};
+
+&panel {
+	compatible = "samsung,ams667yr01";
+
+	vsn-supply = <&vreg_ibb>;
+	vsp-supply = <&vreg_lab>;
+};
+
+&q6afedai {
+	qi2s@16 {
+		reg = <PRIMARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <MSM_FRONTEND_DAI_MULTIMEDIA1>;
+	};
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/xiaomi/sweet/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/xiaomi/sweet/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/xiaomi/sweet/modem.mbn";
+};
+
+&sdhc_2 {
+	status = "okay";
+};
+
+&tlmm {
+	amp_t_int_default: amp-t-int-default-state {
+		pins = "gpio93";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
+
+	amp_b_int_default: amp-b-int-default-state {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/xiaomi/sweet/venus.mbn";
+};
+
+&wifi {
+	qcom,ath10k-calibration-variant = "xiaomi_sweet";
+};
