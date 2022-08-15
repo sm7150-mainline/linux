@@ -376,3 +376,23 @@
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
 };
+
+&usb_1 {
+	status = "okay";
+
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_1_dwc3 {
+	status = "okay";
+
+	maximum-speed = "high-speed";
+	dr_mode = "peripheral";
+};
+
+&usb_1_hsphy {
+	status = "okay";
+	vdd-supply = <&vreg_l4a_0p88>;
+	vdda-pll-supply = <&vreg_l11a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l17a_3p1>;
+};
