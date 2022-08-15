@@ -312,6 +312,12 @@
 			no-map;
 		};
 
+		cmd_db: memory@85f20000 {
+			compatible = "qcom,cmd-db";
+			reg = <0x0 0x85f20000 0x0 0x20000>;
+			no-map;
+		};
+
 		/*sec_apps_mem: memory@85fff000 {
 			reg = <0x0 0x85fff000 0x0 0x1000>;
 			no-map;
