@@ -30,6 +30,7 @@ properties:
           - qcom,sc7280-pdc
           - qcom,sdm845-pdc
           - qcom,sm6350-pdc
+          - qcom,sm7150-pdc
           - qcom,sm8150-pdc
           - qcom,sm8250-pdc
           - qcom,sm8350-pdc
