@@ -353,6 +353,38 @@
 	};
 };
 
+&gpi_dma0 {
+	status = "okay";
+};
+
+&gpi_dma1 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/* awinic,aw8624 (haptic) @ 5a */
+};
+
+&i2c2 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/* nqx,nq-nci (nfc) @ 28 */
+};
+
+&i2c9 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/* ovti,wl2866d (cam regulator) @ 28 */
+	/* fcs,fsa4480 (usb analog audio switcher) @ 43 */
+	/* ti,tas2564 (speaker amplifier) @ 4c */
+	/* ti,bq2597x (charger) @ 65 */
+};
+
 &pm6150_pon {
 	pm6150_resin: resin {
 		compatible = "qcom,pm8941-resin";
@@ -371,6 +403,14 @@
 		bias-pull-up;
 		power-source = <0>;
 	};
+};
+
+&qupv3_id_0 {
+	status = "okay";
+};
+
+&qupv3_id_1 {
+	status = "okay";
 };
 
 &remoteproc_cdsp {
@@ -393,6 +433,18 @@
 	vqmmc-supply = <&vreg_l6c_3p0>;
 
 	cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+};
+
+&spi0 {
+	status = "okay";
+
+	/* novatek,NVT-ts @ 0 */
+};
+
+&spi11 {
+	status = "okay";
+
+	/* qcom,spi-msm-codec-slave @ 1 */
 };
 
 &tlmm {
