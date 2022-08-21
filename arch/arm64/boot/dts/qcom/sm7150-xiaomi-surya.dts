@@ -23,6 +23,13 @@
 	qcom,msm-id = <0x16d 0x00>;
 	qcom,board-id = <0x22 0x00>;
 
+	bat: battery {
+		compatible = "simple-battery";
+		charge-full-design-microamp-hours = <5160000>;
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4400000>;
+	};
+
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -382,7 +389,20 @@
 	/* ovti,wl2866d (cam regulator) @ 28 */
 	/* fcs,fsa4480 (usb analog audio switcher) @ 43 */
 	/* ti,tas2564 (speaker amplifier) @ 4c */
-	/* ti,bq2597x (charger) @ 65 */
+
+	charger: bq2597x@65 {
+		compatible = "ti,bq25975";
+		reg = <0x65>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <42 IRQ_TYPE_EDGE_FALLING>;
+		pinctrl-names = "bq_charger_active", "bq_charger_suspend";
+		pinctrl-0 = <&bq_charger_int_active>;
+		pinctrl-1 = <&bq_charger_int_suspend>;
+		ti,watchdog-timeout-ms = <0>;
+		ti,sc-ocp-limit-microamp = <5750000>; //FIXME (5750000 - 5750000)
+		ti,sc-ovp-limit-microvolt = <7000000>; //FIXME (7000000 - 12750000)
+		monitored-battery = <&bat>;
+	};
 };
 
 &pm6150_pon {
@@ -449,6 +469,32 @@
 
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
+
+	bq_charger_int_active: bq_charger_int_active {
+		mux {
+			pins = "gpio43";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio43";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+
+	bq_charger_int_suspend: bq_charger_int_suspend {
+		mux {
+			pins = "gpio43";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio43";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
 
 	sdc2_on: sdc2-on {
 		pinconf-clk {
