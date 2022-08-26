@@ -388,7 +388,20 @@
 
 	/* ovti,wl2866d (cam regulator) @ 28 */
 	/* fcs,fsa4480 (usb analog audio switcher) @ 43 */
-	/* ti,tas2564 (speaker amplifier) @ 4c */
+
+	codec: tas2564@4c {
+		compatible = "ti,tas2564";
+		reg = <0x4c>;
+		#sound-dai-cells = <1>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&reset_stat_default>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <30 IRQ_TYPE_EDGE_FALLING>,
+			     <58 IRQ_TYPE_EDGE_FALLING>;
+		shutdown-gpios = <&tlmm 91 0>;
+		ti,vmon-slot-no = <0>;
+		ti,imon-slot-no = <0>;
+	};
 
 	charger: bq2597x@65 {
 		compatible = "ti,bq25975";
@@ -422,6 +435,14 @@
 		input-enable;
 		bias-pull-up;
 		power-source = <0>;
+	};
+
+	reset_stat_default: reset_stat_default {
+		pins = "gpio8";
+		function = "normal";
+		power-source = <1>;
+		output-low;
+		input-disable;
 	};
 };
 
