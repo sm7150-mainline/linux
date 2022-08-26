@@ -387,7 +387,23 @@
 	clock-frequency = <100000>;
 
 	/* ovti,wl2866d (cam regulator) @ 28 */
-	/* fcs,fsa4480 (usb analog audio switcher) @ 43 */
+
+	switcher: fsa4480@43 {
+		compatible = "fcs,fsa4480";
+		reg = <0x43>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&fsa_usbc_ana_en>;
+
+		mode-switch;
+		orientation-switch;
+
+		/*port {
+			fsa4480_ept: endpoint {
+			remote-endpoint = <&typec_controller>;
+			};
+		;*/
+	};
 
 	codec: tas2564@4c {
 		compatible = "ti,tas2564";
@@ -490,6 +506,20 @@
 
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
+
+	fsa_usbc_ana_en: fsa_usbc_ana_en {
+		mux {
+			pins = "gpio42";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio42";
+			drive-strength = <2>;
+			bias-disable;
+			output-low;
+		};
+	};
 
 	bq_charger_int_active: bq_charger_int_active {
 		mux {
