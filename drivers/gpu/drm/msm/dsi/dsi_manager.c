@@ -7,6 +7,7 @@
 
 #include "msm_kms.h"
 #include "dsi.h"
+#include "drm/msm_drm_notify.h"
 
 #define DSI_CLOCK_MASTER	DSI_0
 #define DSI_CLOCK_SLAVE		DSI_1
@@ -301,6 +302,7 @@ static void dsi_mgr_bridge_pre_enable(struct drm_bridge *bridge)
 	struct msm_dsi *msm_dsi = dsi_mgr_get_dsi(id);
 	struct msm_dsi *msm_dsi1 = dsi_mgr_get_dsi(DSI_1);
 	struct mipi_dsi_host *host = msm_dsi->host;
+	struct msm_drm_notifier notify_data;
 	bool is_bonded_dsi = IS_BONDED_DSI();
 	int ret;
 
@@ -317,6 +319,10 @@ static void dsi_mgr_bridge_pre_enable(struct drm_bridge *bridge)
 		dev_err(&msm_dsi->pdev->dev, "Power on failed: %d\n", ret);
 		return;
 	}
+
+	notify_data.data = DRM_BLANK_UNBLANK;
+	notify_data.id = MSM_DRM_PRIMARY_DISPLAY;
+	msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK, &notify_data);
 
 	ret = msm_dsi_host_enable(host);
 	if (ret) {
@@ -359,6 +365,7 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
 	struct msm_dsi *msm_dsi = dsi_mgr_get_dsi(id);
 	struct msm_dsi *msm_dsi1 = dsi_mgr_get_dsi(DSI_1);
 	struct mipi_dsi_host *host = msm_dsi->host;
+	struct msm_drm_notifier notify_data;
 	bool is_bonded_dsi = IS_BONDED_DSI();
 	int ret;
 
@@ -366,6 +373,10 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
 
 	if (!msm_dsi_device_connected(msm_dsi))
 		return;
+
+	notify_data.data = DRM_BLANK_POWERDOWN;
+	notify_data.id = MSM_DRM_PRIMARY_DISPLAY;
+	msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK, &notify_data);
 
 	/*
 	 * Do nothing with the host if it is slave-DSI in case of bonded DSI.
