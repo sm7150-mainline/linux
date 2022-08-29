@@ -211,6 +211,7 @@ static const struct qcom_cc_desc gpu_cc_sc7180_desc = {
 
 static const struct of_device_id gpu_cc_sc7180_match_table[] = {
 	{ .compatible = "qcom,sc7180-gpucc" },
+	{ .compatible = "qcom,sm7150-gpucc" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, gpu_cc_sc7180_match_table);

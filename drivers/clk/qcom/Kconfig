@@ -438,10 +438,10 @@ config SC_GCC_8280XP
 	  I2C, USB, UFS, SDCC, etc.
 
 config SC_GPUCC_7180
-	tristate "SC7180 Graphics Clock Controller"
+	tristate "SC7180/SM7150 Graphics Clock Controller"
 	select SC_GCC_7180
 	help
-	  Support for the graphics clock controller on SC7180 devices.
+	  Support for the graphics clock controller on SC7180/SM7150 devices.
 	  Say Y if you want to support graphics controller devices and
 	  functionality such as 3D graphics.
 
