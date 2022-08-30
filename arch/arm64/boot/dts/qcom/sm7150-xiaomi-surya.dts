@@ -24,6 +24,12 @@
 	qcom,msm-id = <0x16d 0x00>;
 	qcom,board-id = <0x22 0x00>;
 
+	aliases {
+		bluetooth0 = &bluetooth;
+		hsuart0 = &uart3;
+		wifi0 = &wifi;
+	};
+
 	bat: battery {
 		compatible = "simple-battery";
 		charge-full-design-microamp-hours = <5160000>;
@@ -590,6 +596,34 @@
 		};
 	};
 
+	qup_uart3_sleep: qup-uart3-sleep {
+		pinmux {
+			pins = "gpio38", "gpio39",
+			       "gpio40", "gpio41";
+			function = "gpio";
+		};
+
+		pinconf-cts {
+			pins = "gpio38";
+			bias-pull-down;
+		};
+
+		pinconf-rts {
+			pins = "gpio39";
+			bias-pull-down;
+		};
+
+		pinconf-tx {
+			pins = "gpio40";
+			bias-pull-up;
+		};
+
+		pinconf-rx {
+			pins = "gpio41";
+			bias-pull-up;
+		};
+	};
+
 	sdc2_on: sdc2-on {
 		pinconf-clk {
 			pins = "sdc2_clk";
@@ -640,6 +674,27 @@
 			bias-pull-up;
 			drive-strength = <2>;
 		};
+	};
+};
+
+&uart3 {
+	status = "okay";
+
+	/delete-property/interrupts;
+	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
+			      <&tlmm 41 IRQ_TYPE_EDGE_FALLING>;
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-1 = <&qup_uart3_sleep>;
+
+	bluetooth: bluetooth {
+		compatible = "qcom,wcn3990-bt";
+
+		vddio-supply = <&vreg_l10a_1p8>;
+		vddxo-supply = <&vreg_l1c_1p8>;
+		vddrf-supply = <&vreg_l2c_1p3>;
+		vddch0-supply = <&vreg_l10c_3p3>;
+		max-speed = <3200000>;
 	};
 };
 
