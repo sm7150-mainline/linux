@@ -1089,7 +1089,7 @@ static struct clk_branch gcc_boot_rom_ahb_clk = {
 	},
 };
 
-static struct clk_branch gcc_camera_ahb_clk = {
+/*static struct clk_branch gcc_camera_ahb_clk = {
 	.halt_reg = 0xb008,
 	.halt_check = BRANCH_HALT,
 	.hwcg_reg = 0xb008,
@@ -1103,7 +1103,7 @@ static struct clk_branch gcc_camera_ahb_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_camera_hf_axi_clk = {
 	.halt_reg = 0xb020,
@@ -1131,7 +1131,7 @@ static struct clk_branch gcc_camera_sf_axi_clk = {
 	},
 };
 
-static struct clk_branch gcc_camera_xo_clk = {
+/*static struct clk_branch gcc_camera_xo_clk = {
 	.halt_reg = 0xb02c,
 	.halt_check = BRANCH_HALT,
 	.clkr = {
@@ -1143,7 +1143,7 @@ static struct clk_branch gcc_camera_xo_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_ce1_ahb_clk = {
 	.halt_reg = 0x4100c,
@@ -1253,7 +1253,7 @@ static struct clk_branch gcc_ddrss_gpu_axi_clk = {
 	},
 };
 
-static struct clk_branch gcc_disp_ahb_clk = {
+/*static struct clk_branch gcc_disp_ahb_clk = {
 	.halt_reg = 0xb00c,
 	.halt_check = BRANCH_HALT,
 	.hwcg_reg = 0xb00c,
@@ -1267,7 +1267,7 @@ static struct clk_branch gcc_disp_ahb_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_disp_gpll0_clk_src = {
 	.halt_check = BRANCH_HALT_DELAY,
@@ -1327,7 +1327,7 @@ static struct clk_branch gcc_disp_sf_axi_clk = {
 	},
 };
 
-static struct clk_branch gcc_disp_xo_clk = {
+/*static struct clk_branch gcc_disp_xo_clk = {
 	.halt_reg = 0xb030,
 	.halt_check = BRANCH_HALT,
 	.clkr = {
@@ -1339,7 +1339,7 @@ static struct clk_branch gcc_disp_xo_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_gp1_clk = {
 	.halt_reg = 0x64000,
@@ -1395,7 +1395,7 @@ static struct clk_branch gcc_gp3_clk = {
 	},
 };
 
-static struct clk_branch gcc_gpu_cfg_ahb_clk = {
+/*static struct clk_branch gcc_gpu_cfg_ahb_clk = {
 	.halt_reg = 0x71004,
 	.halt_check = BRANCH_HALT,
 	.hwcg_reg = 0x71004,
@@ -1409,7 +1409,7 @@ static struct clk_branch gcc_gpu_cfg_ahb_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_gpu_gpll0_clk_src = {
 	.halt_check = BRANCH_HALT_DELAY,
@@ -2708,7 +2708,7 @@ static struct clk_branch gcc_vddmx_vs_clk = {
 	},
 };
 
-static struct clk_branch gcc_video_ahb_clk = {
+/*static struct clk_branch gcc_video_ahb_clk = {
 	.halt_reg = 0xb004,
 	.halt_check = BRANCH_HALT,
 	.hwcg_reg = 0xb004,
@@ -2722,7 +2722,7 @@ static struct clk_branch gcc_video_ahb_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_video_axi_clk = {
 	.halt_reg = 0xb01c,
@@ -2737,7 +2737,7 @@ static struct clk_branch gcc_video_axi_clk = {
 	},
 };
 
-static struct clk_branch gcc_video_xo_clk = {
+/*static struct clk_branch gcc_video_xo_clk = {
 	.halt_reg = 0xb028,
 	.halt_check = BRANCH_HALT,
 	.clkr = {
@@ -2749,7 +2749,7 @@ static struct clk_branch gcc_video_xo_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct clk_branch gcc_vs_ctrl_ahb_clk = {
 	.halt_reg = 0x7a014,
@@ -2784,7 +2784,7 @@ static struct clk_branch gcc_vs_ctrl_clk = {
 	},
 };
 
-static struct clk_branch gcc_cpuss_gnoc_clk = {
+/*static struct clk_branch gcc_cpuss_gnoc_clk = {
 	.halt_reg = 0x48004,
 	.halt_check = BRANCH_HALT_VOTED,
 	.hwcg_reg = 0x48004,
@@ -2798,7 +2798,7 @@ static struct clk_branch gcc_cpuss_gnoc_clk = {
 			.ops = &clk_branch2_ops,
 		},
 	},
-};
+};*/
 
 static struct gdsc pcie_0_gdsc = {
 	.gdscr = 0x6b004,
@@ -2918,10 +2918,10 @@ static struct clk_regmap *gcc_sm7150_clocks[] = {
 	[GCC_AGGRE_USB3_PRIM_AXI_CLK] = &gcc_aggre_usb3_prim_axi_clk.clkr,
 	[GCC_APC_VS_CLK] = &gcc_apc_vs_clk.clkr,
 	[GCC_BOOT_ROM_AHB_CLK] = &gcc_boot_rom_ahb_clk.clkr,
-	[GCC_CAMERA_AHB_CLK] = &gcc_camera_ahb_clk.clkr,
+	//[GCC_CAMERA_AHB_CLK] = &gcc_camera_ahb_clk.clkr,
 	[GCC_CAMERA_HF_AXI_CLK] = &gcc_camera_hf_axi_clk.clkr,
 	[GCC_CAMERA_SF_AXI_CLK] = &gcc_camera_sf_axi_clk.clkr,
-	[GCC_CAMERA_XO_CLK] = &gcc_camera_xo_clk.clkr,
+	//[GCC_CAMERA_XO_CLK] = &gcc_camera_xo_clk.clkr,
 	[GCC_CE1_AHB_CLK] = &gcc_ce1_ahb_clk.clkr,
 	[GCC_CE1_AXI_CLK] = &gcc_ce1_axi_clk.clkr,
 	[GCC_CE1_CLK] = &gcc_ce1_clk.clkr,
@@ -2931,19 +2931,19 @@ static struct clk_regmap *gcc_sm7150_clocks[] = {
 	[GCC_CPUSS_RBCPR_CLK] = &gcc_cpuss_rbcpr_clk.clkr,
 	[GCC_CPUSS_RBCPR_CLK_SRC] = &gcc_cpuss_rbcpr_clk_src.clkr,
 	[GCC_DDRSS_GPU_AXI_CLK] = &gcc_ddrss_gpu_axi_clk.clkr,
-	[GCC_DISP_AHB_CLK] = &gcc_disp_ahb_clk.clkr,
+	//[GCC_DISP_AHB_CLK] = &gcc_disp_ahb_clk.clkr,
 	[GCC_DISP_GPLL0_CLK_SRC] = &gcc_disp_gpll0_clk_src.clkr,
 	[GCC_DISP_GPLL0_DIV_CLK_SRC] = &gcc_disp_gpll0_div_clk_src.clkr,
 	[GCC_DISP_HF_AXI_CLK] = &gcc_disp_hf_axi_clk.clkr,
 	[GCC_DISP_SF_AXI_CLK] = &gcc_disp_sf_axi_clk.clkr,
-	[GCC_DISP_XO_CLK] = &gcc_disp_xo_clk.clkr,
+	//[GCC_DISP_XO_CLK] = &gcc_disp_xo_clk.clkr,
 	[GCC_GP1_CLK] = &gcc_gp1_clk.clkr,
 	[GCC_GP1_CLK_SRC] = &gcc_gp1_clk_src.clkr,
 	[GCC_GP2_CLK] = &gcc_gp2_clk.clkr,
 	[GCC_GP2_CLK_SRC] = &gcc_gp2_clk_src.clkr,
 	[GCC_GP3_CLK] = &gcc_gp3_clk.clkr,
 	[GCC_GP3_CLK_SRC] = &gcc_gp3_clk_src.clkr,
-	[GCC_GPU_CFG_AHB_CLK] = &gcc_gpu_cfg_ahb_clk.clkr,
+	//[GCC_GPU_CFG_AHB_CLK] = &gcc_gpu_cfg_ahb_clk.clkr,
 	[GCC_GPU_GPLL0_CLK_SRC] = &gcc_gpu_gpll0_clk_src.clkr,
 	[GCC_GPU_GPLL0_DIV_CLK_SRC] = &gcc_gpu_gpll0_div_clk_src.clkr,
 	[GCC_GPU_MEMNOC_GFX_CLK] = &gcc_gpu_memnoc_gfx_clk.clkr,
@@ -3059,14 +3059,14 @@ static struct clk_regmap *gcc_sm7150_clocks[] = {
 	[GCC_VDDA_VS_CLK] = &gcc_vdda_vs_clk.clkr,
 	[GCC_VDDCX_VS_CLK] = &gcc_vddcx_vs_clk.clkr,
 	[GCC_VDDMX_VS_CLK] = &gcc_vddmx_vs_clk.clkr,
-	[GCC_VIDEO_AHB_CLK] = &gcc_video_ahb_clk.clkr,
+	//[GCC_VIDEO_AHB_CLK] = &gcc_video_ahb_clk.clkr,
 	[GCC_VIDEO_AXI_CLK] = &gcc_video_axi_clk.clkr,
-	[GCC_VIDEO_XO_CLK] = &gcc_video_xo_clk.clkr,
+	//[GCC_VIDEO_XO_CLK] = &gcc_video_xo_clk.clkr,
 	[GCC_VS_CTRL_AHB_CLK] = &gcc_vs_ctrl_ahb_clk.clkr,
 	[GCC_VS_CTRL_CLK] = &gcc_vs_ctrl_clk.clkr,
 	[GCC_VS_CTRL_CLK_SRC] = &gcc_vs_ctrl_clk_src.clkr,
 	[GCC_VSENSOR_CLK_SRC] = &gcc_vsensor_clk_src.clkr,
-	[GCC_CPUSS_GNOC_CLK] = &gcc_cpuss_gnoc_clk.clkr,
+	//[GCC_CPUSS_GNOC_CLK] = &gcc_cpuss_gnoc_clk.clkr,
 	[GPLL0] = &gpll0.clkr,
 	[GPLL0_OUT_EVEN] = &gpll0_out_even.clkr,
 	[GPLL6] = &gpll6.clkr,
@@ -3148,6 +3148,21 @@ static int gcc_sm7150_probe(struct platform_device *pdev)
 	regmap_update_bits(regmap, 0x09ffc, 0x3, 0x3);
 	regmap_update_bits(regmap, 0x4d110, 0x3, 0x3);
 	regmap_update_bits(regmap, 0x71028, 0x3, 0x3);
+
+	/*
+	 * Keep the clocks always-ON
+	 * GCC_CPUSS_GNOC_CLK, GCC_VIDEO_AHB_CLK, GCC_CAMERA_AHB_CLK,
+	 * GCC_DISP_AHB_CLK, GCC_CAMERA_XO_CLK, GCC_VIDEO_XO_CLK,
+	 * GCC_DISP_XO_CLK, GCC_GPU_CFG_AHB_CLK
+	 */
+	regmap_update_bits(regmap, 0x48004, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b004, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b008, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b00c, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b02c, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b028, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x0b030, BIT(0), BIT(0));
+	regmap_update_bits(regmap, 0x71004, BIT(0), BIT(0));
 
 	ret = qcom_cc_register_rcg_dfs(regmap, gcc_sm7150_dfs_desc,
 					ARRAY_SIZE(gcc_sm7150_dfs_desc));
