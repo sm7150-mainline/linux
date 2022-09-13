@@ -1213,6 +1213,9 @@
 
 			#cooling-cells = <2>;
 
+			nvmem-cells = <&gpu_speed_bin>;
+			nvmem-cell-names = "speed_bin";
+
 			zap-shader {
 				memory-region = <&gpu_mem>;
 			};
@@ -1437,6 +1440,18 @@
 
 					/* note: secure cb9 in downstream */
 				};
+			};
+		};
+
+		qfprom: efuse@780000 {
+			compatible = "qcom,sm7150-qfprom", "qcom,qfprom";
+			reg = <0 0x00780000 0 0x6300>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			gpu_speed_bin: gpu_speed_bin@41a0 {
+				reg = <0x41a0 0x1>;
+				bits = <0 8>;
 			};
 		};
 
