@@ -1316,6 +1316,11 @@ static struct dpu_dsc_cfg sdm845_dsc[] = {
 	DSC_BLK("dsc_3", DSC_3, 0x80c00),
 };
 
+static struct dpu_dsc_cfg sm7150_dsc[] = {
+	DSC_BLK("dsc_0", DSC_0, 0x81000),
+	DSC_BLK("dsc_1", DSC_1, 0x81400),
+};
+
 /*************************************************************
  * INTF sub blocks config
  *************************************************************/
@@ -1934,6 +1939,8 @@ static const struct dpu_mdss_cfg sm7150_dpu_cfg = {
 	.dspp = sm7150_dspp,
 	.pingpong_count = ARRAY_SIZE(sm7150_pp),
 	.pingpong = sm7150_pp,
+	.dsc_count = ARRAY_SIZE(sm7150_dsc),
+	.dsc = sm7150_dsc,
 	.merge_3d_count = ARRAY_SIZE(sm7150_merge_3d),
 	.merge_3d = sm7150_merge_3d,
 	.intf_count = ARRAY_SIZE(sm8150_intf),
