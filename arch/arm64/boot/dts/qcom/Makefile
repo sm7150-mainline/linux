@@ -208,6 +208,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sm6125-xiaomi-laurel-sprout.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm6350-sony-xperia-lena-pdx213.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm6375-sony-xperia-murray-pdx225.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7125-xiaomi-joyeuse.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-davinci.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-surya.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-sweet.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7225-fairphone-fp4.dtb
