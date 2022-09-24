@@ -13,6 +13,8 @@
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
+#include <drm/display/drm_dsc.h>
+#include <drm/display/drm_dsc_helper.h>
 
 struct nt36672c {
 	struct drm_panel panel;
@@ -203,6 +205,7 @@ static int nt36672c_prepare(struct drm_panel *panel)
 {
 	struct nt36672c *ctx = to_nt36672c(panel);
 	struct device *dev = &ctx->dsi->dev;
+	struct drm_dsc_picture_parameter_set pps;
 	int ret;
 
 	if (ctx->prepared)
@@ -215,6 +218,13 @@ static int nt36672c_prepare(struct drm_panel *panel)
 		dev_err(dev, "Failed to initialize panel: %d\n", ret);
 		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
 		return ret;
+	}
+
+	if (panel->dsc) {
+		/* this panel uses DSC so send the pps */
+		drm_dsc_pps_payload_pack(&pps, panel->dsc);
+		print_hex_dump(KERN_DEBUG, "DSC params:", DUMP_PREFIX_NONE,
+				16, 1, &pps, sizeof(pps), false);
 	}
 
 	ctx->prepared = true;
@@ -283,6 +293,7 @@ static int nt36672c_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
 	struct nt36672c *ctx;
+	struct drm_dsc_config *dsc;
 	int ret;
 
 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
@@ -317,6 +328,22 @@ static int nt36672c_probe(struct mipi_dsi_device *dsi)
 		drm_panel_remove(&ctx->panel);
 		return ret;
 	}
+
+	dsc = devm_kzalloc(&dsi->dev, sizeof(*dsc), GFP_KERNEL);
+	if (!dsc)
+		return -ENOMEM;
+
+	dsc->dsc_version_major = 17;
+	dsc->dsc_version_minor = 0;
+
+	dsc->slice_height = 20;
+	dsc->slice_width = 540;
+	dsc->slice_count = 1; // TODO: fix this value
+	dsc->bits_per_component = 8;
+	dsc->bits_per_pixel = 8;
+	dsc->block_pred_enable = false;
+
+	ctx->panel.dsc = dsc;
 
 	return 0;
 }
