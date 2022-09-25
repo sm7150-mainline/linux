@@ -1859,6 +1859,8 @@ static u32 a618_get_speed_bin(u32 fuse)
 		return 1;
 	else if (fuse == 174)
 		return 2;
+	else if (fuse == 159)
+		return 3;
 
 	return UINT_MAX;
 }
