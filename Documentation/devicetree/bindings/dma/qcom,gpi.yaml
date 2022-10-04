@@ -22,6 +22,7 @@ properties:
       - qcom,sc7280-gpi-dma
       - qcom,sdm845-gpi-dma
       - qcom,sm6350-gpi-dma
+      - qcom,sm7150-gpi-dma
       - qcom,sm8150-gpi-dma
       - qcom,sm8250-gpi-dma
       - qcom,sm8350-gpi-dma
