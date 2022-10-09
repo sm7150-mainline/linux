@@ -517,6 +517,11 @@
 	status = "okay";
 };
 
+&remoteproc_adsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/surya/adsp.mbn";
+};
+
 &remoteproc_cdsp {
 	status = "okay";
 	firmware-name = "qcom/sm7150/surya/cdsp.mbn";
