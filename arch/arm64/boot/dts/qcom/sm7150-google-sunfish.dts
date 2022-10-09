@@ -1,0 +1,901 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2023-2024, Connor Mitchell <c.dog29@hotmail.com>
+ * Copyright (c) 2025, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/firmware/qcom,scm.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+#include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+#include <dt-bindings/usb/pd.h>
+
+#include "sm7150.dtsi"
+#include "pm6150.dtsi"
+#include "pm6150l.dtsi"
+
+/delete-node/ &mpss_mem;
+/delete-node/ &venus_mem;
+/delete-node/ &cdsp_mem;
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+/ {
+	model = "Google Pixel 4a";
+	compatible = "google,sunfish", "qcom,sm7150";
+	chassis-type = "handset";
+
+	aliases {
+		bluetooth0 = &bluetooth;
+		hsuart0 = &uart3;
+		serial0 = &uart8;
+		wifi0 = &wifi;
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "serial0:115200n8";
+
+		framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			width = <1080>;
+			height = <2340>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
+		};
+	};
+
+	gpio_keys: gpio-keys {
+		compatible = "gpio-keys";
+
+		pinctrl-0 = <&vol_up_n>;
+		pinctrl-names = "default";
+
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&pm6150l_gpios 2 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEUP>;
+			debounce-interval = <15>;
+			linux,can-disable;
+			wakeup-source;
+		};
+	};
+
+	reserved-memory {
+		mpss_mem: memory@8b000000 {
+			reg = <0x0 0x8b000000 0x0 0x9800000>;
+			no-map;
+		};
+
+		venus_mem: memory@94800000 {
+			reg = <0x0 0x94800000 0x0 0x500000>;
+			no-map;
+		};
+
+		cdsp_mem: memory@94d00000 {
+			reg = <0x0 0x94d00000 0x0 0x1e00000>;
+			no-map;
+		};
+
+		adsp_mem: memory@96b00000 {
+			reg = <0x00 0x96b00000 0x00 0x2200000>;
+			no-map;
+		};
+
+		wlan_msa_mem: memory@98d00000 {
+			reg = <0x0 0x98d00000 0x0 0x200000>;
+			no-map;
+		};
+
+		npu_mem: memory@98f00000 {
+			reg = <0x0 0x98f00000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: memory@98f80000 {
+			reg = <0x0 0x98f80000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: memory@98f90000 {
+			reg = <0x0 0x98f90000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: memory@98f95000 {
+			reg = <0x0 0x98f95000 0x0 0x2000>;
+			no-map;
+		};
+
+		cont_splash_mem: cont-splash@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			no-map;
+		};
+
+		ramoops_mem: ramoops@a481f000 {
+			compatible = "ramoops";
+			reg = <0x0 0xa481f000 0x0 0x400000>;
+
+			record-size = <0x40000>;
+			pmsg-size = <0x200000>;
+			console-size = <0x100000>;
+		};
+
+		rmtfs_mem: rmtfs@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0x0 0xfde01000 0x0 0x600000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+
+	vph_pwr: regulator-vph-pwr {
+		compatible = "regulator-fixed";
+
+		regulator-name = "vph_pwr";
+		regulator-min-microvolt = <3700000>;
+		regulator-max-microvolt = <3700000>;
+
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+
+		regulator-name = "ibb";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+
+		regulator-name = "lab";
+		regulator-min-microvolt = <6100000>;
+		regulator-max-microvolt = <6100000>;
+	};
+
+	// S3A is really mx.lvl but it's there for supply map completeness sake.
+	vreg_s3a_0p8: regulator-smpa3 {
+		compatible = "regulator-fixed";
+
+		regulator-name = "vreg_s3a_0p8";
+		regulator-min-microvolt = <800000>;
+		regulator-max-microvolt = <800000>;
+
+		regulator-always-on;
+		vin-supply = <&vph_pwr>;
+	};
+};
+
+&apps_rsc {
+	regulators-0 {
+		compatible = "qcom,pm6150-rpmh-regulators";
+		qcom,pmic-id = "a";
+
+		vdd-s1-supply = <&vph_pwr>;
+		vdd-s2-supply = <&vph_pwr>;
+		vdd-s3-supply = <&vph_pwr>;
+		vdd-s4-supply = <&vph_pwr>;
+		vdd-s5-supply = <&vph_pwr>;
+
+		vdd-l1-supply = <&vreg_s8c_1p2>;
+		vdd-l2-l3-supply = <&vreg_s4a_1p1>;
+		vdd-l4-l7-l8-supply = <&vreg_s4a_1p1>;
+		vdd-l5-l16-l17-l18-l19-supply = <&vreg_bob>;
+		vdd-l6-supply = <&vreg_s8c_1p2>;
+		vdd-l9-supply = <&vreg_s3a_0p8>;
+		vdd-l10-l14-l15-supply = <&vreg_s5a_2p0>;
+		vdd-l11-l12-l13-supply = <&vreg_s5a_2p0>;
+
+		/*
+		 * S1, S4, S5 are unused.
+		 * S2-S3 and L7-L8 are ARCs:
+		 * S2 - gfx.lvl,
+		 * S3 - mx.lvl,
+		 * L7 - lmx.lvl,
+		 * L8 - lcx.lvl.
+		 */
+
+		vreg_s4a_1p1: smps4 {
+			regulator-name = "vreg_s4a_1p1";
+			regulator-min-microvolt = <824000>;
+			regulator-max-microvolt = <1120000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_s5a_2p0: smps5 {
+			regulator-name = "vreg_s5a_2p0";
+			regulator-min-microvolt = <1744000>;
+			regulator-max-microvolt = <2040000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l1a_1p2: ldo1 {
+			regulator-name = "vreg_l1a_1p2";
+			regulator-min-microvolt = <1096000>;
+			regulator-max-microvolt = <1304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l2a_1p0: ldo2 {
+			regulator-name = "vreg_l2a_1p0";
+			regulator-min-microvolt = <944000>;
+			regulator-max-microvolt = <1056000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdda_pll_cc_ebi01:
+		vreg_l3a_1p0: ldo3 {
+			regulator-name = "vreg_l3a_1p0";
+			regulator-min-microvolt = <968000>;
+			regulator-max-microvolt = <1064000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_qlink_lv:
+		vdd_qlink_lv_ck:
+		vdd_usb_hs_core:
+		vdda_mipi_csi0_0p9:
+		vdda_mipi_csi1_0p9:
+		vdda_mipi_csi2_0p9:
+		vdda_mipi_csi3_0p9:
+		vdda_mipi_dsi0_pll:
+		vdda_qrefs_0p9:
+		vdda_ufs_core:
+		vdda_usb_ss_dp_core:
+		vreg_l4a_0p88: ldo4 {
+			regulator-name = "vreg_l4a_0p88";
+			regulator-min-microvolt = <824000>;
+			regulator-max-microvolt = <920000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l5a_2p7: ldo5 {
+			regulator-name = "vreg_l5a_2p7";
+			regulator-min-microvolt = <2600000>;
+			regulator-max-microvolt = <2800000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l6a_1p2: ldo6 {
+			regulator-name = "vreg_l6a_1p2";
+			regulator-min-microvolt = <1096000>;
+			regulator-max-microvolt = <1304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_wcss_cx:
+		vreg_l9a_0p8: ldo9 {
+			regulator-name = "vreg_l9a_0p8";
+			regulator-min-microvolt = <624000>;
+			regulator-max-microvolt = <760000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vddpx_3:
+		vreg_l10a_1p8: ldo10 {
+			regulator-name = "vreg_l10a_1p8";
+			regulator-min-microvolt = <1720000>;
+			regulator-max-microvolt = <1832000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_qfprom:
+		vdda_apc1_cs_1p8:
+		vdda_qrefs_1p8:
+		vdda_usb_hs_1p8:
+		vddpx_11:
+		vreg_l11a_1p8: ldo11 {
+			regulator-name = "vreg_l11a_1p8";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1984000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l12a_1p8: ldo12 {
+			regulator-name = "vreg_l12a_1p8";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1952000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l13a_1p8: ldo13 {
+			regulator-name = "vreg_l13a_1p8";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1904000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l14a_1p8: ldo14 {
+			regulator-name = "vreg_l14a_1p8";
+			regulator-min-microvolt = <1720000>;
+			regulator-max-microvolt = <1856000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l15a_1p8: ldo15 {
+			regulator-name = "vreg_l15a_1p8";
+			regulator-min-microvolt = <1696000>;
+			regulator-max-microvolt = <1904000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l16a_2p8: ldo16 {
+			regulator-name = "vreg_l16a_2p8";
+			regulator-min-microvolt = <2424000>;
+			regulator-max-microvolt = <2976000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdda_usb_hs_3p1:
+		vreg_l17a_3p1: ldo17 {
+			regulator-name = "vreg_l17a_3p1";
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3232000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l19a_2p85: ldo19 {
+			regulator-name = "vreg_l19a_2p85";
+			regulator-min-microvolt = <2944000>;
+			regulator-max-microvolt = <3304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+	};
+
+	regulators-1 {
+		compatible = "qcom,pm6150l-rpmh-regulators";
+		qcom,pmic-id = "c";
+
+		vdd-s1-supply = <&vph_pwr>;
+		vdd-s2-supply = <&vph_pwr>;
+		vdd-s3-supply = <&vph_pwr>;
+		vdd-s4-supply = <&vph_pwr>;
+		vdd-s5-supply = <&vph_pwr>;
+		vdd-s6-supply = <&vph_pwr>;
+		vdd-s7-supply = <&vph_pwr>;
+		vdd-s8-supply = <&vph_pwr>;
+
+		vdd-l2-l3-supply = <&vreg_s8c_1p2>;
+		vdd-l4-l5-l6-supply = <&vreg_bob>;
+		vdd-l7-l11-supply = <&vreg_bob>;
+		vdd-l9-l10-supply = <&vreg_bob>;
+
+		vdd-bob-supply = <&vph_pwr>;
+		vdd-flash-supply = <&vreg_bob>;
+		vdd-rgb-supply = <&vreg_bob>;
+
+		/*
+		 * S4, S5 are unused.
+		 * S2, S3, S7 are ARCs:
+		 * S2-S3 - cx.lvl,
+		 * S7 - mss.lvl.
+		 */
+
+		vreg_s1c_1p13: smps1 {
+			regulator-name = "vreg_s1c_1p13";
+			regulator-min-microvolt = <1000000>;
+			regulator-max-microvolt = <1200000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_s8c_1p2: smps8 {
+			regulator-name = "vreg_s8c_1p2";
+			regulator-min-microvolt = <1200000>;
+			regulator-max-microvolt = <1730000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l1c_1p8: ldo1 {
+			regulator-name = "vreg_l1c_1p8";
+			regulator-min-microvolt = <1616000>;
+			regulator-max-microvolt = <1984000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdd_wcss_adc_dac:
+		vreg_l2c_1p3: ldo2 {
+			regulator-name = "vreg_l2c_1p3";
+			regulator-min-microvolt = <1200000>;
+			regulator-max-microvolt = <1352000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vdda_csi0_1p25:
+		vdda_csi1_1p25:
+		vdda_csi2_1p25:
+		vdda_csi3_1p25:
+		vdda_hv_ebi0:
+		vdda_mipi_dsi0_1p2:
+		vdda_ufs_1p2:
+		vdda_usb_ss_dp_1p2:
+		vddpx_10:
+		vreg_l3c_1p23: ldo3 {
+			regulator-name = "vreg_l3c_1p23";
+			regulator-min-microvolt = <1144000>;
+			regulator-max-microvolt = <1256000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
+						   RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vddpx_5:
+		vreg_l4c_1p8: ldo4 {
+			regulator-name = "vreg_l4c_1p8";
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2950000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vddpx_6:
+		vreg_l5c_1p8: ldo5 {
+			regulator-name = "vreg_l5c_1p8";
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2950000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vddpx_2:
+		vreg_l6c_3p0: ldo6 {
+			regulator-name = "vreg_l6c_3p0";
+			regulator-min-microvolt = <2960000>;
+			regulator-max-microvolt = <3304000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l7c_3p0: ldo7 {
+			regulator-name = "vreg_l7c_3p0";
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l8c_1p8: ldo8 {
+			regulator-name = "vreg_l8c_1p8";
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1900000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l9c_3p1: ldo9 {
+			regulator-name = "vreg_l9c_3p1";
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l10c_3p3: ldo10 {
+			regulator-name = "vreg_l10c_3p3";
+			regulator-min-microvolt = <3200000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_l11c_3p3: ldo11 {
+			regulator-name = "vreg_l11c_3p3";
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <3400000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		vreg_bob: bob {
+			regulator-name = "vreg_bob";
+			regulator-min-microvolt = <3296000>;
+			regulator-max-microvolt = <3960000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_AUTO>;
+			regulator-allow-bypass;
+		};
+	};
+};
+
+&cci0 {
+	status = "okay";
+};
+
+&cci1 {
+	status = "okay";
+};
+
+&dispcc {
+	status = "okay";
+};
+
+&gpi_dma0 {
+	status = "okay";
+};
+
+&gpi_dma1 {
+	status = "okay";
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/google/sunfish/a615_zap.mbn";
+	};
+};
+
+&i2c2 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	/* st21nfc nfc@8 */
+	/* realtek,rt5514 codec@57 */
+};
+
+&i2c7 {
+	status = "okay";
+	clock-frequency = <1000000>;
+
+	/* st,fts touchscreen@49 */
+};
+
+&i2c9 {
+	status= "okay";
+	clock-frequency = <400000>;
+
+	/* microchip,pac1934 power-monitor@10 */
+	/* cirrus,cs35l41 speaker-amp@40 */
+	/* cirrus,cs35l41 speaker-amp@41 */
+
+	typec-mux@43 {
+		compatible = "fcs,fsa4480";
+		reg = <0x43>;
+
+		interrupts-extended = <&tlmm 42 IRQ_TYPE_LEVEL_LOW>;
+
+		vcc-supply = <&vreg_bob>;
+
+		mode-switch;
+		orientation-switch;
+
+		port {
+			fsa4480_sbu_mux: endpoint {
+				remote-endpoint = <&pm6150_typec_sbu_out>;
+			};
+		};
+	};
+
+	/* st,m24c08 e2prom@50 */
+	/* ti,drv2624 haptic@5a */
+	/* dlg,slg51000 pmic@75*/
+};
+
+&ipa {
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/sm7150/google/sunfish/ipa_fws.mbn";
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	vdda-supply = <&vdda_mipi_dsi0_1p2>;
+	status = "okay";
+
+	panel: panel@0 {
+		compatible = "google,ams581vf01-sunfish",
+			     "samsung,ams581vf01";
+		reg = <0>;
+
+		vddio-supply = <&vreg_l13a_1p8>;
+		vdd3p3-supply = <&vreg_l7c_3p0>;
+		vsn-supply = <&vreg_ibb>;
+		vsp-supply = <&vreg_lab>;
+
+		reset-gpios = <&pm6150l_gpios 9 GPIO_ACTIVE_LOW>;
+
+		pinctrl-0 = <&lcd_reset_n>,
+			    <&mdp_vsync_p>;
+		pinctrl-names = "default";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
+	};
+};
+
+&mdss_dsi0_out {
+	data-lanes = <0 1 2 3>;
+	remote-endpoint = <&panel_in>;
+	status = "okay";
+};
+
+&mdss_dsi0_phy {
+	vdds-supply = <&vdda_mipi_dsi0_pll>;
+	status = "okay";
+};
+
+&pm6150_resin {
+	linux,code = <KEY_VOLUMEDOWN>;
+	status = "okay";
+};
+
+&pm6150_rtc {
+	status = "okay";
+};
+
+&pm6150_typec {
+	vdd-vbus-supply = <&pm6150_vbus>;
+	vdd-pdphy-supply = <&vdda_usb_hs_3p1>;
+	status = "okay";
+
+	connector {
+		compatible = "usb-c-connector";
+
+		power-role = "source";
+		data-role = "dual";
+		self-powered;
+
+		source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
+			       PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				pm6150_hs_in: endpoint {
+					remote-endpoint = <&usb_1_dwc3_hs>;
+				};
+			};
+
+			/* port@1 is for usb3 */
+
+			port@2 {
+				reg = <2>;
+				pm6150_typec_sbu_out: endpoint {
+					remote-endpoint = <&fsa4480_sbu_mux>;
+				};
+			};
+		};
+	};
+};
+
+&pm6150_vbus {
+	regulator-min-microamp = <500000>;
+	regulator-max-microamp = <3000000>;
+	status = "okay";
+};
+
+&pm6150l_flash {
+	status = "okay";
+
+	led-1 {
+		function = LED_FUNCTION_FLASH;
+		color = <LED_COLOR_ID_WHITE>;
+		led-sources = <1>;
+		led-max-microamp = <150000>;
+		flash-max-microamp = <1000000>;
+		flash-max-timeout-us = <1280000>;
+	};
+};
+
+&pm6150l_gpios {
+	vol_up_n: vol-up-n-state {
+		pins = "gpio2";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		input-enable;
+		bias-pull-up;
+		power-source = <0>;
+	};
+
+	lcd_reset_n: lcd-reset-n-state {
+		pins = "gpio9";
+		function = PMIC_GPIO_FUNC_FUNC1;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_MED>;
+		bias-disable;
+		output-low;
+		power-source = <1>;
+	};
+};
+
+&qfprom {
+	vcc-supply = <&vdd_qfprom>;
+};
+
+&qup_uart3_cts {
+	bias-pull-down;
+};
+
+&qup_uart3_rts {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart3_tx {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart3_rx {
+	bias-pull-up;
+};
+
+&qup_uart8_tx {
+	drive-strength = <2>;
+	bias-disable;
+};
+
+&qup_uart8_rx {
+	drive-strength = <2>;
+	bias-pull-up;
+};
+
+&qupv3_id_0 {
+	status = "okay";
+};
+
+&qupv3_id_1 {
+	status = "okay";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/google/sunfish/adsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/google/sunfish/cdsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/google/sunfish/modem.mbn";
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+
+	/* realtek,rt5514 codec@0 */
+};
+
+&spi1 {
+	status = "okay";
+
+	/* google,citadel @ 0 */
+	/* st,st54j_se @ 1 */
+};
+
+&tlmm {
+	gpio-reserved-ranges = <59 4>;
+
+	mdp_vsync_p: mdp-vsync-p-state {
+		pins = "gpio10";
+		function = "mdp_vsync";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	qup_uart3_sleep: qup-uart3-sleep-state {
+		cts-pins {
+			pins = "gpio38";
+			function = "gpio";
+			bias-pull-down;
+		};
+
+		rts-pins {
+			pins = "gpio39";
+			function = "gpio";
+			bias-pull-down;
+		};
+
+		tx-pins {
+			pins = "gpio40";
+			function = "gpio";
+			bias-pull-up;
+		};
+
+		rx-pins {
+			pins = "gpio41";
+			function = "gpio";
+			bias-pull-up;
+		};
+	};
+};
+
+&uart3 {
+	/delete-property/interrupts;
+	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
+			      <&tlmm 41 IRQ_TYPE_EDGE_FALLING>;
+
+	pinctrl-1 = <&qup_uart3_sleep>;
+	pinctrl-names = "default",
+			"sleep";
+
+	status = "okay";
+
+	bluetooth: bluetooth {
+		compatible = "qcom,wcn3990-bt";
+
+		vddio-supply = <&vreg_l10a_1p8>;
+		vddxo-supply = <&vreg_l1c_1p8>;
+		vddrf-supply = <&vdd_wcss_adc_dac>;
+		vddch0-supply = <&vreg_l10c_3p3>;
+		max-speed = <3200000>;
+	};
+};
+
+&uart8 {
+	status = "okay";
+};
+
+&ufs_mem_hc {
+	reset-gpios = <&tlmm 119 GPIO_ACTIVE_LOW>;
+
+	vcc-supply = <&vreg_l19a_2p85>;
+	vcc-max-microamp = <600000>;
+	vccq2-supply = <&vreg_l12a_1p8>;
+	vccq2-max-microamp = <600000>;
+	status = "okay";
+};
+
+&ufs_mem_phy {
+	vdda-phy-supply = <&vdda_ufs_core>;
+	vdda-pll-supply = <&vdda_ufs_1p2>;
+	status = "okay";
+};
+
+&usb_1 {
+	qcom,select-utmi-as-pipe-clk;
+	status = "okay";
+};
+
+&usb_1_dwc3 {
+	dr_mode = "otg";
+	usb-role-switch;
+	/* SM7150 doesn't support USB3 yet */
+	maximum-speed = "high-speed";
+};
+
+&usb_1_dwc3_hs {
+	remote-endpoint = <&pm6150_hs_in>;
+};
+
+&usb_1_hsphy {
+	vdd-supply = <&vdd_usb_hs_core>;
+	vdda-pll-supply = <&vdda_usb_hs_1p8>;
+	vdda-phy-dpdm-supply = <&vdda_usb_hs_3p1>;
+	status = "okay";
+};
+
+&wifi {
+	vdd-0.8-cx-mx-supply = <&vdd_wcss_cx>;
+	vdd-1.8-xo-supply = <&vreg_l1c_1p8>;
+	vdd-1.3-rfa-supply = <&vdd_wcss_adc_dac>;
+	vdd-3.3-ch0-supply = <&vreg_l10c_3p3>;
+	vdd-3.3-ch1-supply = <&vreg_l11c_3p3>;
+	status = "okay";
+};
