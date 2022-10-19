@@ -398,7 +398,21 @@
 		bias-pull-up;
 		power-source = <0>;
 	};
+};
 
+&remoteproc_adsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sweet/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sweet/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sweet/modem.mbn";
 };
 
 &sdhc_2 {
