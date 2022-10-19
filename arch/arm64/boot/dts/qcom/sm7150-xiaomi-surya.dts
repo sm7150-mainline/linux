@@ -91,9 +91,14 @@
 			console-size = <0x100000>;
 		};
 
+		/*
+		 * The rmtfs memory region in downstream is 'dynamically allocated'
+		 * but given the same address every time. Hard code it as this address is
+		 * where the modem firmware expects it to be.
+		 */
 		rmtfs_mem: memory@fde01000 {
 			compatible = "qcom,rmtfs-mem";
-			reg = <0 0xfde01000 0 0x200000>;
+			reg = <0 0xfde01000 0 0x600000>;
 			no-map;
 
 			qcom,client-id = <1>;
@@ -449,6 +454,13 @@
 		ti,sc-ovp-limit-microvolt = <7000000>; //FIXME (7000000 - 12750000)
 		monitored-battery = <&bat>;
 	};
+};
+
+&ipa {
+	status = "okay";
+
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
 };
 
 &pm6150_pon {
