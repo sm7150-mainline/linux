@@ -69,6 +69,17 @@ properties:
       - qcom,sdx65-mc-virt
       - qcom,sdx65-mem-noc
       - qcom,sdx65-system-noc
+      - qcom,sm7150-aggre1-noc
+      - qcom,sm7150-aggre2-noc
+      - qcom,sm7150-camnoc-noc
+      - qcom,sm7150-compute-noc
+      - qcom,sm7150-config-noc
+      - qcom,sm7150-dc-noc
+      - qcom,sm7150-gem-noc
+      - qcom,sm7150-ipa-virt
+      - qcom,sm7150-mc-virt
+      - qcom,sm7150-mmss-noc
+      - qcom,sm7150-system-noc
       - qcom,sm8150-aggre1-noc
       - qcom,sm8150-aggre2-noc
       - qcom,sm8150-camnoc-noc
