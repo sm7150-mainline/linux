@@ -1,15 +1,25 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * SM7150-AB Google Pixel 4a specific device tree
  *
+=======
+//
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
  * Copyright (c) 2022, The Linux Foundation. All rights reserved.
  */
 
 /dts-v1/;
 
+<<<<<<< HEAD
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
 #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+=======
+#include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 
 #include "sm7150.dtsi"
 #include "pm6150.dtsi"
@@ -54,7 +64,11 @@
 			 * to unused clk cleanup & no panel driver yet (& no dispcc either)..
 			 */
 			clocks = <&gcc GCC_DISP_HF_AXI_CLK>,
+<<<<<<< HEAD
 				 <&gcc GCC_DISP_SF_AXI_CLK>;
+=======
+					 <&gcc GCC_DISP_SF_AXI_CLK>;
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 		};
 	};
 
@@ -163,7 +177,11 @@
 		vreg_l1a_1p2: ldo1 {
 			regulator-min-microvolt = <1096000>;
 			regulator-max-microvolt = <1304000>;
+<<<<<<< HEAD
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+=======
+            regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 		};
 
 		vreg_l2a_1p0: ldo2 {
@@ -339,24 +357,48 @@
 		vreg_l6c_3p0: ldo6 {
 			regulator-min-microvolt = <2960000>;
 			regulator-max-microvolt = <3304000>;
+<<<<<<< HEAD
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
+=======
+			regulator-system-load = <22000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+			regulator-allow-set-load;
+		};
+
+		// always-on not supported
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 		vreg_l7c_3p0: ldo7 {
 			regulator-min-microvolt = <3000000>;
 			regulator-max-microvolt = <3312000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+<<<<<<< HEAD
 		};
 
+=======
+			//regulator-always-on;
+		};
+
+		// always-on not supported
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 		vreg_l8c_1p8: ldo8 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1900000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+<<<<<<< HEAD
+=======
+			//regulator-always-on;
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 		};
 
 		vreg_l9c_3p1: ldo9 {
 			regulator-min-microvolt = <2950000>;
 			regulator-max-microvolt = <3312000>;
+<<<<<<< HEAD
+=======
+			regulator-system-load = <800000>;
+>>>>>>> 4ed30052efa82d21608e69261978813ed99c497f
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
