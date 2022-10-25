@@ -378,6 +378,35 @@
 	gpio-reserved-ranges = <59 4>;
 };
 
+&ufs_mem_phy {
+	status = "okay";
+
+	vdda-phy-supply = <&vreg_l4a_0p88>;
+	vdda-pll-supply = <&vreg_l3c_1p23>;
+	vdda-phy-max-microamp = <62900>;
+	vdda-pll-max-microamp = <18300>;
+};
+
+&ufs_mem_hc {
+	status = "okay";
+
+	vcc-supply = <&vreg_l19a_2p85>;
+	vcc-max-microamp = <600000>;
+	vccq2-supply = <&vreg_l12a_1p8>;
+	vccq2-max-microamp = <600000>;
+};
+
+&pm6150_gpio {
+	touch_power_default: touch_power_default {
+		pins = "gpio4";
+		function = "normal";
+		qcom,drive-strength = <2>;
+		power-source = <1>;
+		output-high;
+		bias-disable;
+	};
+};
+
 &usb_1 {
 	status = "okay";
 
@@ -396,4 +425,47 @@
 	vdd-supply = <&vreg_l4a_0p88>;
 	vdda-pll-supply = <&vreg_l11a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l17a_3p1>;
+};
+
+&tlmm {
+	touch_irq_default: touch_irq_default {
+		mux {
+			pins = "gpio9";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio9";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	touch_reset_default: touch_reset_default {
+		mux {
+			pins = "gpio8";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio8";
+			drive-strength = <2>;
+			output-high;
+			bias-disable;
+		};
+	};
+
+	touch_switch_default: touch_switch_default {
+		mux {
+			pins = "gpio72";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio72";
+			drive-strength = <2>;
+			output-low;
+			bias-disable;
+		};
+	};
 };
