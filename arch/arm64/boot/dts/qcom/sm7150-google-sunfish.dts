@@ -58,14 +58,6 @@
 		};
 	};
 
-	&pm8150l_gpios {
-	key_vol_up_default: key_vol_up_default {
-		pins = "gpio2";
-		function = "normal";
-		input-enable;
-		bias-pull-up;
-		power-source = <0>;
-	};
 
 	reset_stat_default: reset_stat_default {
 		pins = "gpio8";
@@ -74,30 +66,7 @@
 		output-low;
 		input-disable;
 	};
-};
 
-&qupv3_id_0 {
-	status = "okay";
-};
-
-&qupv3_id_1 {
-	status = "okay";
-};
-
-&remoteproc_adsp {
-	status = "okay";
-	firmware-name = "qcom/sm7150/sunfish/adsp.mbn";
-};
-
-&remoteproc_cdsp {
-	status = "okay";
-	firmware-name = "qcom/sm7150/sunfish/cdsp.mbn";
-};
-
-&remoteproc_mpss {
-	status = "okay";
-	firmware-name = "qcom/sm7150/sunfish/modem.mbn";
-};
 
 	gpio-keys {
 		compatible = "gpio-keys";
@@ -185,6 +154,40 @@
 		regulator-min-microvolt = <3700000>;
 		regulator-max-microvolt = <3700000>;
 	};
+};
+
+&pm8150l_gpios {
+	key_vol_up_default: key_vol_up_default {
+		pins = "gpio2";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		power-source = <0>;
+	};
+};
+
+
+&qupv3_id_0 {
+	status = "okay";
+};
+
+&qupv3_id_1 {
+	status = "okay";
+};
+
+&remoteproc_adsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/modem.mbn";
 };
 
 &apps_rsc {
@@ -454,7 +457,7 @@
 		compatible = "realtek,rt5514";
 		reg = <0x57>;
 	};
-}
+};
 
 
 &gmu {
@@ -531,10 +534,10 @@
 	slg51000: slg51000@75 {
 		compatible = "dlg,slg51000";
 		reg = <0x75>;
-		dlg,cs-gpios = <&pm6150l_gpios 4 0>,
-				   <&pm6150l_gpios 6 0>;
-		dlg,enable-gpios = <&pm6150l_gpios 1 0>,
-				   <&pm6150l_gpios 5 0>;
+		dlg,cs-gpios = <&pm6150l_gpio 4 0>,
+				   <&pm6150l_gpio 6 0>;
+		dlg,enable-gpios = <&pm6150l_gpio 1 0>,
+				   <&pm6150l_gpio 5 0>;
 
 		regulators {
 			slg51000_ldo1: ldo1 {
@@ -580,7 +583,7 @@
 			};
 		};
 	};
-}
+};
 
 &pm6150_gpio {
 	usb_otp_en {
@@ -630,32 +633,35 @@
 	};
 };
 
-&pm6150l_gpio {
-	reset_pin_top_default: reset_pin_top_default {
-		pins = "gpio8";
-		function = "normal";
-		output-high;
-		qcom,drive-strength = <2>;
-		power-source = <1>;
-	};
-
-	reset_pin_bottom_default: reset_pin_bottom_default {
-		pins = "gpio11";
-		function = "normal";
-		output-high;
-		qcom,drive-strength = <2>;
-		power-source = <1>;
-	};
-
-	camera_rear_vcm_en {
-		camera_rear_vcm_en_default: camera_rear_vcm_en_default {
-			pins = "gpio12";
+&spmi_bus {
+	pm6150l_gpio: pm6150l_gpio {
+		reset_pin_top_default: reset_pin_top_default {
+			pins = "gpio8";
 			function = "normal";
-			power-source = <0>;
-			output-low;
+			output-high;
+			qcom,drive-strength = <2>;
+			power-source = <1>;
+		};
+
+		reset_pin_bottom_default: reset_pin_bottom_default {
+			pins = "gpio11";
+			function = "normal";
+			output-high;
+			qcom,drive-strength = <2>;
+			power-source = <1>;
+		};
+
+		camera_rear_vcm_en {
+			camera_rear_vcm_en_default: camera_rear_vcm_en_default {
+				pins = "gpio12";
+				function = "normal";
+				power-source = <0>;
+				output-low;
+			};
 		};
 	};
 };
+
 
 &soc {
 	camera_ldo: gpio-regulator@0 {
@@ -681,10 +687,209 @@
 		spi-cpol;
 		spi-cpha;
 	};
-}
+};
 
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
+
+	cs35l41_irq {
+		irq_pin_top_default: irq_pin_top_default {
+			mux {
+				pins = "gpio64";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio64";
+				drive-strength = <2>;
+				bias-pull-down;
+				input-enable;
+			};
+		};
+
+		irq_pin_bottom_default: irq_pin_bottom_default {
+			mux {
+				pins = "gpio65";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio65";
+				drive-strength = <2>;
+				bias-pull-down;
+				input-enable;
+			};
+		};
+	};
+	/delete-node/ spkr_1_sd_n;
+	/delete-node/ spkr_2_sd_n;
+
+	ter_tdm {
+		ter_tdm_sleep: ter_tdm_sleep {
+			mux {
+				pins = "gpio53";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio53";
+				drive-strength = <2>;   /* 2 mA */
+				bias-disable;
+			};
+		};
+
+		ter_tdm_active: ter_tdm_active {
+			mux {
+				pins = "gpio53";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio53";
+				drive-strength = <8>;   /* 8 mA */
+				bias-disable;           /* NO PULL */
+			};
+		};
+	};
+
+	ter_tdm_ws {
+		ter_tdm_ws_sleep: ter_tdm_ws_sleep {
+			mux {
+				pins = "gpio54";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio54";
+				drive-strength = <2>;   /* 2 mA */
+				bias-disable;
+			};
+		};
+
+		ter_tdm_ws_active: ter_tdm_ws_active {
+			mux {
+				pins = "gpio54";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio54";
+				drive-strength = <8>;   /* 8 mA */
+				bias-disable;           /* NO PULL */
+			};
+		};
+	};
+
+	ter_tdm_dout {
+		ter_tdm_dout_sleep: ter_tdm_dout_sleep {
+			mux {
+				pins = "gpio56";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio56";
+				drive-strength = <2>;   /* 2 mA */
+				bias-disable;
+			};
+		};
+
+		ter_tdm_dout_active: ter_tdm_dout_active {
+			mux {
+				pins = "gpio56";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio56";
+				drive-strength = <8>;   /* 8 mA */
+				bias-disable;           /* NO PULL */
+			};
+		};
+	};
+
+	ter_tdm_din {
+		ter_tdm_din_sleep: ter_tdm_din_sleep {
+			mux {
+				pins = "gpio55";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio55";
+				drive-strength = <2>;   /* 2 mA */
+				bias-disable;
+			};
+		};
+
+		ter_tdm_din_active: ter_tdm_din_active {
+			mux {
+				pins = "gpio55";
+				function = "ter_mi2s";
+			};
+
+			config {
+				pins = "gpio55";
+				drive-strength = <8>;   /* 8 mA */
+				bias-disable;           /* NO PULL */
+			};
+		};
+	};
+	rt5514_pin {
+		rt5514_irq: rt5514_irq {
+			mux {
+				pins = "gpio58";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio58";
+				drive-strength = <2>;
+				bias-pull-down;
+				input-enable;
+			};
+		};
+
+		rt5514_reset: rt5514_reset {
+			mux {
+				pins = "gpio33";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio33";
+				drive-strength = <2>;
+				output-high;
+			};
+		};
+
+		rt5514_handshake: rt5514_handshake {
+			mux {
+				pins = "gpio57";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio57";
+				drive-strength = <2>;
+				output-low;
+			};
+		};
+
+		rt5514_handshake_ack: rt5514_handshake_ack {
+			mux {
+				pins = "gpio30";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio30";
+				drive-strength = <2>;
+				bias-pull-down;
+				input-enable;
+			};
+		};
+	};
 	touch_irq_default: touch_irq_default {
 		mux {
 			pins = "gpio9";
