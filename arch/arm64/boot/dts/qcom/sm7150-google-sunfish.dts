@@ -58,6 +58,62 @@
 		};
 	};
 
+	&pm8150l_gpios {
+	key_vol_up_default: key_vol_up_default {
+		pins = "gpio2";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		power-source = <0>;
+	};
+
+	reset_stat_default: reset_stat_default {
+		pins = "gpio8";
+		function = "normal";
+		power-source = <1>;
+		output-low;
+		input-disable;
+	};
+};
+
+&qupv3_id_0 {
+	status = "okay";
+};
+
+&qupv3_id_1 {
+	status = "okay";
+};
+
+&remoteproc_adsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	status = "okay";
+	firmware-name = "qcom/sm7150/sunfish/modem.mbn";
+};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&key_vol_up_default>;
+
+		key-vol-up {
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
+			gpios = <&pm8150l_gpios 2 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+			gpio-keys,wakeup;
+		};
+	};
+
+
 	reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -374,10 +430,6 @@
 	};
 };
 
-&tlmm {
-	gpio-reserved-ranges = <59 4>;
-};
-
 &ufs_mem_phy {
 	status = "okay";
 
@@ -396,7 +448,153 @@
 	vccq2-max-microamp = <600000>;
 };
 
+&i2c2 {
+	status = "okay";
+	rt5514: codec@57 {
+		compatible = "realtek,rt5514";
+		reg = <0x57>;
+	};
+}
+
+
+&gmu {
+	status = "okay";
+};
+
+&gpi_dma0 {
+	status = "okay";
+};
+
+&gpi_dma1 {
+	status = "okay";
+};
+
+&gpu {
+	status = "okay";
+};
+
+&i2c7 {
+
+	status = "okay";
+	clock-frequency = <1000000>;
+
+	touchscreen@49 {
+		compatible = "st,stmfts";
+		reg = <0x49>;
+		touchscreen-size-x = <2340>;
+		touchscreen-size-y = <1080>;
+		avdd-supply = <&vreg_l13a_1p8>;
+		vdd-supply = <&vreg_l14a_1p8>;
+	};
+};
+
+&i2c9 {
+	status= "okay";
+	qcom,clk-freq-out = <400000>;
+	cs35l41_l: cs35l41@40 {
+		#sound-dai-cells = <1>;
+		compatible = "cirrus,cs35l41";
+		reg = <0x40>;
+		reset-gpios = <&pm6150l_gpio 8 0>;
+		interrupts = <64 IRQ_TYPE_LEVEL_HIGH>;
+		pinctrl-0 = <&reset_pin_top_default &irq_pin_top_default>;
+
+		cirrus,boost-type = <0>;
+		cirrus,boost-peak-milliamp = <3700>;
+		cirrus,boost-ind-nanohenry = <1000>;
+		cirrus,boost-cap-microfarad = <15>;
+		cirrus,gpio-output-enable;
+		cirrus,gpio-src-select = <0x5>;
+		cirrus,asp-sdout-hiz = <3>;
+	};
+
+	cs35l41_r: cs35l41@41 {
+		#sound-dai-cells = <1>;
+		compatible = "cirrus,cs35l41";
+		reg = <0x41>;
+
+		reset-gpios = <&pm6150l_gpio 11 0>;
+		pinctrl-0 = <&reset_pin_bottom_default &irq_pin_bottom_default>;
+
+		interrupts = <65 IRQ_TYPE_LEVEL_HIGH>;
+
+		cirrus,asp-sdout-hiz = <3>;
+
+		cirrus,boost-peak-milliamp = <3700>;
+		cirrus,boost-ind-nanohenry = <1000>;
+		cirrus,boost-cap-microfarad = <15>;
+
+		cirrus,gpio-src-select = <0x5>;
+		cirrus,gpio-output-enable;
+	};
+
+	slg51000: slg51000@75 {
+		compatible = "dlg,slg51000";
+		reg = <0x75>;
+		dlg,cs-gpios = <&pm6150l_gpios 4 0>,
+				   <&pm6150l_gpios 6 0>;
+		dlg,enable-gpios = <&pm6150l_gpios 1 0>,
+				   <&pm6150l_gpios 5 0>;
+
+		regulators {
+			slg51000_ldo1: ldo1 {
+				regulator-name = "ldo1";
+				regulator-min-microvolt = <2250000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			slg51000_ldo2: ldo2 {
+				regulator-name = "ldo2";
+				regulator-min-microvolt = <2250000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			slg51000_ldo3: ldo3 {
+				regulator-name = "ldo3";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3750000>;
+			};
+
+			slg51000_ldo4: ldo4 {
+				regulator-name = "ldo4";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3750000>;
+			};
+
+			slg51000_ldo5: ldo5 {
+				regulator-name = "ldo5";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <1200000>;
+			};
+
+			slg51000_ldo6: ldo6 {
+				regulator-name = "ldo6";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <1200000>;
+			};
+
+			slg51000_ldo7: ldo7 {
+				regulator-name = "ldo7";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <3750000>;
+			};
+		};
+	};
+}
+
 &pm6150_gpio {
+	usb_otp_en {
+		usb_otp_en_default: usb_otp_en_default {
+			pins = "gpio2";
+			function = "normal";
+			qcom,drive-strength = <2>;
+			power-source = <0>;
+			bias-disable;
+			output-low;
+			input-disable;
+		};
+	};
+
 	touch_power_default: touch_power_default {
 		pins = "gpio4";
 		function = "normal";
@@ -405,29 +603,88 @@
 		output-high;
 		bias-disable;
 	};
+	ext_5v_vbus {
+		ext_5v_vbus_default: ext_5v_vbus_default {
+			pins = "gpio1";
+			function = "normal";
+			output-low;
+			power-source = <1>;
+		};
+	};
 };
 
-&usb_1 {
+&ipa {
 	status = "okay";
 
-	qcom,select-utmi-as-pipe-clk;
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/sm7150/sunfish/ipa_fws.mbn";
 };
 
-&usb_1_dwc3 {
+&pm6150_pon {
+	pm6150_resin: resin {
+		compatible = "qcom,pm8941-resin";
+		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
+		debounce = <15625>;
+		bias-pull-up;
+		linux,code = <KEY_VOLUMEDOWN>;
+	};
+};
+
+&pm6150l_gpio {
+	reset_pin_top_default: reset_pin_top_default {
+		pins = "gpio8";
+		function = "normal";
+		output-high;
+		qcom,drive-strength = <2>;
+		power-source = <1>;
+	};
+
+	reset_pin_bottom_default: reset_pin_bottom_default {
+		pins = "gpio11";
+		function = "normal";
+		output-high;
+		qcom,drive-strength = <2>;
+		power-source = <1>;
+	};
+
+	camera_rear_vcm_en {
+		camera_rear_vcm_en_default: camera_rear_vcm_en_default {
+			pins = "gpio12";
+			function = "normal";
+			power-source = <0>;
+			output-low;
+		};
+	};
+};
+
+&soc {
+	camera_ldo: gpio-regulator@0 {
+		compatible = "regulator-fixed";
+		reg = <0x00 0x00>;
+		regulator-name = "camera_ldo";
+		regulator-min-microvolt = <2850000>;
+		regulator-max-microvolt = <2850000>;
+		enable-active-high;
+		gpio = <&pm6150l_gpio 12 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&spi0 {
 	status = "okay";
-
-	maximum-speed = "high-speed";
-	dr_mode = "peripheral";
-};
-
-&usb_1_hsphy {
-	status = "okay";
-	vdd-supply = <&vreg_l4a_0p88>;
-	vdda-pll-supply = <&vreg_l11a_1p8>;
-	vdda-phy-dpdm-supply = <&vreg_l17a_3p1>;
-};
+	mnh-spi@0 {
+		compatible = "realtek,rt5514";
+		reg = <0>;
+		interrupts =
+			<58 0>,
+			<30 0>;
+		spi-max-frequency = <10000000>;
+		spi-cpol;
+		spi-cpha;
+	};
+}
 
 &tlmm {
+	gpio-reserved-ranges = <59 4>;
 	touch_irq_default: touch_irq_default {
 		mux {
 			pins = "gpio9";
@@ -468,4 +725,24 @@
 			bias-disable;
 		};
 	};
+};
+
+&usb_1 {
+	status = "okay";
+
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_1_dwc3 {
+	status = "okay";
+
+	maximum-speed = "high-speed";
+	dr_mode = "peripheral";
+};
+
+&usb_1_hsphy {
+	status = "okay";
+	vdd-supply = <&vreg_l4a_0p88>;
+	vdda-pll-supply = <&vreg_l11a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l17a_3p1>;
 };
