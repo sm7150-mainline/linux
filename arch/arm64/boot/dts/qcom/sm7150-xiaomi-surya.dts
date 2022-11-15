@@ -473,6 +473,19 @@
 	};
 };
 
+&pm8150l_flash {
+	status = "okay";
+
+	led-1 {
+		function = LED_FUNCTION_FLASH;
+		color = <LED_COLOR_ID_WHITE>;
+		led-sources = <1>;
+		led-max-microamp = <150000>;
+		flash-max-microamp = <1000000>;
+		flash-max-timeout-us = <1280000>;
+	};
+};
+
 &pm8150l_gpios {
 	key_vol_up_default: key_vol_up_default {
 		pins = "gpio2";
