@@ -760,8 +760,7 @@ static const struct qmp_phy_cfg sm6115_ufsphy_cfg = {
 };
 
 static const struct qmp_phy_cfg sm7150_ufsphy_cfg = {
-	.type			= PHY_TYPE_UFS,
-	.nlanes			= 1,
+	.lanes			= 1,
 
 	.serdes_tbl		= sdm845_ufsphy_serdes_tbl,
 	.serdes_tbl_num		= ARRAY_SIZE(sdm845_ufsphy_serdes_tbl),
@@ -780,8 +779,6 @@ static const struct qmp_phy_cfg sm7150_ufsphy_cfg = {
 	.start_ctrl		= SERDES_START,
 	.pwrdn_ctrl		= SW_PWRDN,
 	.phy_status		= PHYSTATUS,
-
-	.is_dual_lane_phy	= false,
 };
 
 static const struct qmp_phy_cfg sm8150_ufsphy_cfg = {
