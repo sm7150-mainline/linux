@@ -423,7 +423,8 @@ static const struct qcom_llcc_config sm7150_cfg = {
 	.sct_data       = sm7150_data,
 	.size           = ARRAY_SIZE(sm7150_data),
 	.need_llcc_cfg	= true,
-	.reg_offset	= llcc_v1_2_reg_offset,
+	.reg_offset	= llcc_v1_reg_offset,
+	.edac_reg_offset = &llcc_v1_edac_reg_offset,
 };
 
 static const struct qcom_llcc_config sm8150_cfg = {
