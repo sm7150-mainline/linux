@@ -26,15 +26,11 @@
 #include <linux/of_irq.h>
 #include <linux/pm_runtime.h>
 
-#if defined(CONFIG_FB)
-#ifdef CONFIG_DRM_MSM
+#ifdef CONFIG_DRM
 #include <drm/msm_drm_notify.h>
 #endif
 #include <linux/notifier.h>
 #include <linux/fb.h>
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-#include <linux/earlysuspend.h>
-#endif
 
 #include "nt36xxx.h"
 //#include <linux/spi/spi-geni-qcom.h>
