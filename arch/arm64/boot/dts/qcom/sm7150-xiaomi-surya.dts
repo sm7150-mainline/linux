@@ -386,6 +386,45 @@
 	status = "okay";
 };
 
+&dispcc {
+	status = "okay";
+};
+
+
+&dsi0 {
+	status = "okay";
+
+	panel: panel@0 {
+		compatible = "nt36672c";
+		reg = <0>;
+
+		//reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_out {
+	data-lanes = <0 1 2 3>;
+	remote-endpoint = <&panel_in>;
+};
+
+&dsi_phy {
+	status = "okay";
+};
+
+&mdp {
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
 &gpu {
 	status = "okay";
 };

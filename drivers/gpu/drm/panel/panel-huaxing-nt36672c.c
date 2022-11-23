@@ -317,7 +317,7 @@ static int nt36672c_probe(struct mipi_dsi_device *dsi)
 		return ret;
 	}
 	
-	ret = mipi_dsi_compression_mode(dsi,true)
+	ret = mipi_dsi_compression_mode(dsi, true);
 	if (ret < 0) {
 		dev_err(dev, "Failed to Enable DSC Compression %d\n", ret);
 	}
