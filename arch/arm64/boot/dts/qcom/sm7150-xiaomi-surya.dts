@@ -395,7 +395,7 @@
 	status = "okay";
 
 	panel: panel@0 {
-		compatible = "nt36672c";
+		compatible = "huaxing,nt36672c";
 		reg = <0>;
 
 		//reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
