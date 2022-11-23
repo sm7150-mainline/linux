@@ -13,7 +13,6 @@
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
-
 struct nt36672c {
 	struct drm_panel panel;
 	struct mipi_dsi_device *dsi;
@@ -317,7 +316,12 @@ static int nt36672c_probe(struct mipi_dsi_device *dsi)
 		drm_panel_remove(&ctx->panel);
 		return ret;
 	}
-
+	
+	ret = mipi_dsi_compression_mode(dsi,true)
+	if (ret < 0) {
+		dev_err(dev, "Failed to Enable DSC Compression %d\n", ret);
+	}
+	
 	return 0;
 }
 
