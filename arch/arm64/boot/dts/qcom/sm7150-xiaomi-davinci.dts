@@ -41,10 +41,20 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
-		/*
-		 * The panel is in cmd-mode (not video-mode),
-		 * which means that simplefb cannot be used.
-		 */
+		framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			width = <1080>;
+			height = <2340>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			/*
+			 * That's (going to be) a lot of clocks, but it's necessary due
+			 * to unused clk cleanup & no panel driver yet (& no dispcc either)..
+			 */
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>,
+				 <&gcc GCC_DISP_SF_AXI_CLK>;
+		};
 	};
 
 	gpio-keys {
@@ -64,6 +74,11 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
+
+		framebuffer_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			no-map;
+		};
 
 		adsp_mem: memory@95100000 {
 			reg = <0x0 0x95100000 0x0 0x2600000>;
@@ -538,7 +553,7 @@
 };
 
 &tlmm {
-	gpio-reserved-ranges = <59 4>;
+	gpio-reserved-ranges = <0 4>, <59 4>;
 
 	qup_uart3_sleep: qup-uart3-sleep {
 		pinmux {
