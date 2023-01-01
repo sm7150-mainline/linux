@@ -121,7 +121,7 @@
 
 		rmtfs_mem: memory@fde01000 {
 			compatible = "qcom,rmtfs-mem";
-			reg = <0 0xfde01000 0 0x200000>;
+			reg = <0 0xf2e01000 0 0x200000>;
 			no-map;
 
 			qcom,client-id = <1>;
@@ -441,6 +441,13 @@
 	clock-frequency = <100000>;
 
 	/* goodix,gt9889 (touchscreen) @ 5d */
+};
+
+&ipa {
+	status = "okay";
+
+	memory-region = <&ipa_fw_mem>;
+	firmware-name = "qcom/sm7150/davinci/ipa_fws.mbn";
 };
 
 &pm6150_pon {
