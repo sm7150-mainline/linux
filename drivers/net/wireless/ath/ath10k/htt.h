@@ -1929,6 +1929,10 @@ struct ath10k_htt {
 	bool bundle_tx;
 	struct sk_buff_head tx_req_head;
 	struct sk_buff_head tx_complete_head;
+
+	u8 rx_in_ord_split_tid;
+	u16 rx_in_ord_split_peer_id;
+	struct sk_buff_head rx_in_ord_split;
 };
 
 struct ath10k_htt_tx_ops {
