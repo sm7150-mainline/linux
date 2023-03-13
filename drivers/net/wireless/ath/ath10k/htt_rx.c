@@ -297,6 +297,8 @@ void ath10k_htt_rx_free(struct ath10k_htt *htt)
 	skb_queue_purge(&htt->rx_in_ord_compl_q);
 	skb_queue_purge(&htt->tx_fetch_ind_q);
 
+	skb_queue_purge(&htt->rx_in_ord_split);
+
 	spin_lock_bh(&htt->rx_ring.lock);
 	ath10k_htt_rx_ring_free(htt);
 	spin_unlock_bh(&htt->rx_ring.lock);
@@ -845,6 +847,8 @@ int ath10k_htt_rx_alloc(struct ath10k_htt *htt)
 	skb_queue_head_init(&htt->rx_in_ord_compl_q);
 	skb_queue_head_init(&htt->tx_fetch_ind_q);
 	atomic_set(&htt->num_mpdus_ready, 0);
+
+	skb_queue_head_init(&htt->rx_in_ord_split);
 
 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "htt rx ring size %d fill_level %d\n",
 		   htt->rx_ring.size, htt->rx_ring.fill_level);
@@ -3163,6 +3167,10 @@ static int ath10k_htt_rx_extract_amsdu(struct ath10k_hw_params *hw,
 	if (WARN_ON(!skb_queue_empty(amsdu)))
 		return -EINVAL;
 
+	msdu = skb_peek(list);
+	rxd = HTT_RX_BUF_TO_RX_DESC(hw,
+				    (void *)msdu->data - hw->rx_desc_ops->rx_desc_size);
+
 	while ((msdu = __skb_dequeue(list))) {
 		__skb_queue_tail(amsdu, msdu);
 
@@ -3264,7 +3272,6 @@ static int ath10k_htt_rx_in_ord_ind(struct ath10k *ar, struct sk_buff *skb)
 	struct ath10k_htt *htt = &ar->htt;
 	struct htt_resp *resp = (void *)skb->data;
 	struct ieee80211_rx_status *status = &htt->rx_status;
-	struct sk_buff_head list;
 	struct sk_buff_head amsdu;
 	u16 peer_id;
 	u16 msdu_count;
@@ -3299,16 +3306,32 @@ static int ath10k_htt_rx_in_ord_ind(struct ath10k *ar, struct sk_buff *skb)
 		return -EINVAL;
 	}
 
+	if (!skb_queue_empty(&htt->rx_in_ord_split)) {
+		/* It might still be possible to handle this case if there is
+		 * only one peer that splits at each given moment. We are
+		 * bailing out because we should have a test case for this
+		 * before trying to fix it.
+		 */
+		if (tid != htt->rx_in_ord_split_tid
+		 || peer_id != htt->rx_in_ord_split_peer_id
+		 || offload) {
+			ath10k_warn(ar, "split amsdu did not resume immediately\n");
+			htt->rx_confused = true;
+			return -EIO;
+		}
+	}
+
 	/* The event can deliver more than 1 A-MSDU. Each A-MSDU is later
 	 * extracted and processed.
+	 *
+	 * It can also continue a previous A-MSDU.
 	 */
-	__skb_queue_head_init(&list);
 	if (ar->hw_params.target_64bit)
 		ret = ath10k_htt_rx_pop_paddr64_list(htt, &resp->rx_in_ord_ind,
-						     &list);
+						     &htt->rx_in_ord_split);
 	else
 		ret = ath10k_htt_rx_pop_paddr32_list(htt, &resp->rx_in_ord_ind,
-						     &list);
+						     &htt->rx_in_ord_split);
 
 	if (ret < 0) {
 		ath10k_warn(ar, "failed to pop paddr list: %d\n", ret);
@@ -3320,11 +3343,12 @@ static int ath10k_htt_rx_in_ord_ind(struct ath10k *ar, struct sk_buff *skb)
 	 * separately.
 	 */
 	if (offload)
-		ath10k_htt_rx_h_rx_offload(ar, &list);
+		ath10k_htt_rx_h_rx_offload(ar, &htt->rx_in_ord_split);
 
-	while (!skb_queue_empty(&list)) {
+	while (!skb_queue_empty(&htt->rx_in_ord_split)) {
 		__skb_queue_head_init(&amsdu);
-		ret = ath10k_htt_rx_extract_amsdu(&ar->hw_params, &list, &amsdu);
+		ret = ath10k_htt_rx_extract_amsdu(&ar->hw_params,
+						  &htt->rx_in_ord_split, &amsdu);
 		switch (ret) {
 		case 0:
 			/* Note: The in-order indication may report interleaved
@@ -3340,12 +3364,15 @@ static int ath10k_htt_rx_in_ord_ind(struct ath10k *ar, struct sk_buff *skb)
 			ath10k_htt_rx_h_enqueue(ar, &amsdu, status);
 			break;
 		case -EAGAIN:
-			fallthrough;
+			htt->rx_in_ord_split_tid = tid;
+			htt->rx_in_ord_split_peer_id = peer_id;
+
+			return -EIO;
 		default:
 			/* Should not happen. */
 			ath10k_warn(ar, "failed to extract amsdu: %d\n", ret);
 			htt->rx_confused = true;
-			__skb_queue_purge(&list);
+			__skb_queue_purge(&htt->rx_in_ord_split);
 			return -EIO;
 		}
 	}
