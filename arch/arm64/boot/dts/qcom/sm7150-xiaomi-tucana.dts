@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&cont_splash_mem {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+};
+
+/ {
+	/*
+	 * Xiaomi Mi Note 10 (Xiaomi Mi CC9 Pro)
+	 * Xiaomi Mi Note 10 Pro (Xiaomi Mi CC9 Pro Premium Edition)
+	 */
+	model = "Xiaomi Mi Note 10";
+	compatible = "xiaomi,tucana", "qcom,sm7150";
+
+	qcom,board-id = <42 0>;
+
+	reserved-memory {
+		adsp_mem: memory@95100000 {
+			reg = <0x0 0x95100000 0x0 0x2600000>;
+			no-map;
+		};
+
+		wlan_msa_mem: memory@97700000 {
+			reg = <0x0 0x97700000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: memory@97880000 {
+			reg = <0x0 0x97880000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: memory@97900000 {
+			reg = <0x0 0x97900000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: memory@97910000 {
+			reg = <0x0 0x97910000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: memory@97915000 {
+			reg = <0x0 0x97915000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: memory@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&framebuffer {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+	height = <2340>;
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/tucana/a615_zap.mbn";
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ti,drv2605l (haptic) @ 5a */
+	/* awinic,aw3644 (flash led) @ 63 */
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* st,fts (touchscreen) @ 49 */
+	/* goodix,gt9886 (touchscreen) @ 5d */
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nxp,tfa98xx (amplifire) @ 34 */
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/tucana/ipa_fws.mbn";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 67 GPIO_ACTIVE_HIGH>;
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/tucana/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/tucana/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/tucana/modem.mbn";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/tucana/venus.mbn";
+};
