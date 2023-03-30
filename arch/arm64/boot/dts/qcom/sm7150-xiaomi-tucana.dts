@@ -1,0 +1,300 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&cont_splash_mem {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+};
+
+/ {
+	/*
+	 * Xiaomi Mi Note 10 (Xiaomi Mi CC9 Pro)
+	 * Xiaomi Mi Note 10 Pro (Xiaomi Mi CC9 Pro Premium Edition)
+	 */
+	model = "Xiaomi Mi Note 10";
+	compatible = "xiaomi,tucana", "qcom,sm7150";
+
+	qcom,board-id = <42 0>;
+
+	reserved-memory {
+		adsp_mem: adsp@95100000 {
+			reg = <0x0 0x95100000 0x0 0x2600000>;
+			no-map;
+		};
+
+		wlan_msa_mem: wlan_msa@97700000 {
+			reg = <0x0 0x97700000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97880000 {
+			reg = <0x0 0x97880000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97900000 {
+			reg = <0x0 0x97900000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97910000 {
+			reg = <0x0 0x97910000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97915000 {
+			reg = <0x0 0x97915000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&framebuffer {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+	height = <2340>;
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/tucana/a615_zap.mbn";
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ti,drv2605l (haptic) @ 5a */
+	/* awinic,aw3644 (flash led) @ 63 */
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* st,fts (touchscreen) @ 49 */
+	/* goodix,gt9886 (touchscreen) @ 5d */
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nxp,tfa98xx (amplifire) @ 34 */
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/tucana/ipa_fws.mbn";
+};
+
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA1",
+			  "SWR_TX_DATA2",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA1",
+			  "SWR_RX_DATA2",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "BT_FM_SLIMBUS_DATA",
+			  "BT_FM_SLIMBUS_CLK";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 67 GPIO_ACTIVE_HIGH>;
+};
+
+&pm6150_gpios {
+	gpio-line-names = "FOD_LDO_EN1", /* GPIO_1 */
+			  "FOD_LDO_EN2",
+			  "NC",
+			  "VBUS_NTC_CTRL",
+			  "SLB",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "FORCED_USB_BOOT",
+			  "NC";  /* GPIO_10 */
+};
+
+&pm6150l_gpios {
+	gpio-line-names = "NC", /* GPIO_1 */
+			  "KYPD_VOLP_N",
+			  "CAMW_LDO_EN",
+			  "SF_DRV_STR",
+			  "NC",
+			  "NC",
+			  "SLB",
+			  "CAMT1_LDO_EN",
+			  "LCD_RESET_N",
+			  "PWM_HAPTICS", /* GPIO_10 */
+			  "CAMT2_LDO_EN",
+			  "SF_DRV_HWEN";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/tucana/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/tucana/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/tucana/modem.mbn";
+};
+
+&tlmm {
+	gpio-line-names = "NFC_ESE_SPI_MISO", /* GPIO_0 */
+			  "NFC_ESE_SPI_MOSI",
+			  "NFC_ESE_SPI_CLK",
+			  "NFC_ESE_SPI_CS_N",
+			  "HAPTICS_EN",
+			  "CAM_DOVDD_EN",
+			  "TS_I2C_SDA",
+			  "TS_I2C_SCL",
+			  "TS_RESET_N",
+			  "TS_INT_N",
+			  "MDP_VSYNC_P", /* GPIO_10 */
+			  "CAMT1_RSTN",
+			  "SPKR_PA_RST",
+			  "CAM_MCLK0",
+			  "CAM_MCLK1",
+			  "CAM_MCLK2",
+			  "CAM_MCLK3",
+			  "CCI_I2C_SDA0",
+			  "CCI_I2C_SCL0",
+			  "CCI_I2C_SDA1",
+			  "CCI_I2C_SCL1", /* GPIO_20 */
+			  "CAMM_LDO_EN",
+			  "FL_STROBE_TRIG",
+			  "CAMF_RSTN",
+			  "CAMM_RSTN",
+			  "CAMU_RSTN",
+			  "CAMW_RSTN",
+			  "CCI_I2C_SDA2",
+			  "CCI_I2C_SCL2",
+			  "CAMU_LDO_EN",
+			  "CAMT2_RSTN",  /* GPIO_30 */
+			  "NFC_LABBCLK3_EN",
+			  "ERR_INT_N",
+			  "LCD_ID_DET1",
+			  "NFC_I2C_SDA",
+			  "NFC_I2C_SCL",
+			  "NFC_DWL_REQ",
+			  "NFC_IRQ",
+			  "BT_UART_CTS",
+			  "BT_UART_RFR",
+			  "BT_UART_TX", /* GPIO_40 */
+			  "BT_UART_RX",
+			  "NC",
+			  "INFARED_SPI_MOSI",
+			  "BLSP2_UART_TX",
+			  "BLSP2_UART_RX",
+			  "APPS_I2C_SDA",
+			  "APPS_I2C_SCL",
+			  "FORCED_USB_BOOT",
+			  "SPKR_I2S_BCK",
+			  "SPKR_I2S_WS", /* GPIO_50 */
+			  "SPKR_I2S_DOUT",
+			  "SPKR_I2S_DIN1",
+			  "TYPC_I2C_SDA",
+			  "TYPC_I2C_SCL",
+			  "LCD_ID_DET2",
+			  "SPKR_INT",
+			  "CAMF_LDO_EN",
+			  "BQ25970_MASTER_INT",
+			  "FOD_SPI_MISO",
+			  "FOD_SPI_MOSI", /* GPIO_60 */
+			  "FOD_SPI_SCLK",
+			  "FOD_SPI_CS_N",
+			  "FOD_LDO_EN",
+			  "GPOUT",
+			  "FOD_RST",
+			  "SF_DRV_TX",
+			  "NFC_ENABLE",
+			  "TOF_INT",
+			  "FOD_INT",
+			  "RFFE6_CLK", /* GPIO_70 */
+			  "RFFE6_DATA",
+			  "TP_VDDI_EN",
+			  "WLAN_SW_CTRL",
+			  "GRFC_4",
+			  "UIM2_DATA",
+			  "UIM2_CLK",
+			  "UIM2_RESET",
+			  "UIM2_PRESENT",
+			  "UIM1_DATA",
+			  "UIM1_CLK", /* GPIO_80 */
+			  "UIM1_RESET",
+			  "UIM1_PRESENT",
+			  "GRFC_8",
+			  "GRFC_9",
+			  "WMSS_RESET_N",
+			  "ACCEL_INT",
+			  "GYRO_INT",
+			  "MIPI_SEL1",
+			  "ALS_INT_N",
+			  "MIPI_SEL2", /* GPIO_90 */
+			  "SF_DRV_TORCH",
+			  "RFFE4_CLK",
+			  "NC",
+			  "SW_IO",
+			  "GRFC_3",
+			  "QLINK_REQUEST",
+			  "QLINK_ENABLE",
+			  "GRFC_2",
+			  "NC",
+			  "NC", /* GPIO_100 */
+			  "RFFE3_DATA",
+			  "RFFE3_CLK",
+			  "RFFE4_DATA",
+			  "USB_PHY_PS",
+			  "RFFE5_DATA",
+			  "RFFE5_CLK",
+			  "GRFC_5",
+			  "WLAN_COEX_UART_TXD",
+			  "WLAN_COEX_UART_RXD",
+			  "GRFC_34", /* GPIO_110 */
+			  "GRFC_33",
+			  "RFFE1_DATA",
+			  "RFFE1_CLK";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/tucana/venus.mbn";
+};
