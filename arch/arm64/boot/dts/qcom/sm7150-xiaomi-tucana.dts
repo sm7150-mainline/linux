@@ -1,0 +1,492 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ * Copyright (c) 2024-2025, Alexander Baransky <alexander.baranskiy@yandex.ru>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+#include <dt-bindings/input/ti-drv260x.h>
+
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&adsp_mem {
+	reg = <0x0 0x95700000 0x0 0x2600000>;
+};
+
+&cont_splash_mem {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+};
+
+&tz_mem {
+	reg = <0x0 0x86200000 0x0 0x4900000>;
+};
+
+/ {
+	/*
+	 * Xiaomi Mi Note 10 (Xiaomi Mi CC9 Pro)
+	 * Xiaomi Mi Note 10 Pro (Xiaomi Mi CC9 Pro Premium Edition)
+	 */
+	model = "Xiaomi Mi Note 10";
+	compatible = "xiaomi,tucana", "qcom,sm7150";
+
+	qcom,board-id = <42 0>;
+
+	chosen {
+		/*
+		 * Serial engine with the debug UART operates in SPI mode on tucana
+		 * So disable console and remove stdout-path
+		 */
+		/delete-property/ stdout-path;
+		bootargs = "console=null";
+	};
+
+	reserved-memory {
+		wlan_msa_mem: wlan_msa@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97f10000 {
+			reg = <0x0 0x97f10000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97f15000 {
+			reg = <0x0 0x97f15000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@f2e01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xf2e01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+
+	sound {
+		compatible = "qcom,sm8250-sndcard";
+		pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
+		pinctrl-names = "default";
+		model = "Xiaomi Mi Note 10";
+
+		mm1-dai-link {
+			link-name = "MultiMedia1";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		speaker_playback_dai {
+			link-name = "Primary Spkr Playback";
+			cpu {
+				sound-dai = <&q6afedai PRIMARY_MI2S_RX>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&tfa9874>;
+			};
+		};
+	};
+
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+		regulator-name = "ibb";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+		regulator-name = "lab";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_touch_vdd: regulator-touch-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "touch_vdd";
+		gpio = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <4000>;
+		enable-active-high;
+		regulator-boot-on;
+		vin-supply = <&vreg_l10a_1p8>;
+	};
+};
+
+&battery {
+	charge-full-design-microamp-hours = <5260000>;
+};
+
+&framebuffer {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+	height = <2340>;
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/xiaomi/tucana/a615_zap.mbn";
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	haptics@5a {
+		compatible = "ti,drv2605l";
+		reg = <0x5a>;
+		enable-gpios = <&tlmm 4 GPIO_ACTIVE_HIGH>;
+		mode = <DRV260X_LRA_NO_CAL_MODE>;
+		library-sel = <DRV260X_LIB_LRA>;
+		vib-rated-mv = <3200>;
+		vib-overdrive-mv = <3200>;
+	};
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	touchscreen: fts@49 {
+		compatible = "st,fts";
+		reg = <0x49>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-names = "default", "sleep";
+
+		vdd-supply = <&vreg_touch_vdd>;
+		avdd-supply = <&vreg_l6c_3p0>;
+		fts,regulator_dvdd = "vdd";
+		fts,regulator_avdd = "avdd";
+
+		fts,irq-gpio = <&tlmm 9 GPIO_TRANSITORY>;
+		fts,irq-flags = <0x2008>; /* oneshot and trigger low */
+
+		fts,reset-gpio-enable;
+		fts,reset-gpio = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+
+		fts,x-max = <1080>;
+		fts,y-max = <2340>;
+	};
+	/* goodix,gt9886 (touchscreen) @ 5d */
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	tfa9874: codec@34 {
+		compatible = "nxp,tfa9874";
+		reg = <0x34>;
+
+		reset-gpio = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 56 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&spkr_reset &spkr_int>;
+
+		#sound-dai-cells = <0>;
+	};
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/xiaomi/tucana/ipa_fws.mbn";
+};
+
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA1",
+			  "SWR_TX_DATA2",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA1",
+			  "SWR_RX_DATA2",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "BT_FM_SLIMBUS_DATA",
+			  "BT_FM_SLIMBUS_CLK";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 67 GPIO_ACTIVE_HIGH>;
+};
+
+&panel {
+	compatible = "visionox,g2647fb105";
+
+	vsn-supply = <&vreg_ibb>;
+	vsp-supply = <&vreg_lab>;
+};
+
+&pm6150l_flash {
+	status = "okay";
+
+	led-0 {
+		function = LED_FUNCTION_FLASH;
+		function-enumerator = <0>;
+		color = <LED_COLOR_ID_WHITE>;
+		led-sources = <1>;
+		led-max-microamp = <150000>;
+		flash-max-microamp = <1000000>;
+		flash-max-timeout-us = <1280000>;
+	};
+
+	led-1 {
+		function = LED_FUNCTION_FLASH;
+		function-enumerator = <1>;
+		color = <LED_COLOR_ID_WHITE>;
+		led-sources = <2>;
+		led-max-microamp = <150000>;
+		flash-max-microamp = <1000000>;
+		flash-max-timeout-us = <1280000>;
+	};
+};
+
+&pm6150_gpios {
+	gpio-line-names = "FOD_LDO_EN1", /* GPIO_1 */
+			  "FOD_LDO_EN2",
+			  "NC",
+			  "VBUS_NTC_CTRL",
+			  "SLB",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "FORCED_USB_BOOT",
+			  "NC";  /* GPIO_10 */
+};
+
+&pm6150l_gpios {
+	gpio-line-names = "NC", /* GPIO_1 */
+			  "KYPD_VOLP_N",
+			  "CAMW_LDO_EN",
+			  "SF_DRV_STR",
+			  "NC",
+			  "NC",
+			  "SLB",
+			  "CAMT1_LDO_EN",
+			  "LCD_RESET_N",
+			  "PWM_HAPTICS", /* GPIO_10 */
+			  "CAMT2_LDO_EN",
+			  "SF_DRV_HWEN";
+};
+
+&q6afedai {
+	dai@16 {
+		reg = <PRIMARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/xiaomi/tucana/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/xiaomi/tucana/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/xiaomi/tucana/modem.mbn";
+};
+
+&spi8 {
+	status = "okay";
+
+	irled@0 {
+		compatible = "ir-spi-led";
+		reg = <0x0>;
+
+		spi-max-frequency = <19200000>;
+	};
+};
+
+&tlmm {
+	gpio-line-names = "NFC_ESE_SPI_MISO", /* GPIO_0 */
+			  "NFC_ESE_SPI_MOSI",
+			  "NFC_ESE_SPI_CLK",
+			  "NFC_ESE_SPI_CS_N",
+			  "HAPTICS_EN",
+			  "CAM_DOVDD_EN",
+			  "TS_I2C_SDA",
+			  "TS_I2C_SCL",
+			  "TS_RESET_N",
+			  "TS_INT_N",
+			  "MDP_VSYNC_P", /* GPIO_10 */
+			  "CAMT1_RSTN",
+			  "SPKR_PA_RST",
+			  "CAM_MCLK0",
+			  "CAM_MCLK1",
+			  "CAM_MCLK2",
+			  "CAM_MCLK3",
+			  "CCI_I2C_SDA0",
+			  "CCI_I2C_SCL0",
+			  "CCI_I2C_SDA1",
+			  "CCI_I2C_SCL1", /* GPIO_20 */
+			  "CAMM_LDO_EN",
+			  "FL_STROBE_TRIG",
+			  "CAMF_RSTN",
+			  "CAMM_RSTN",
+			  "CAMU_RSTN",
+			  "CAMW_RSTN",
+			  "CCI_I2C_SDA2",
+			  "CCI_I2C_SCL2",
+			  "CAMU_LDO_EN",
+			  "CAMT2_RSTN",  /* GPIO_30 */
+			  "NFC_LABBCLK3_EN",
+			  "ERR_INT_N",
+			  "LCD_ID_DET1",
+			  "NFC_I2C_SDA",
+			  "NFC_I2C_SCL",
+			  "NFC_DWL_REQ",
+			  "NFC_IRQ",
+			  "BT_UART_CTS",
+			  "BT_UART_RFR",
+			  "BT_UART_TX", /* GPIO_40 */
+			  "BT_UART_RX",
+			  "NC",
+			  "INFARED_SPI_MOSI",
+			  "BLSP2_UART_TX",
+			  "BLSP2_UART_RX",
+			  "APPS_I2C_SDA",
+			  "APPS_I2C_SCL",
+			  "FORCED_USB_BOOT",
+			  "SPKR_I2S_BCK",
+			  "SPKR_I2S_WS", /* GPIO_50 */
+			  "SPKR_I2S_DOUT",
+			  "SPKR_I2S_DIN1",
+			  "TYPC_I2C_SDA",
+			  "TYPC_I2C_SCL",
+			  "LCD_ID_DET2",
+			  "SPKR_INT",
+			  "CAMF_LDO_EN",
+			  "BQ25970_MASTER_INT",
+			  "FOD_SPI_MISO",
+			  "FOD_SPI_MOSI", /* GPIO_60 */
+			  "FOD_SPI_SCLK",
+			  "FOD_SPI_CS_N",
+			  "FOD_LDO_EN",
+			  "GPOUT",
+			  "FOD_RST",
+			  "SF_DRV_TX",
+			  "NFC_ENABLE",
+			  "TOF_INT",
+			  "FOD_INT",
+			  "RFFE6_CLK", /* GPIO_70 */
+			  "RFFE6_DATA",
+			  "TP_VDDI_EN",
+			  "WLAN_SW_CTRL",
+			  "GRFC_4",
+			  "UIM2_DATA",
+			  "UIM2_CLK",
+			  "UIM2_RESET",
+			  "UIM2_PRESENT",
+			  "UIM1_DATA",
+			  "UIM1_CLK", /* GPIO_80 */
+			  "UIM1_RESET",
+			  "UIM1_PRESENT",
+			  "GRFC_8",
+			  "GRFC_9",
+			  "WMSS_RESET_N",
+			  "ACCEL_INT",
+			  "GYRO_INT",
+			  "MIPI_SEL1",
+			  "ALS_INT_N",
+			  "MIPI_SEL2", /* GPIO_90 */
+			  "SF_DRV_TORCH",
+			  "RFFE4_CLK",
+			  "NC",
+			  "SW_IO",
+			  "GRFC_3",
+			  "QLINK_REQUEST",
+			  "QLINK_ENABLE",
+			  "GRFC_2",
+			  "NC",
+			  "NC", /* GPIO_100 */
+			  "RFFE3_DATA",
+			  "RFFE3_CLK",
+			  "RFFE4_DATA",
+			  "USB_PHY_PS",
+			  "RFFE5_DATA",
+			  "RFFE5_CLK",
+			  "GRFC_5",
+			  "WLAN_COEX_UART_TXD",
+			  "WLAN_COEX_UART_RXD",
+			  "GRFC_34", /* GPIO_110 */
+			  "GRFC_33",
+			  "RFFE1_DATA",
+			  "RFFE1_CLK";
+
+	spkr_reset: spkr-reset-state {
+		pins = "gpio12";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
+		output-low;
+	};
+
+	spkr_int: spkr-int-state {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/xiaomi/tucana/venus.mbn";
+};
+
+&wifi {
+	qcom,ath10k-calibration-variant = "xiaomi_tucana";
+};
