@@ -1,0 +1,144 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+/ {
+	model = "Xiaomi Mi 11 Lite 4G";
+	compatible = "xiaomi,courbet", "qcom,sm7150";
+
+	qcom,board-id = <45 0>;
+
+	reserved-memory {
+		adsp_mem: adsp@95700000 {
+			reg = <0x0 0x95700000 0x0 0x2600000>;
+			no-map;
+		};
+
+		wlan_msa_mem: wlan_msa@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97f10000 {
+			reg = <0x0 0x97f10000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97f15000 {
+			reg = <0x0 0x97f15000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@fe201000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfe201000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/courbet/a615_zap.mbn";
+	};
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/courbet/ipa_fws.mbn";
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* qcom,pm8008 (pmic) @ 8 */
+	/* qcom,pm8008 (pmic) @ 9 */
+	/* tfa,tfa98xx (speaker amplifier) @ 34 */
+	/* tfa,tfa98xx (speaker amplifier) @ 35 */
+	/* st,fts (ts) @ 49 */
+	/* goodix,gt9886 (ts) @ 5d */
+};
+
+&i2c9 {
+	clock-frequency = <400000>;
+	status = "okay";
+
+	/* qcom,fsa4480 (usb switcher) @ 42 */
+	/* awinic,aw8624 (haptic) @ 5a */
+	/* ti,bq25968 (charger) @ 66 */
+};
+
+&panel {
+	compatible = "mdss,k9a-36-02-0a-mp-dsc";
+};
+
+&nfc_default {
+	pins = "gpio12", "gpio31", "gpio36", "gpio100";
+};
+
+&nfc_sleep {
+	pins = "gpio12", "gpio31", "gpio36", "gpio100";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 100 GPIO_ACTIVE_HIGH>;
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/courbet/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/courbet/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/courbet/modem.mbn";
+};
+
+&sdhc_2 {
+	status = "okay";
+};
+
+&spi4 {
+	clock-frequency = <8000000>;
+	status = "okay";
+
+	/* xiaomi,spits (spi ts) @ 0 */
+};
+
+&spi8 {
+	clock-frequency = <19200000>;
+	status = "okay";
+
+	/* ir-spi @ 0 */
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/courbet/venus.mbn";
+};
