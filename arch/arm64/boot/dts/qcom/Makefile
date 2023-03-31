@@ -220,6 +220,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-courbet.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-davinci.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-surya.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-sweet.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-toco.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7150-xiaomi-tucana.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm7225-fairphone-fp4.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sm8150-hdk.dtb
