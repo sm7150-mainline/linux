@@ -1,0 +1,167 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&cont_splash_mem {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+};
+
+/*
+ * Toco uses the SM7150-AB SoC.
+ * Limit CPU clock to 2.2 GHz
+ */
+
+&cpu6_opp14 {
+	status = "disabled";
+};
+
+/ {
+	model = "Xiaomi Mi Note 10 Lite";
+	compatible = "xiaomi,toco", "qcom,sm7150";
+
+	qcom,board-id = <44 0>;
+
+	reserved-memory {
+		adsp_mem: adsp@95700000 {
+			reg = <0x0 0x95700000 0x0 0x2600000>;
+			no-map;
+		};
+
+		wlan_msa_mem: wlan_msa@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97f10000 {
+			reg = <0x0 0x97f10000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97f15000 {
+			reg = <0x0 0x97f15000 0x0 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x200000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&framebuffer {
+	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+	height = <2340>;
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/toco/a615_zap.mbn";
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ti,drv2605l (haptic) @ 5a */
+	/* awinic,aw3644 (flash led) @ 63 */
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* st,fts (touchscreen) @ 49 */
+
+	touchscreen: goodix@5d {
+		compatible = "goodix,gt9886";
+		reg = <0x5d>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 0x2800>;
+		vtouch-supply = <&vreg_l6c_3p0>; /* 3v3 */
+		vtouch-load = <600000>;
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-names = "default", "sleep";
+		goodix,reset-gpio = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+		goodix,irq-gpio = <&tlmm 9 0x2800>;
+		goodix,avdd-name = "vtouch";
+		goodix,irq-flags = <2>; /* trigger falling;*/
+		goodix,panel-max-x = <1079>;
+		goodix,panel-max-y = <2339>;
+		goodix,panel-max-w = <127>;
+		goodix,power-on-delay-us = <300000>; /* 300ms */
+		goodix,power-off-delay-us = <5000>; /* 50ms */
+	};
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nxp,tfa98xx (amplifire) @ 34 */
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/toco/ipa_fws.mbn";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio67";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 67 GPIO_ACTIVE_HIGH>;
+};
+
+&panel {
+	compatible = "xiaomi,f4-41-06-0a";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/toco/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/toco/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/toco/modem.mbn";
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/toco/venus.mbn";
+};
