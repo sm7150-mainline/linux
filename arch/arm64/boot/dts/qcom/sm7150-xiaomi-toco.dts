@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2023, Danila Tikhonov <danila@jiaxyga.com>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+/*
+ * Toco uses the SM7150-AB SoC.
+ * Limit CPU clock to 2.2 GHz
+ */
+
+&cpu6_opp14 {
+	status = "disabled";
+};
+
+/ {
+	model = "Xiaomi Mi Note 10 Lite";
+	compatible = "xiaomi,toco", "qcom,sm7150";
+
+	qcom,board-id = <44 0>;
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			width = <1080>;
+			height = <2340>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
+		};
+	};
+
+	reserved-memory {
+		adsp_mem: memory@95700000 {
+			reg = <0x0 0x95700000 0x0 0x2600000>;
+			no-map;
+		};
+
+		wlan_msa_mem: memory@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: memory@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: memory@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: memory@97f10000 {
+			reg = <0x0 0x97f10000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: memory@97f15000 {
+			reg = <0x0 0x97f15000 0x0 0x2000>;
+			no-map;
+		};
+
+		framebuffer_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
+			no-map;
+		};
+
+		/*
+		 * The rmtfs memory region in downstream is 'dynamically allocated'
+		 * but given the same address every time. Hard code it as this address is
+		 * where the modem firmware expects it to be.
+		 */
+		rmtfs_mem: memory@fde01000 {
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xfde01000 0 0x600000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+	};
+};
+
+&dispcc {
+	status = "okay";
+};
+
+&i2c2 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nqx,nq-nci (nfc) @ 28 */
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ti,drv2605l (haptic) @ 5a */
+	/* awinic,aw3644 (flash led) @ 63 */
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* st,fts (touchscreen) @ 49 */
+	/* goodix,gt9886 (touchscreen) @ 5d */
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* nxp,tfa98xx (amplifire) @ 34 */
+	/* ti,bq2597x (charger) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/toco/ipa_fws.mbn";
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	status = "okay";
+};
+
+&mdss_dsi0_phy {
+	status = "okay";
+};
+
+&panel {
+	compatible = "xiaomi,f4-41-06-0a";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/toco/adsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/toco/cdsp.mbn";
+	status = "okay";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/toco/modem.mbn";
+	status = "okay";
+};
