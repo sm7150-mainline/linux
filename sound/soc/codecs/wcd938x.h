@@ -597,12 +597,6 @@ struct wcd938x_sdw_ch_info {
 	unsigned int ch_mask;
 };
 
-#define WCD_SDW_CH(id, pn, cmask)	\
-	[id] = {			\
-		.port_num = pn,		\
-		.ch_mask = cmask,	\
-	}
-
 enum wcd938x_tx_sdw_ports {
 	WCD938X_ADC_1_2_PORT = 1,
 	WCD938X_ADC_3_4_PORT,
@@ -666,6 +660,7 @@ struct wcd938x_sdw_priv {
 	struct regmap *regmap;
 };
 
+#include "wcd93xx-sdw.h"
 #if IS_ENABLED(CONFIG_SND_SOC_WCD938X_SDW)
 int wcd938x_sdw_free(struct wcd938x_sdw_priv *wcd,
 		     struct snd_pcm_substream *substream,
@@ -677,10 +672,7 @@ int wcd938x_sdw_hw_params(struct wcd938x_sdw_priv *wcd,
 			  struct snd_pcm_substream *substream,
 			  struct snd_pcm_hw_params *params,
 			  struct snd_soc_dai *dai);
-
-struct device *wcd938x_sdw_device_get(struct device_node *np);
-int wcd938x_swr_get_current_bank(struct sdw_slave *sdev);
-
+#include "wcd93xx-sdw.h"
 #else
 
 static inline int wcd938x_sdw_free(struct wcd938x_sdw_priv *wcd,
