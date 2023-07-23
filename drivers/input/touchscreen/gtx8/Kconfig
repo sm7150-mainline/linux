@@ -1,0 +1,13 @@
+#
+# Goodix touchscreen driver configuration
+#
+menuconfig TOUCHSCREEN_GOODIX_GTX8
+	tristate "Goodix GTx8 touchscreen"
+	depends on I2C
+	depends on OF
+	default n
+	help
+	  Say Y here if you have a Goodix GTx8 touch controller
+	  to your system.
+
+	  If unsure, say N.
