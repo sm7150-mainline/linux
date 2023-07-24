@@ -319,6 +319,8 @@ static int nt36672c_probe(struct mipi_dsi_device *dsi)
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_CLOCK_NON_CONTINUOUS |
 			  MIPI_DSI_MODE_LPM;
 
+	ctx->panel.prepare_prev_first = true;
+
 	drm_panel_init(&ctx->panel, dev, &nt36672c_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 
