@@ -297,6 +297,8 @@ static int ss_ea_f10_probe(struct mipi_dsi_device *dsi)
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO_BURST |
 			  MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
+	ctx->panel.prepare_prev_first = true;
+
 	drm_panel_init(&ctx->panel, dev, &ss_ea_f10_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 
