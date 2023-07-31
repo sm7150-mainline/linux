@@ -74,14 +74,6 @@
 	};
 };
 
-&pm8150l_flash {
-	status = "okay";
-};
-
-&pm8150l_lpg {
-	status = "okay";
-};
-
 &i2c1 {
 	clock-frequency = <100000>;
 	status = "okay";
@@ -156,6 +148,18 @@
 &ipa {
 	memory-region = <&ipa_fw_mem>;
 	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
+	status = "okay";
+};
+
+&panel {
+	compatible = "huaxing,nt36672c";
+};
+
+&pm8150l_flash {
+	status = "okay";
+};
+
+&pm8150l_lpg {
 	status = "okay";
 };
 
