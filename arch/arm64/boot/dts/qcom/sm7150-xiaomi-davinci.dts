@@ -62,6 +62,9 @@
 			height = <2340>;
 			stride = <(1080 * 4)>;
 			format = "a8r8g8b8";
+
+			display = <&panel>;
+
 			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
 		};
 	};
