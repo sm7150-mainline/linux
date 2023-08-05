@@ -17,7 +17,6 @@
 #include "clk-regmap-divider.h"
 #include "common.h"
 #include "gdsc.h"
-#include "reset.h"
 
 enum {
 	DT_BI_TCXO,
