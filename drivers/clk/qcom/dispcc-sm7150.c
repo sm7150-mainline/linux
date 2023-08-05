@@ -21,6 +21,7 @@
 
 enum {
 	P_BI_TCXO,
+	P_CHIP_SLEEP_CLK,
 	P_DISP_CC_PLL0_OUT_EVEN,
 	P_DISP_CC_PLL0_OUT_MAIN,
 	P_DP_PHY_PLL_LINK_CLK,
@@ -32,8 +33,9 @@ enum {
 	P_GPLL0_OUT_MAIN,
 };
 
-static const struct pll_vco fabia_vco[] = {
+static struct pll_vco fabia_vco[] = {
 	{ 249600000, 2000000000, 0 },
+	{ 125000000, 1000000000, 1 },
 };
 
 /* 860MHz configuration */
@@ -92,18 +94,20 @@ static const struct clk_parent_data disp_cc_parent_data_2[] = {
 	{ .fw_name = "bi_tcxo" },
 };
 
+static const struct clk_parent_data disp_cc_parent_data_ao[] = {
+	{ .fw_name = "bi_tcxo_ao" },
+};
+
 static const struct parent_map disp_cc_parent_map_3[] = {
 	{ P_BI_TCXO, 0 },
 	{ P_DISP_CC_PLL0_OUT_MAIN, 1 },
 	{ P_GPLL0_OUT_MAIN, 4 },
-	{ P_DISP_CC_PLL0_OUT_EVEN, 5 },
 };
 
 static const struct clk_parent_data disp_cc_parent_data_3[] = {
 	{ .fw_name = "bi_tcxo" },
 	{ .hw = &disp_cc_pll0.clkr.hw },
 	{ .fw_name = "gcc_disp_gpll0_clk_src" },
-	{ .hw = &disp_cc_pll0_out_even.clkr.hw },
 };
 
 static const struct parent_map disp_cc_parent_map_4[] = {
@@ -128,6 +132,14 @@ static const struct clk_parent_data disp_cc_parent_data_5[] = {
 	{ .fw_name = "gcc_disp_gpll0_clk_src" },
 };
 
+static const struct parent_map disp_cc_parent_map_6[] = {
+	{ P_CHIP_SLEEP_CLK, 0 },
+};
+
+static const struct clk_parent_data disp_cc_parent_data_6[] = {
+	{ .fw_name = "disp_cc_sleep_clk_src" },
+};
+
 static const struct freq_tbl ftbl_disp_cc_mdss_ahb_clk_src[] = {
 	F(19200000, P_BI_TCXO, 1, 0, 0),
 	F(37500000, P_GPLL0_OUT_MAIN, 16, 0, 0),
@@ -146,8 +158,13 @@ static struct clk_rcg2 disp_cc_mdss_ahb_clk_src = {
 		.parent_data = disp_cc_parent_data_5,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_5),
 		.flags = CLK_SET_RATE_PARENT,
-		.ops = &clk_rcg2_shared_ops,
+		.ops = &clk_rcg2_ops,
 	},
+};
+
+static const struct freq_tbl ftbl_disp_cc_mdss_byte0_clk_src[] = {
+	F(19200000, P_BI_TCXO, 1, 0, 0),
+	{ }
 };
 
 static struct clk_rcg2 disp_cc_mdss_byte0_clk_src = {
@@ -159,7 +176,7 @@ static struct clk_rcg2 disp_cc_mdss_byte0_clk_src = {
 		.name = "disp_cc_mdss_byte0_clk_src",
 		.parent_data = disp_cc_parent_data_0,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_0),
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_byte2_ops,
 	},
 };
@@ -173,14 +190,9 @@ static struct clk_rcg2 disp_cc_mdss_byte1_clk_src = {
 		.name = "disp_cc_mdss_byte1_clk_src",
 		.parent_data = disp_cc_parent_data_0,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_0),
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_byte2_ops,
 	},
-};
-
-static const struct freq_tbl ftbl_disp_cc_mdss_dp_aux_clk_src[] = {
-	F(19200000, P_BI_TCXO, 1, 0, 0),
-	{ }
 };
 
 static struct clk_rcg2 disp_cc_mdss_dp_aux_clk_src = {
@@ -188,7 +200,7 @@ static struct clk_rcg2 disp_cc_mdss_dp_aux_clk_src = {
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_2,
-	.freq_tbl = ftbl_disp_cc_mdss_dp_aux_clk_src,
+	.freq_tbl = ftbl_disp_cc_mdss_byte0_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_dp_aux_clk_src",
 		.parent_data = disp_cc_parent_data_2,
@@ -197,17 +209,35 @@ static struct clk_rcg2 disp_cc_mdss_dp_aux_clk_src = {
 	},
 };
 
+static const struct freq_tbl ftbl_disp_cc_mdss_dp_crypto_clk_src[] = {
+	F(108000, P_DP_PHY_PLL_LINK_CLK, 3, 0, 0),
+	F(180000, P_DP_PHY_PLL_LINK_CLK, 3, 0, 0),
+	F(360000, P_DP_PHY_PLL_LINK_CLK, 1.5, 0, 0),
+	F(540000, P_DP_PHY_PLL_LINK_CLK, 1.5, 0, 0),
+	{ }
+};
+
 static struct clk_rcg2 disp_cc_mdss_dp_crypto_clk_src = {
 	.cmd_rcgr = 0x2194,
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_1,
+	.freq_tbl = ftbl_disp_cc_mdss_dp_crypto_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_dp_crypto_clk_src",
 		.parent_data = disp_cc_parent_data_1,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_1),
-		.ops = &clk_byte2_ops,
+		.flags = CLK_GET_RATE_NOCACHE,
+		.ops = &clk_rcg2_ops,
 	},
+};
+
+static const struct freq_tbl ftbl_disp_cc_mdss_dp_link_clk_src[] = {
+	F(162000, P_DP_PHY_PLL_LINK_CLK, 1, 0, 0),
+	F(270000, P_DP_PHY_PLL_LINK_CLK, 1, 0, 0),
+	F(540000, P_DP_PHY_PLL_LINK_CLK, 1, 0, 0),
+	F(810000, P_DP_PHY_PLL_LINK_CLK, 1, 0, 0),
+	{ }
 };
 
 static struct clk_rcg2 disp_cc_mdss_dp_link_clk_src = {
@@ -215,11 +245,13 @@ static struct clk_rcg2 disp_cc_mdss_dp_link_clk_src = {
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_1,
+	.freq_tbl = ftbl_disp_cc_mdss_dp_link_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_dp_link_clk_src",
 		.parent_data = disp_cc_parent_data_1,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_1),
-		.ops = &clk_byte2_ops,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
+		.ops = &clk_rcg2_ops,
 	},
 };
 
@@ -232,6 +264,7 @@ static struct clk_rcg2 disp_cc_mdss_dp_pixel1_clk_src = {
 		.name = "disp_cc_mdss_dp_pixel1_clk_src",
 		.parent_data = disp_cc_parent_data_1,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_1),
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_dp_ops,
 	},
 };
@@ -245,6 +278,7 @@ static struct clk_rcg2 disp_cc_mdss_dp_pixel_clk_src = {
 		.name = "disp_cc_mdss_dp_pixel_clk_src",
 		.parent_data = disp_cc_parent_data_1,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_1),
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_dp_ops,
 	},
 };
@@ -254,7 +288,7 @@ static struct clk_rcg2 disp_cc_mdss_esc0_clk_src = {
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_0,
-	.freq_tbl = ftbl_disp_cc_mdss_dp_aux_clk_src,
+	.freq_tbl = ftbl_disp_cc_mdss_byte0_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_esc0_clk_src",
 		.parent_data = disp_cc_parent_data_0,
@@ -264,11 +298,11 @@ static struct clk_rcg2 disp_cc_mdss_esc0_clk_src = {
 };
 
 static struct clk_rcg2 disp_cc_mdss_esc1_clk_src = {
-	.cmd_rcgr = 0x2148,
+	.cmd_rcgr = 0x2160,
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_0,
-	.freq_tbl = ftbl_disp_cc_mdss_dp_aux_clk_src,
+	.freq_tbl = ftbl_disp_cc_mdss_byte0_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_esc1_clk_src",
 		.parent_data = disp_cc_parent_data_0,
@@ -301,7 +335,8 @@ static struct clk_rcg2 disp_cc_mdss_mdp_clk_src = {
 		.name = "disp_cc_mdss_mdp_clk_src",
 		.parent_data = disp_cc_parent_data_3,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_3),
-		.ops = &clk_rcg2_shared_ops,
+		.flags = CLK_SET_RATE_PARENT,
+		.ops = &clk_rcg2_ops,
 	},
 };
 
@@ -314,7 +349,7 @@ static struct clk_rcg2 disp_cc_mdss_pclk0_clk_src = {
 		.name = "disp_cc_mdss_pclk0_clk_src",
 		.parent_data = disp_cc_parent_data_4,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_4),
-		.flags = CLK_SET_RATE_PARENT, // | CLK_GET_RATE_NOCACHE,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_pixel_ops,
 	},
 };
@@ -328,7 +363,7 @@ static struct clk_rcg2 disp_cc_mdss_pclk1_clk_src = {
 		.name = "disp_cc_mdss_pclk1_clk_src",
 		.parent_data = disp_cc_parent_data_4,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_4),
-		.flags = CLK_SET_RATE_PARENT, // | CLK_GET_RATE_NOCACHE,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 		.ops = &clk_pixel_ops,
 	},
 };
@@ -353,7 +388,7 @@ static struct clk_rcg2 disp_cc_mdss_rot_clk_src = {
 		.name = "disp_cc_mdss_rot_clk_src",
 		.parent_data = disp_cc_parent_data_3,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_3),
-		.ops = &clk_rcg2_shared_ops,
+		.ops = &clk_rcg2_ops,
 	},
 };
 
@@ -362,12 +397,12 @@ static struct clk_rcg2 disp_cc_mdss_vsync_clk_src = {
 	.mnd_width = 0,
 	.hid_width = 5,
 	.parent_map = disp_cc_parent_map_2,
-	.freq_tbl = ftbl_disp_cc_mdss_dp_aux_clk_src,
+	.freq_tbl = ftbl_disp_cc_mdss_byte0_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "disp_cc_mdss_vsync_clk_src",
 		.parent_data = disp_cc_parent_data_2,
 		.num_parents = ARRAY_SIZE(disp_cc_parent_data_2),
-		.ops = &clk_rcg2_shared_ops,
+		.ops = &clk_rcg2_ops,
 	},
 };
 
@@ -434,7 +469,7 @@ static struct clk_branch disp_cc_mdss_byte0_clk = {
 				&disp_cc_mdss_byte0_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -444,13 +479,16 @@ static struct clk_regmap_div disp_cc_mdss_byte0_div_clk_src = {
 	.reg = 0x2128,
 	.shift = 0,
 	.width = 2,
-	.clkr.hw.init = &(struct clk_init_data) {
-		.name = "disp_cc_mdss_byte0_div_clk_src",
-		.parent_hws = (const struct clk_hw*[]){
-			&disp_cc_mdss_byte0_clk_src.clkr.hw,
+	.clkr = {
+		.hw.init = &(struct clk_init_data){
+			.name = "disp_cc_mdss_byte0_div_clk_src",
+			.parent_hws = (const struct clk_hw*[]){
+				&disp_cc_mdss_byte0_clk_src.clkr.hw,
+			},
+			.num_parents = 1,
+			.flags = CLK_GET_RATE_NOCACHE,
+			.ops = &clk_regmap_div_ops,
 		},
-		.num_parents = 1,
-		.ops = &clk_regmap_div_ops,
 	},
 };
 
@@ -466,7 +504,7 @@ static struct clk_branch disp_cc_mdss_byte0_intf_clk = {
 				&disp_cc_mdss_byte0_div_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -484,7 +522,7 @@ static struct clk_branch disp_cc_mdss_byte1_clk = {
 				&disp_cc_mdss_byte1_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -494,13 +532,16 @@ static struct clk_regmap_div disp_cc_mdss_byte1_div_clk_src = {
 	.reg = 0x2144,
 	.shift = 0,
 	.width = 2,
-	.clkr.hw.init = &(struct clk_init_data) {
-		.name = "disp_cc_mdss_byte1_div_clk_src",
-		.parent_hws = (const struct clk_hw*[]){
-			&disp_cc_mdss_byte1_clk_src.clkr.hw,
+	.clkr = {
+		.hw.init = &(struct clk_init_data){
+			.name = "disp_cc_mdss_byte1_div_clk_src",
+			.parent_hws = (const struct clk_hw*[]){
+				&disp_cc_mdss_byte1_clk_src.clkr.hw,
+			},
+			.num_parents = 1,
+			.flags = CLK_GET_RATE_NOCACHE,
+			.ops = &clk_regmap_div_ops,
 		},
-		.num_parents = 1,
-		.ops = &clk_regmap_div_ops,
 	},
 };
 
@@ -516,7 +557,7 @@ static struct clk_branch disp_cc_mdss_byte1_intf_clk = {
 				&disp_cc_mdss_byte1_div_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -552,7 +593,7 @@ static struct clk_branch disp_cc_mdss_dp_crypto_clk = {
 				&disp_cc_mdss_dp_crypto_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -570,7 +611,7 @@ static struct clk_branch disp_cc_mdss_dp_link_clk = {
 				&disp_cc_mdss_dp_link_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -588,6 +629,7 @@ static struct clk_branch disp_cc_mdss_dp_link_intf_clk = {
 				&disp_cc_mdss_dp_link_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
+			.flags = CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -605,7 +647,7 @@ static struct clk_branch disp_cc_mdss_dp_pixel1_clk = {
 				&disp_cc_mdss_dp_pixel1_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -623,7 +665,7 @@ static struct clk_branch disp_cc_mdss_dp_pixel_clk = {
 				&disp_cc_mdss_dp_pixel_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -730,7 +772,7 @@ static struct clk_branch disp_cc_mdss_pclk0_clk = {
 				&disp_cc_mdss_pclk0_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -748,7 +790,7 @@ static struct clk_branch disp_cc_mdss_pclk1_clk = {
 				&disp_cc_mdss_pclk1_clk_src.clkr.hw,
 			},
 			.num_parents = 1,
-			.flags = CLK_SET_RATE_PARENT,
+			.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 			.ops = &clk_branch2_ops,
 		},
 	},
