@@ -2402,22 +2402,18 @@
 		};
 
 		dispcc: clock-controller@af00000 {
-			compatible = "qcom,dispcc-sm7150";
+			compatible = "qcom,sm7150-dispcc";
 			reg = <0 0x0af00000 0 0x200000>;
 			clocks = <&rpmhcc RPMH_CXO_CLK>,
+				 <&rpmhcc RPMH_CXO_CLK_A>,
 				 <&gcc GCC_DISP_GPLL0_CLK_SRC>,
-				 <&gcc GCC_DISP_GPLL0_DIV_CLK_SRC>,
-				 <&dsi_phy 0>,
+				 <&sleep_clk>,
+				 <&dsi_phy 0>, //dsi0
 				 <&dsi_phy 1>,
+				 <0>, //dsi1
 				 <0>,
+				 <0>, //dp
 				 <0>;
-			clock-names = "bi_tcxo",
-				      "gcc_disp_gpll0_clk_src",
-				      "gcc_disp_gpll0_div_clk_src",
-				      "dsi0_phy_pll_out_byteclk",
-				      "dsi0_phy_pll_out_dsiclk",
-				      "dp_phy_pll_link_clk",
-				      "dp_phy_pll_vco_div_clk";
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 			#power-domain-cells = <1>;
