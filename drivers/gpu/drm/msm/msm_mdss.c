@@ -566,7 +566,7 @@ static const struct msm_mdss_data sm6350_data = {
 };
 
 static const struct msm_mdss_data sm7150_data = {
-	.ubwc_version = UBWC_2_0,
+	.ubwc_enc_version = UBWC_2_0,
 	.ubwc_dec_version = UBWC_2_0,
 	.highest_bank_bit = 1,
 };
