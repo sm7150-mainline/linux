@@ -14,6 +14,22 @@
 /delete-node/ &ipa_gsi_mem;
 /delete-node/ &gpu_mem;
 
+/*
+ * Davinci uses the SM7150-AB SoC.
+ * Limit CPU clock to 2.2 GHz
+ * Limit GPU clock to 700 MHz
+ */
+
+&cpu6_opp14 {
+	status = "disabled";
+};
+
+&gpu_opp_table {
+	opp-800000000 {
+		status = "disabled";
+	};
+};
+
 / {
 	model = "Xiaomi Mi Note 10 Lite";
 	compatible = "xiaomi,toco", "qcom,sm7150";
@@ -100,6 +116,19 @@
 	};
 };
 
+
+&dsi0_phy {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&dispcc {
+	status = "okay";
+};
+
 &i2c2 {
 	clock-frequency = <100000>;
 	status = "okay";
@@ -135,6 +164,18 @@
 	memory-region = <&ipa_fw_mem>;
 	firmware-name = "qcom/sm7150/toco/ipa_fws.mbn";
 	status = "okay";
+};
+
+&mdp {
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&panel {
+	compatible = "xiaomi,f4-41-06-0a";
 };
 
 &remoteproc_adsp {
