@@ -348,10 +348,15 @@
 };
 
 &dsi0 {
+	vdda-supply = <&vreg_l3c_1p23>;
+
 	panel: panel@0 {
 		reg = <0>;
-
+		vddio-supply = <&vreg_l18a_2p8>;
 		reset-gpios = <&pm8150l_gpios 9 GPIO_ACTIVE_LOW>;
+
+		pinctrl-0 = <&te_gpio &panel_reset_pin>;
+		pinctrl-names = "default";
 
 		port {
 			panel_in: endpoint {
@@ -359,6 +364,10 @@
 			};
 		};
 	};
+};
+
+&dsi0_phy {
+	vdds-supply = <&vreg_l4a_0p88>;
 };
 
 &dsi0_out {
@@ -410,6 +419,15 @@
 		power-source = <1>;
 		output-low;
 		input-disable;
+	};
+
+	panel_reset_pin: panel-reset-state {
+		pins = "gpio9";
+		function = "func1";
+		qcom,drive-strength = <0x02>;
+		power-source = <0x01>;
+		bias-disable;
+		output-low;
 	};
 };
 
@@ -466,6 +484,13 @@
 };
 
 &tlmm {
+	te_gpio: te-default-state {
+		pins = "gpio10";
+		function = "mdp_vsync";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
 	qup_uart3_sleep: qup-uart3-sleep-state {
 		cts-pins {
 			pins = "gpio38";
