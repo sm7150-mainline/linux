@@ -104,6 +104,7 @@ examples:
                 endpoint {
                     remote-endpoint = <&dsi1_in>;
                 };
+            };
 
             port@2 {
                 reg = <2>;
