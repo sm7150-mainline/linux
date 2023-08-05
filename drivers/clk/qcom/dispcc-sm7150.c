@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2022, David Wronek <w.david0@protonmail.com>
+ * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023, David Wronek <davidwronek@gmail.com>
  */
 
 #include <linux/clk-provider.h>
@@ -16,6 +17,7 @@
 #include "clk-regmap-divider.h"
 #include "common.h"
 #include "gdsc.h"
+#include "reset.h"
 
 enum {
 	P_BI_TCXO,
@@ -32,6 +34,13 @@ enum {
 
 static const struct pll_vco fabia_vco[] = {
 	{ 249600000, 2000000000, 0 },
+};
+
+/* 860MHz configuration */
+static const struct alpha_pll_config disp_cc_pll0_config = {
+	.l = 0x2c,
+	.alpha = 0xcaaa,
+	.test_ctl_val = 0x40000000,
 };
 
 static struct clk_alpha_pll disp_cc_pll0 = {
@@ -348,13 +357,13 @@ static struct clk_rcg2 disp_cc_mdss_pclk1_clk_src = {
 };
 
 static const struct freq_tbl ftbl_disp_cc_mdss_rot_clk_src[] = {
-        F(19200000, P_BI_TCXO, 1, 0, 0),
-        F(171428571, P_GPLL0_OUT_MAIN, 3.5, 0, 0),
-        F(200000000, P_GPLL0_OUT_MAIN, 3, 0, 0),
-        F(300000000, P_GPLL0_OUT_MAIN, 2, 0, 0),
-        F(344000000, P_DISP_CC_PLL0_OUT_MAIN, 2.5, 0, 0),
-        F(430000000, P_DISP_CC_PLL0_OUT_MAIN, 2, 0, 0),
-        { }
+	F(19200000, P_BI_TCXO, 1, 0, 0),
+	F(171428571, P_GPLL0_OUT_MAIN, 3.5, 0, 0),
+	F(200000000, P_GPLL0_OUT_MAIN, 3, 0, 0),
+	F(300000000, P_GPLL0_OUT_MAIN, 2, 0, 0),
+	F(344000000, P_DISP_CC_PLL0_OUT_MAIN, 2.5, 0, 0),
+	F(430000000, P_DISP_CC_PLL0_OUT_MAIN, 2, 0, 0),
+	{ }
 };
 
 static struct clk_rcg2 disp_cc_mdss_rot_clk_src = {
@@ -801,10 +810,6 @@ static struct gdsc mdss_gdsc = {
 	.flags = HW_CTRL,
 };
 
-static struct gdsc *disp_cc_sm7150_gdscs[] = {
-	[MDSS_GDSC] = &mdss_gdsc,
-};
-
 static struct clk_regmap *disp_cc_sm7150_clocks[] = {
 	[DISP_CC_MDSS_AHB_CLK] = &disp_cc_mdss_ahb_clk.clkr,
 	[DISP_CC_MDSS_AHB_CLK_SRC] = &disp_cc_mdss_ahb_clk_src.clkr,
@@ -848,12 +853,16 @@ static struct clk_regmap *disp_cc_sm7150_clocks[] = {
 	[DISP_CC_PLL0_OUT_EVEN] = &disp_cc_pll0_out_even.clkr,
 };
 
+static struct gdsc *disp_cc_sm7150_gdscs[] = {
+	[MDSS_GDSC] = &mdss_gdsc,
+};
+
 static const struct regmap_config disp_cc_sm7150_regmap_config = {
-	.reg_bits = 32,
-	.reg_stride = 4,
-	.val_bits = 32,
-	.max_register = 0x10000,
-	.fast_io = true,
+	.reg_bits	= 32,
+	.reg_stride	= 4,
+	.val_bits	= 32,
+	.max_register	= 0x10000,
+	.fast_io	= true,
 };
 
 static const struct qcom_cc_desc disp_cc_sm7150_desc = {
@@ -865,7 +874,7 @@ static const struct qcom_cc_desc disp_cc_sm7150_desc = {
 };
 
 static const struct of_device_id disp_cc_sm7150_match_table[] = {
-	{ .compatible = "qcom,dispcc-sm7150" },
+	{ .compatible = "qcom,sm7150-dispcc" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, disp_cc_sm7150_match_table);
@@ -873,18 +882,12 @@ MODULE_DEVICE_TABLE(of, disp_cc_sm7150_match_table);
 static int disp_cc_sm7150_probe(struct platform_device *pdev)
 {
 	struct regmap *regmap;
-	struct alpha_pll_config disp_cc_pll_config = {};
 
 	regmap = qcom_cc_map(pdev, &disp_cc_sm7150_desc);
 	if (IS_ERR(regmap))
 		return PTR_ERR(regmap);
 
-	/* 860MHz configuration */
-	disp_cc_pll_config.l = 0x2c;
-	disp_cc_pll_config.alpha = 0xcaaa;
-	disp_cc_pll_config.test_ctl_val = 0x40000000;
-
-	clk_fabia_pll_configure(&disp_cc_pll0, regmap, &disp_cc_pll_config);
+	clk_fabia_pll_configure(&disp_cc_pll0, regmap, &disp_cc_pll0_config);
 	/* Enable clock gating for DSI and MDP clocks */
 	regmap_update_bits(regmap, 0x8000, 0x7f0, 0x7f0);
 	/* Keep DISP_CC_XO_CLK always-ON */
@@ -896,7 +899,7 @@ static int disp_cc_sm7150_probe(struct platform_device *pdev)
 static struct platform_driver disp_cc_sm7150_driver = {
 	.probe = disp_cc_sm7150_probe,
 	.driver = {
-		.name = "dispcc-sm7150",
+		.name = "disp_cc-sm7150",
 		.of_match_table = disp_cc_sm7150_match_table,
 	},
 };
