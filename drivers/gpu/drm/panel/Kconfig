@@ -916,6 +916,16 @@ config DRM_PANEL_WIDECHIPS_WS2401
 	  480x800 display controller used in panels such as Samsung LMS380KF01.
 	  This display is used in the Samsung Galaxy Ace 2 GT-I8160 (Codina).
 
+config DRM_PANEL_XIAOMI_F4_41_06_0A
+	tristate "Xiaomi F4_41_06_0A panel driver"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select VIDEOMODE_HELPERS
+	help
+	  Say Y or M here if you want to enable support for the Xiaomi
+	  F4_41_06_0A FHD (2340x1080@60Hz) cmd mode panel.
+
 config DRM_PANEL_XINPENG_XPP055C272
 	tristate "Xinpeng XPP055C272 panel driver"
 	depends on OF
