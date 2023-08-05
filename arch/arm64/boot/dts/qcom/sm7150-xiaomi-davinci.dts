@@ -130,7 +130,7 @@
 	};
 };
 
-&dsi_phy {
+&dsi0_phy {
 	status = "okay";
 };
 
