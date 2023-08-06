@@ -153,6 +153,7 @@
 
 &panel {
 	compatible = "huaxing,nt36672c";
+	vddio-supply = <&vreg_l18a_2p8>;
 };
 
 &pm8150l_flash {
