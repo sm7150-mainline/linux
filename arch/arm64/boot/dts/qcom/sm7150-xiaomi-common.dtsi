@@ -352,7 +352,7 @@
 
 	panel: panel@0 {
 		reg = <0>;
-		vddio-supply = <&vreg_l18a_2p8>;
+		vddio-supply = <&vreg_l13a_1p8>;
 		reset-gpios = <&pm8150l_gpios 9 GPIO_ACTIVE_LOW>;
 
 		pinctrl-0 = <&te_gpio &panel_reset_pin>;
