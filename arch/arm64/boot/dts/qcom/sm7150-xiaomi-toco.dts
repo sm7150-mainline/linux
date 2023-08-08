@@ -15,7 +15,7 @@
 /delete-node/ &gpu_mem;
 
 /*
- * Davinci uses the SM7150-AB SoC.
+ * Toco uses the SM7150-AB SoC.
  * Limit CPU clock to 2.2 GHz
  * Limit GPU clock to 700 MHz
  */
