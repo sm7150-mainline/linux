@@ -154,6 +154,7 @@
 &panel {
 	compatible = "huaxing,nt36672c";
 	vddio-supply = <&vreg_l18a_2p8>;
+	pinctrl-0 = <&panel_reset_pin &panel_te_pin &panel_esd_pin>;
 };
 
 &pm8150l_flash {
