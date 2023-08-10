@@ -355,7 +355,7 @@
 		vddio-supply = <&vreg_l13a_1p8>;
 		reset-gpios = <&pm8150l_gpios 9 GPIO_ACTIVE_LOW>;
 
-		pinctrl-0 = <&te_gpio &panel_reset_pin>;
+		pinctrl-0 = <&panel_reset_pin &panel_te_pin>;
 		pinctrl-names = "default";
 
 		port {
@@ -484,11 +484,18 @@
 };
 
 &tlmm {
-	te_gpio: te-default-state {
+	panel_esd_pin: panel-esd-state {
+		pins = "gpio4";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	panel_te_pin: panel-te-state {
 		pins = "gpio10";
 		function = "mdp_vsync";
 		drive-strength = <2>;
-		bias-pull-down;
+		bias-disable;
 	};
 
 	qup_uart3_sleep: qup-uart3-sleep-state {
