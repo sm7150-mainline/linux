@@ -8,6 +8,7 @@
 #include <dt-bindings/clock/qcom,rpmh.h>
 #include <dt-bindings/clock/qcom,sm7150-dispcc.h>
 #include <dt-bindings/clock/qcom,sm7150-gcc.h>
+#include <dt-bindings/clock/qcom,sm7150-videocc.h>
 #include <dt-bindings/dma/qcom-gpi.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/qcom-rpmpd.h>
@@ -2213,6 +2214,16 @@
 				phys = <&usb_1_hsphy>;
 				phy-names = "usb2-phy";
 			};
+		};
+
+		videocc: clock-controller@ab00000 {
+			compatible = "qcom,sm7150-videocc";
+			reg = <0 0x0ab00000 0 0x10000>;
+			clocks = <&rpmhcc RPMH_CXO_CLK>,
+				 <&rpmhcc RPMH_CXO_CLK_A>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			#power-domain-cells = <1>;
 		};
 
 		mdss: display-subsystem@ae00000 {
