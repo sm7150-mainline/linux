@@ -424,8 +424,8 @@
 	panel_reset_pin: panel-reset-state {
 		pins = "gpio9";
 		function = "func1";
-		qcom,drive-strength = <0x02>;
-		power-source = <0x01>;
+		qcom,drive-strength = <2>;
+		power-source = <1>;
 		bias-disable;
 		output-low;
 	};
