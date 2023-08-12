@@ -473,6 +473,25 @@
 		};
 	};
 
+	dsi_opp_table: opp-table {
+		compatible = "operating-points-v2";
+
+		opp-180000000 {
+			opp-hz = /bits/ 64 <180000000>;
+			required-opps = <&rpmhpd_opp_low_svs>;
+		};
+
+		opp-275000000 {
+			opp-hz = /bits/ 64 <275000000>;
+			required-opps = <&rpmhpd_opp_svs>;
+		};
+
+		opp-358000000 {
+			opp-hz = /bits/ 64 <358000000>;
+			required-opps = <&rpmhpd_opp_svs_l1>;
+		};
+	};
+
 	qup_opp_table: opp-table-qup {
 		compatible = "operating-points-v2";
 
@@ -2376,25 +2395,6 @@
 						reg = <1>;
 						dsi0_out: endpoint {
 						};
-					};
-				};
-
-				dsi_opp_table: opp-table {
-					compatible = "operating-points-v2";
-
-					opp-180000000 {
-						opp-hz = /bits/ 64 <180000000>;
-						required-opps = <&rpmhpd_opp_low_svs>;
-					};
-
-					opp-275000000 {
-						opp-hz = /bits/ 64 <275000000>;
-						required-opps = <&rpmhpd_opp_svs>;
-					};
-
-					opp-358000000 {
-						opp-hz = /bits/ 64 <358000000>;
-						required-opps = <&rpmhpd_opp_svs_l1>;
 					};
 				};
 			};
