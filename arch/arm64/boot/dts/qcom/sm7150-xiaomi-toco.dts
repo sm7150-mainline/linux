@@ -116,7 +116,6 @@
 	};
 };
 
-
 &dsi0_phy {
 	status = "okay";
 };
