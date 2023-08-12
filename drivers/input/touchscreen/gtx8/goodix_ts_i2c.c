@@ -151,14 +151,6 @@ static int goodix_parse_dt(struct device_node *node,
 	ts_info("get reset-gpio[%d] from dt", r);
 	board_data->reset_gpio = r;
 
-	r = of_get_named_gpio(node, "goodix,avdd-gpio", 0);
-	if (r < 0) {
-		ts_err("Invalid avdd-gpio in dt: %d", r);
-		return -EINVAL;
-	}
-	ts_info("Parse avdd-gpio[%d] from dt", r);
-	board_data->avdd_gpio = r;
-
 	r = of_get_named_gpio(node, "goodix,irq-gpio", 0);
 	if (r < 0) {
 		ts_err("invalid irq-gpio in dt: %d", r);

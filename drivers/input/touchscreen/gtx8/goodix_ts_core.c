@@ -1165,10 +1165,6 @@ int goodix_ts_power_on(struct goodix_ts_core *core_data)
 		return 0;
 	}
 
-	if (ts_bdata->avdd_gpio) {
-		gpio_direction_output(ts_bdata->avdd_gpio, 1);
-	}
-
 	if (core_data->avdd_load) {
 		r = regulator_set_load(core_data->avdd, core_data->avdd_load);
 		if (r < 0)
