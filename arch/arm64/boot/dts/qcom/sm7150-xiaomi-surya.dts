@@ -351,3 +351,8 @@
 			  "RFFE1_DATA",
 			  "RFFE1_CLK";
 };
+
+&venus {
+	firmware-name = "qcom/sm7150/surya/venus.mbn";
+	//status = "okay";
+};
