@@ -56,6 +56,7 @@ static struct clk_alpha_pll video_pll0 = {
 	.offset = 0x42c,
 	.vco_table = fabia_vco,
 	.num_vco = ARRAY_SIZE(fabia_vco),
+	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
 	.clkr = {
 		.hw.init = &(struct clk_init_data){
 			.name = "video_pll0",
@@ -82,11 +83,11 @@ static const struct clk_parent_data video_cc_parent_data_0[] = {
 	{ .hw = &video_pll0.clkr.hw },
 };
 
-static const struct parent_map video_cc_parent_map_2[] = {
+static const struct parent_map video_cc_parent_map_1[] = {
 	{ P_BI_TCXO, 0 },
 };
 
-static const struct clk_parent_data video_cc_parent_data_2[] = {
+static const struct clk_parent_data video_cc_parent_data_1[] = {
 	{ .index = DT_BI_TCXO_AO },
 };
 
@@ -97,10 +98,6 @@ static const struct freq_tbl ftbl_video_cc_iris_clk_src[] = {
 	F(444000000, P_VIDEO_PLL0_OUT_MAIN, 2, 0, 0),
 	F(533000000, P_VIDEO_PLL0_OUT_MAIN, 2, 0, 0),
 	{ }
-};
-
-static const struct freq_tbl ftbl_video_cc_iris_multipipe_clk_src[] = {
-	F(200000000, P_VIDEO_PLL0_OUT_MAIN, 2, 0, 0),
 };
 
 static struct clk_rcg2 video_cc_iris_clk_src = {
@@ -114,7 +111,7 @@ static struct clk_rcg2 video_cc_iris_clk_src = {
 		.parent_data = video_cc_parent_data_0,
 		.num_parents = ARRAY_SIZE(video_cc_parent_data_0),
 		.flags = CLK_SET_RATE_PARENT,
-		.ops = &clk_rcg2_ops,
+		.ops = &clk_rcg2_shared_ops,
 	},
 };
 
@@ -127,12 +124,12 @@ static struct clk_rcg2 video_cc_xo_clk_src = {
 	.cmd_rcgr = 0xa98,
 	.mnd_width = 0,
 	.hid_width = 5,
-	.parent_map = video_cc_parent_map_2,
+	.parent_map = video_cc_parent_map_1,
 	.freq_tbl = ftbl_video_cc_xo_clk_src,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "video_cc_xo_clk_src",
-		.parent_data = video_cc_parent_data_2,
-		.num_parents = ARRAY_SIZE(video_cc_parent_data_2),
+		.parent_data = video_cc_parent_data_1,
+		.num_parents = ARRAY_SIZE(video_cc_parent_data_1),
 		.ops = &clk_rcg2_ops,
 	},
 };
@@ -351,7 +348,6 @@ static struct platform_driver video_cc_sm7150_driver = {
 		.of_match_table = video_cc_sm7150_match_table,
 	},
 };
-
 module_platform_driver(video_cc_sm7150_driver);
 
 MODULE_DESCRIPTION("Qualcomm SM7150 Video Clock Controller");
