@@ -4,25 +4,19 @@
  * Copyright (c) 2023, Danila Tikhonov <danila@jiaxyga.com>
  */
 
-#include <linux/kernel.h>
-#include <linux/bitops.h>
-#include <linux/err.h>
-#include <linux/platform_device.h>
-#include <linux/module.h>
-#include <linux/of.h>
-#include <linux/of_device.h>
-#include <linux/clk.h>
 #include <linux/clk-provider.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
 #include <linux/regmap.h>
 
 #include <dt-bindings/clock/qcom,sm7150-videocc.h>
 
 #include "common.h"
+#include "clk-alpha-pll.h"
+#include "clk-branch.h"
+#include "clk-rcg.h"
 #include "clk-regmap.h"
 #include "clk-pll.h"
-#include "clk-rcg.h"
-#include "clk-branch.h"
-#include "clk-alpha-pll.h"
 #include "gdsc.h"
 
 enum {
