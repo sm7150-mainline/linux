@@ -408,9 +408,9 @@
 	key_vol_up_default: key_vol_up_default {
 		pins = "gpio2";
 		function = "normal";
+		power-source = <0>;
 		input-enable;
 		bias-pull-up;
-		power-source = <0>;
 	};
 
 	reset_stat_default: reset_stat_default {
@@ -518,7 +518,7 @@
 		pins = "gpio10";
 		function = "mdp_vsync";
 		drive-strength = <2>;
-		bias-disable;
+		bias-pull-down;
 	};
 
 	qup_uart3_sleep: qup-uart3-sleep-state {
