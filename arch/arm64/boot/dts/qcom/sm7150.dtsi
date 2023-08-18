@@ -1292,7 +1292,6 @@
 			phys = <&ufs_mem_phy>;
 			phy-names = "ufsphy";
 			lanes-per-direction = <1>;
-			power-domains = <&gcc UFS_PHY_GDSC>;
 			#reset-cells = <1>;
 			resets = <&gcc GCC_UFS_PHY_BCR>;
 			reset-names = "rst";
