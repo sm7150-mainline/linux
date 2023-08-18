@@ -523,49 +523,57 @@
 		CPU_PD0: power-domain-cpu0 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD1: power-domain-cpu1 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD2: power-domain-cpu2 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD3: power-domain-cpu3 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD4: power-domain-cpu4 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD5: power-domain-cpu5 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
+			domain-idle-states = <&LITTLE_CPU_SLEEP_0
+					      &LITTLE_CPU_SLEEP_1>;
 		};
 
 		CPU_PD6: power-domain-cpu6 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
+			domain-idle-states = <&BIG_CPU_SLEEP_0
+					      &BIG_CPU_SLEEP_1>;
 		};
 
 		CPU_PD7: power-domain-cpu7 {
 			#power-domain-cells = <0>;
 			power-domains = <&CLUSTER_PD>;
-			domain-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
+			domain-idle-states = <&BIG_CPU_SLEEP_0
+					      &BIG_CPU_SLEEP_1>;
 		};
 
 		CLUSTER_PD: power-domain-cpu-cluster0 {
@@ -786,7 +794,8 @@
 		};
 
 		gpi_dma0: dma-controller@800000 {
-			compatible = "qcom,sm7150-gpi-dma", "qcom,sdm845-gpi-dma";
+			compatible = "qcom,sm7150-gpi-dma",
+				     "qcom,sdm845-gpi-dma";
 			reg = <0 0x00800000 0 0x60000>;
 			interrupts = <GIC_SPI 244 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 245 IRQ_TYPE_LEVEL_HIGH>,
@@ -1005,7 +1014,8 @@
 		};
 
 		gpi_dma1: dma-controller@a00000 {
-			compatible = "qcom,sm7150-gpi-dma", "qcom,sdm845-gpi-dma";
+			compatible = "qcom,sm7150-gpi-dma",
+				     "qcom,sdm845-gpi-dma";
 			reg = <0 0x00a00000 0 0x60000>;
 			interrupts = <GIC_SPI 279 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 280 IRQ_TYPE_LEVEL_HIGH>,
@@ -1305,15 +1315,14 @@
 				 <&gcc GCC_UFS_PHY_TX_SYMBOL_0_CLK>,
 				 <&gcc GCC_UFS_PHY_RX_SYMBOL_0_CLK>,
 				 <&gcc GCC_UFS_PHY_ICE_CORE_CLK>;
-			freq-table-hz =
-				<50000000 200000000>,
-				<0 0>,
-				<0 0>,
-				<37500000 150000000>,
-				<75000000 300000000>,
-				<0 0>,
-				<0 0>,
-				<0 0>;
+			freq-table-hz = <50000000 200000000>,
+					<0 0>,
+					<0 0>,
+					<37500000 150000000>,
+					<0 0>,
+					<0 0>,
+					<0 0>,
+					<0 300000000>;
 
 			status = "disabled";
 		};
@@ -1684,7 +1693,8 @@
 		};
 
 		remoteproc_adsp: remoteproc@62400000 {
-			compatible = "qcom,sm7150-adsp-pas", "qcom,sm6350-adsp-pas";
+			compatible = "qcom,sm7150-adsp-pas",
+				     "qcom,sm6350-adsp-pas";
 			reg = <0 0x62400000 0 0x100>;
 
 			interrupts-extended = <&intc GIC_SPI 162 IRQ_TYPE_EDGE_RISING>,
@@ -1962,7 +1972,8 @@
 		};
 
 		adreno_smmu: iommu@5040000 {
-			compatible = "qcom,sm7150-smmu-v2", "qcom,adreno-smmu", "qcom,smmu-v2";
+			compatible = "qcom,sm7150-smmu-v2", "qcom,adreno-smmu",
+				     "qcom,smmu-v2";
 			reg = <0 0x05040000 0 0x10000>;
 			#iommu-cells = <1>;
 			#global-interrupts = <2>;
@@ -1987,7 +1998,8 @@
 
 		gmu: gmu@506a000 {
 			compatible = "qcom,adreno-gmu-618.0", "qcom,adreno-gmu";
-			reg = <0 0x0506a000 0 0x31000>, <0 0x0b290000 0 0x10000>,
+			reg = <0 0x0506a000 0 0x31000>,
+			      <0 0x0b290000 0 0x10000>,
 			      <0 0x0b490000 0 0x10000>;
 			reg-names = "gmu", "gmu_pdc", "gmu_pdc_seq";
 			interrupts = <GIC_SPI 304 IRQ_TYPE_LEVEL_HIGH>,
@@ -2077,7 +2089,8 @@
 		};
 
 		usb_1_hsphy: phy@88e2000 {
-			compatible = "qcom,sm7150-qusb2-phy", "qcom,qusb2-v2-phy";
+			compatible = "qcom,sm7150-qusb2-phy",
+				     "qcom,qusb2-v2-phy";
 			reg = <0 0x088e2000 0 0x400>;
 			status = "disabled";
 			#phy-cells = <0>;
@@ -2088,7 +2101,8 @@
 		};
 
 		pmu@90b6300 {
-			compatible = "qcom,sm7150-cpu-bwmon", "qcom,sdm845-bwmon";
+			compatible = "qcom,sm7150-cpu-bwmon",
+				     "qcom,sdm845-bwmon";
 			reg = <0 0x090b6300 0 0x600>;
 			interrupts = <GIC_SPI 581 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -2122,7 +2136,8 @@
 		};
 
 		pmu@90cd000 {
-			compatible = "qcom,sm7150-llcc-bwmon", "qcom,sc7280-llcc-bwmon";
+			compatible = "qcom,sm7150-llcc-bwmon",
+				     "qcom,sc7280-llcc-bwmon";
 			reg = <0 0x090cd000 0 0x1000>;
 			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -2346,8 +2361,8 @@
 					 <&dispcc DISP_CC_MDSS_MDP_LUT_CLK>,
 					 <&dispcc DISP_CC_MDSS_MDP_CLK>,
 					 <&dispcc DISP_CC_MDSS_VSYNC_CLK>;
-				clock-names = "bus", "iface", "rot", "lut", "core",
-					      "vsync";
+				clock-names = "bus", "iface", "rot", "lut",
+					      "core", "vsync";
 				assigned-clocks = <&dispcc DISP_CC_MDSS_VSYNC_CLK>,
 						  <&dispcc DISP_CC_MDSS_ROT_CLK>,
 						  <&dispcc DISP_CC_MDSS_AHB_CLK>;
@@ -2404,7 +2419,6 @@
 						required-opps = <&rpmhpd_opp_nom>;
 					};
 				};
-
 			};
 
 			dsi0: dsi@ae94000 {
@@ -2431,7 +2445,8 @@
 
 				assigned-clocks = <&dispcc DISP_CC_MDSS_BYTE0_CLK_SRC>,
 						  <&dispcc DISP_CC_MDSS_PCLK0_CLK_SRC>;
-				assigned-clock-parents = <&dsi0_phy 0>, <&dsi0_phy 1>;
+				assigned-clock-parents = <&dsi0_phy 0>,
+							 <&dsi0_phy 1>;
 
 				operating-points-v2 = <&dsi_opp_table>;
 				power-domains = <&rpmhpd SC7180_CX>;
@@ -2506,7 +2521,8 @@
 
 				assigned-clocks = <&dispcc DISP_CC_MDSS_BYTE1_CLK_SRC>,
 						  <&dispcc DISP_CC_MDSS_PCLK1_CLK_SRC>;
-				assigned-clock-parents = <&dsi1_phy 0>, <&dsi1_phy 1>;
+				assigned-clock-parents = <&dsi1_phy 0>,
+							 <&dsi1_phy 1>;
 
 				operating-points-v2 = <&dsi_opp_table>;
 				power-domains = <&rpmhpd SC7180_CX>;
@@ -2587,7 +2603,8 @@
 		};
 
 		pdc_reset: reset-controller@b2e0000 {
-			compatible = "qcom,sm7150-pdc-global", "qcom,sdm845-pdc-global";
+			compatible = "qcom,sm7150-pdc-global",
+				     "qcom,sdm845-pdc-global";
 			reg = <0 0x0b2e0000 0 0x20000>;
 			#reset-cells = <1>;
 		};
@@ -2615,7 +2632,8 @@
 		};
 
 		aoss_reset: reset-controller@c2a0000 {
-			compatible = "qcom,sm7150-aoss-cc", "qcom,sdm845-aoss-cc";
+			compatible = "qcom,sm7150-aoss-cc",
+				     "qcom,sdm845-aoss-cc";
 			reg = <0 0x0c2a0000 0 0x31000>;
 			#reset-cells = <1>;
 		};
@@ -2668,7 +2686,8 @@
 		};
 
 		apps_smmu: iommu@15000000 {
-			compatible = "qcom,sm7150-smmu-500", "qcom,smmu-500", "arm,mmu-500";
+			compatible = "qcom,sm7150-smmu-500", "qcom,smmu-500",
+				     "arm,mmu-500";
 			reg = <0 0x15000000 0 0x100000>;
 			#iommu-cells = <2>;
 			#global-interrupts = <1>;
@@ -2776,7 +2795,8 @@
 		};
 
 		apss_shared: mailbox@17c00000 {
-			compatible =  "qcom,sm7150-apss-shared", "qcom,sdm845-apss-shared";
+			compatible =  "qcom,sm7150-apss-shared",
+				      "qcom,sdm845-apss-shared";
 			reg = <0 0x17c00000 0 0x10000>;
 			#mbox-cells = <1>;
 		};
@@ -2862,14 +2882,16 @@
 			power-domains = <&CLUSTER_PD>;
 
 			rpmhcc: clock-controller {
-				compatible = "qcom,sm7150-rpmh-clk", "qcom,sc7180-rpmh-clk";
+				compatible = "qcom,sm7150-rpmh-clk",
+					     "qcom,sc7180-rpmh-clk";
 				clocks = <&xo_board>;
 				clock-names = "xo";
 				#clock-cells = <1>;
 			};
 
 			rpmhpd: power-controller {
-				compatible = "qcom,sm7150-rpmhpd", "qcom,sc7180-rpmhpd";
+				compatible = "qcom,sm7150-rpmhpd",
+					     "qcom,sc7180-rpmhpd";
 				#power-domain-cells = <1>;
 				operating-points-v2 = <&rpmhpd_opp_table>;
 
@@ -2928,7 +2950,8 @@
 		};
 
 		cpufreq_hw: cpufreq@18323000 {
-			compatible = "qcom,sm7150-cpufreq-hw", "qcom,cpufreq-hw";
+			compatible = "qcom,sm7150-cpufreq-hw",
+				     "qcom,cpufreq-hw";
 			reg = <0 0x18323000 0 0x1400>, <0 0x18325800 0 0x1400>;
 			reg-names = "freq-domain0", "freq-domain1";
 
