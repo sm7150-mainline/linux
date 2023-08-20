@@ -13,16 +13,6 @@ menuconfig TOUCHSCREEN_GOODIX_GTX8
 
 if TOUCHSCREEN_GOODIX_GTX8
 
-config TOUCHSCREEN_GOODIX_GTX8_UPDATE
-	tristate "Goodix GTx8 firmware update module"
-	default y
-	help
-	  Say Y here to enable support for doing firmware update.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here.
-
 config TOUCHSCREEN_GOODIX_GTX8_GESTURE
 	tristate "Goodix GTx8 gesture wakeup feature"
 	default n
