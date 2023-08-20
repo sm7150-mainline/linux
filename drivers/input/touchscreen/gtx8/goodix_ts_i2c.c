@@ -50,7 +50,6 @@
 #define REQUEST_CONFIG 0x01
 #define REQUEST_BAKREF 0x02
 #define REQUEST_RESET 0x03
-#define REQUEST_RELOADFW 0x05
 #define REQUEST_IDLE 0xff
 
 #define COMMAND_SLEEP 0x05
@@ -1325,11 +1324,6 @@ static int goodix_request_handler(struct goodix_ts_device *dev)
 		r = goodix_hw_reset(dev);
 		if (r != 0)
 			ts_debug("request reset, reset failed");
-		break;
-	case REQUEST_RELOADFW:
-		ts_debug("HW request reload fw");
-		goodix_do_fw_update(UPDATE_MODE_FORCE |
-				    UPDATE_MODE_SRC_REQUEST);
 		break;
 	case REQUEST_IDLE:
 		ts_debug("HW request idle");
