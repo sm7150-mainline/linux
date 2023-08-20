@@ -113,9 +113,9 @@ static int goodix_parse_cfg_bin(struct goodix_cfg_bin *cfg_bin)
 	}
 
 	/*debug, print pkg information*/
-	ts_info("Driver bin info: ver %s, len %d, pkgs %d",
-		cfg_bin->head.bin_version, cfg_bin->head.bin_len,
-		cfg_bin->head.pkg_num);
+	ts_debug("Driver bin info: ver %s, len %d, pkgs %d",
+		 cfg_bin->head.bin_version, cfg_bin->head.bin_len,
+		 cfg_bin->head.pkg_num);
 	for (i = 0; i < cfg_bin->head.pkg_num; i++) {
 		ts_debug("---------------------------------------------");
 		ts_debug("------package:%d------", i + 1);
@@ -206,7 +206,7 @@ static int goodix_cfg_bin_proc(struct goodix_ts_core *core_data)
 	/*parse cfg bin*/
 	r = goodix_parse_cfg_bin(cfg_bin);
 	if (!r) {
-		ts_info("parse cfg bin SUCCESS");
+		ts_debug("parse cfg bin SUCCESS");
 	} else {
 		ts_err("parse cfg bin FAILED");
 		goto exit;
@@ -215,25 +215,25 @@ static int goodix_cfg_bin_proc(struct goodix_ts_core *core_data)
 	/*get register address and configuration from cfg bin*/
 	r = goodix_get_reg_and_cfg(ts_dev, cfg_bin);
 	if (!r) {
-		ts_info("success get reg and cfg info from cfg bin");
+		ts_debug("success get reg and cfg info from cfg bin");
 	} else {
 		ts_err("failed get cfg and reg info, update fw then retry");
 	}
 
 	/*debug*/
-	ts_info("cfg_send_flag:0x%04x", ts_dev->reg.cfg_send_flag);
-	ts_info("pid:0x%04x", ts_dev->reg.pid);
-	ts_info("vid:0x%04x", ts_dev->reg.vid);
-	ts_info("sensor_id:0x%04x", ts_dev->reg.sensor_id);
-	ts_info("fw_mask:0x%04x", ts_dev->reg.fw_mask);
-	ts_info("fw_status:0x%04x", ts_dev->reg.fw_status);
-	ts_info("cfg_addr:0x%04x", ts_dev->reg.cfg_addr);
-	ts_info("esd:0x%04x", ts_dev->reg.esd);
-	ts_info("command:0x%04x", ts_dev->reg.command);
-	ts_info("coor:0x%04x", ts_dev->reg.coor);
-	ts_info("gesture:0x%04x", ts_dev->reg.gesture);
-	ts_info("fw_request:0x%04x", ts_dev->reg.fw_request);
-	ts_info("proximity:0x%04x", ts_dev->reg.proximity);
+	ts_debug("cfg_send_flag:0x%04x", ts_dev->reg.cfg_send_flag);
+	ts_debug("pid:0x%04x", ts_dev->reg.pid);
+	ts_debug("vid:0x%04x", ts_dev->reg.vid);
+	ts_debug("sensor_id:0x%04x", ts_dev->reg.sensor_id);
+	ts_debug("fw_mask:0x%04x", ts_dev->reg.fw_mask);
+	ts_debug("fw_status:0x%04x", ts_dev->reg.fw_status);
+	ts_debug("cfg_addr:0x%04x", ts_dev->reg.cfg_addr);
+	ts_debug("esd:0x%04x", ts_dev->reg.esd);
+	ts_debug("command:0x%04x", ts_dev->reg.command);
+	ts_debug("coor:0x%04x", ts_dev->reg.coor);
+	ts_debug("gesture:0x%04x", ts_dev->reg.gesture);
+	ts_debug("fw_request:0x%04x", ts_dev->reg.fw_request);
+	ts_debug("proximity:0x%04x", ts_dev->reg.proximity);
 
 exit:
 	kfree(cfg_bin->cfg_pkgs);
@@ -244,7 +244,7 @@ exit:
 	else
 		goodix_ts_blocking_notify(NOTIFY_CFG_BIN_SUCCESS, &r);
 
-	ts_info("cfg bin state %d, ret %d", ts_dev->cfg_bin_state, r);
+	ts_debug("cfg bin state %d, ret %d", ts_dev->cfg_bin_state, r);
 	return r;
 }
 
@@ -269,13 +269,13 @@ static int goodix_extract_cfg_pkg(struct goodix_ts_device *ts_dev,
 		return -EINVAL;
 	}
 	if (ts_cfg->length) {
-		ts_info("get config type %d, len %d",
-			cfg_pkg->cnst_info.cfg_type, ts_cfg->length);
+		ts_debug("get config type %d, len %d",
+			 cfg_pkg->cnst_info.cfg_type, ts_cfg->length);
 		memcpy(ts_cfg->data, cfg_pkg->cfg, ts_cfg->length);
 		ts_cfg->initialized = TS_CFG_STABLE;
 		mutex_init(&ts_cfg->lock);
 	} else {
-		ts_info("no config data");
+		ts_debug("no config data");
 	}
 
 	/*get register info*/
@@ -336,12 +336,12 @@ static int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev,
 			continue;
 		}
 
-		ts_info("ic_type:%d", ts_dev->ic_type);
+		ts_debug("ic_type:%d", ts_dev->ic_type);
 
 		/* contrast sensor id */
 		addr = cfg_bin->cfg_pkgs[i].reg_info.sensor_id.addr;
 		if (!addr) {
-			ts_info("pkg:%d, sensor_id reg is NULL", i);
+			ts_debug("pkg:%d, sensor_id reg is NULL", i);
 			continue;
 		}
 
@@ -351,7 +351,7 @@ static int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev,
 			       addr);
 			goto get_default_pkg;
 		}
-		ts_info("sensor id is %d", temp_sensor_id);
+		ts_debug("sensor id is %d", temp_sensor_id);
 		/*sensor.reserved1 is a mask, if it's not ZERO, use it*/
 		if (cfg_bin->cfg_pkgs[i].reg_info.sensor_id.reserved1 != 0)
 			temp_sensor_id &= cfg_bin->cfg_pkgs[i]
@@ -416,9 +416,9 @@ static int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev,
 			continue;
 		}
 
-		ts_info("try get package info: ic type %s, cfg type %d",
-			cfg_bin->cfg_pkgs[i].cnst_info.ic_type,
-			cfg_bin->cfg_pkgs[i].cnst_info.cfg_type);
+		ts_debug("try get package info: ic type %s, cfg type %d",
+			 cfg_bin->cfg_pkgs[i].cnst_info.ic_type,
+			 cfg_bin->cfg_pkgs[i].cnst_info.cfg_type);
 		/* currently only support normal and high_sense config */
 		if (cfg_bin->cfg_pkgs[i].cnst_info.cfg_type == TS_NORMAL_CFG ||
 		    cfg_bin->cfg_pkgs[i].cnst_info.cfg_type ==
@@ -428,7 +428,7 @@ static int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev,
 			if (!r) {
 				ts_dev->cfg_bin_state =
 					CFG_BIN_STATE_INITIALIZED;
-				ts_info("success parse cfg bin");
+				ts_debug("success parse cfg bin");
 			} else {
 				ts_err("failed parse cfg bin");
 				break;
@@ -449,7 +449,7 @@ get_default_pkg:
 			ts_dev->cfg_bin_state = CFG_BIN_STATE_ERROR;
 		} else {
 			ts_dev->cfg_bin_state = CFG_BIN_STATE_TEMP;
-			ts_info("get temp config data");
+			ts_debug("get temp config data");
 		}
 
 		r = -EINVAL;
@@ -468,7 +468,7 @@ static int goodix_read_cfg_bin(struct device *dev,
 	/*get cfg_bin_name*/
 	strlcpy(cfg_bin_name, TS_DEFAULT_CFG_BIN, sizeof(cfg_bin_name));
 
-	ts_info("cfg_bin_name:%s", cfg_bin_name);
+	ts_debug("cfg_bin_name:%s", cfg_bin_name);
 
 	for (i = 0; i < TS_RQST_FW_RETRY_TIMES; i++) {
 		r = request_firmware(&firmware, cfg_bin_name, dev);
@@ -477,8 +477,8 @@ static int goodix_read_cfg_bin(struct device *dev,
 			       cfg_bin_name, r, i + 1);
 			msleep(1000);
 		} else {
-			ts_info("Cfg_bin image [%s] is ready, try_times:%d",
-				cfg_bin_name, i + 1);
+			ts_debug("Cfg_bin image [%s] is ready, try_times:%d",
+				 cfg_bin_name, i + 1);
 			break;
 		}
 	}
@@ -564,7 +564,7 @@ static int goodix_later_init_thread(void *data)
 	if (ret)
 		ts_err("parse cfg bin encounter error, %d", ret);
 	else
-		ts_info("success get cfg bin");
+		ts_debug("success get cfg bin");
 
 	if (ts_dev->cfg_bin_state == CFG_BIN_STATE_ERROR) {
 		ts_err("parse cfg bin encounter fatal err");
@@ -580,7 +580,7 @@ static int goodix_later_init_thread(void *data)
 			ts_err("fw update failed, %d", ret);
 			goto release_core;
 		}
-		ts_info("fw update success retry parse cfg bin");
+		ts_debug("fw update success retry parse cfg bin");
 		ret = goodix_cfg_bin_proc(ts_core);
 		if (ret) {
 			ts_err("failed parse cfg bin after fw update");
@@ -598,7 +598,7 @@ static int goodix_later_init_thread(void *data)
 	}
 	ret = goodix_ts_stage2_init(ts_core);
 	if (!ret) {
-		ts_info("stage2 init success");
+		ts_debug("stage2 init success");
 		return ret;
 	}
 	ts_err("stage2 init failed, %d", ret);
