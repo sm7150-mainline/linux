@@ -2,7 +2,7 @@
 # Goodix touchscreen driver configuration
 #
 menuconfig TOUCHSCREEN_GOODIX_GTX8
-	bool "Goodix GTx8 touchscreen"
+	tristate "Goodix GTx8 touchscreen"
 	depends on I2C
 	default y
 	help

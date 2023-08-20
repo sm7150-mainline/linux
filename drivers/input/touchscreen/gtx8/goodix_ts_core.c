@@ -600,7 +600,8 @@ static ssize_t goodix_ts_irq_info_show(struct device *dev,
 	if (r < 0)
 		return -EINVAL;
 
-	desc = irq_to_desc(core_data->irq);
+	// TODO: This is a hack and should be replaced once I figure it out better
+	desc = irq_data_to_desc(irq_get_irq_data(core_data->irq));
 	offset += r;
 	r = snprintf(&buf[offset], PAGE_SIZE - offset, "disable-depth:%d\n",
 		     desc->depth);
