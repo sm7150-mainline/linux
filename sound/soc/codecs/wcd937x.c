@@ -171,7 +171,7 @@ static struct regmap_irq_chip wcd937x_regmap_irq_chip = {
 	.num_config_bases = ARRAY_SIZE(wcd937x_config_regs),
 	.num_config_regs = 1,
 	.runtime_pm = true,
-	.handle_post_irq = wcd937x_handle_post_irq,
+	// .handle_post_irq = wcd937x_handle_post_irq,
 	.irq_drv_data = NULL,
 };
 
