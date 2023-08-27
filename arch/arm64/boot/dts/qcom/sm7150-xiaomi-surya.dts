@@ -30,6 +30,7 @@
 			stride = <(1080 * 4)>;
 			format = "a8r8g8b8";
 			clocks = <&gcc GCC_DISP_HF_AXI_CLK>;
+		status = "disabled";
 		};
 	};
 
@@ -72,6 +73,18 @@
 			//regulator-always-on;
 		};
 	};
+};
+
+&dsi0_phy {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&dispcc {
+	status = "okay";
 };
 
 &i2c1 {
@@ -148,6 +161,14 @@
 &ipa {
 	memory-region = <&ipa_fw_mem>;
 	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
+	status = "okay";
+};
+
+&mdp {
+	status = "okay";
+};
+
+&mdss {
 	status = "okay";
 };
 
