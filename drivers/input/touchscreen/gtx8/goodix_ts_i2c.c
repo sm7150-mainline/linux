@@ -1515,19 +1515,11 @@ static void goodix_parse_pen_nor(struct goodix_ts_device *dev,
 	pre_key_map = cur_key_map;
 }
 
-static void goodix_parse_pen_ys(struct goodix_ts_device *dev,
-				struct goodix_pen_data *pen_data,
-				unsigned char *buf, int touch_num)
-{
-	ts_debug("unsupported");
-}
-
 static int goodix_touch_handler_ys(struct goodix_ts_device *dev,
 				   struct goodix_ts_event *ts_event,
 				   u8 *pre_buf, u32 pre_buf_len)
 {
 	struct goodix_touch_data *touch_data = &ts_event->touch_data;
-	struct goodix_pen_data *pen_data = &ts_event->pen_data;
 	static u8 buffer[IRQ_HEAD_LEN_YS + BYTES_PER_COORD * GOODIX_MAX_TOUCH +
 			 2];
 	int touch_num = 0, r = -EINVAL;
@@ -1579,13 +1571,11 @@ static int goodix_touch_handler_ys(struct goodix_ts_device *dev,
 		} else {
 			pre_pen_num = 1;
 			ts_event->event_type = EVENT_PEN;
-			goodix_parse_pen_ys(dev, pen_data, buffer, touch_num);
 		}
 	} else {
 		/* finger info */
 		if (pre_pen_num) {
 			ts_event->event_type = EVENT_PEN;
-			goodix_parse_pen_ys(dev, pen_data, buffer, 0);
 			pre_pen_num = 0;
 		} else {
 			ts_event->event_type = EVENT_TOUCH;

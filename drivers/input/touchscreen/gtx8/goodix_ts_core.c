@@ -683,7 +683,8 @@ static ssize_t goodix_ts_reg_rw_store(struct device *dev,
 	struct goodix_ts_device *ts_dev = core_data->ts_dev;
 	char *pos = NULL, *token = NULL;
 	long result = 0;
-	int ret, i;
+	int ret;
+	unsigned int i;
 
 	if (!buf || !count) {
 		ts_err("invalid params\n");
@@ -1316,7 +1317,7 @@ static int goodix_ts_gpio_setup(struct goodix_ts_core *core_data)
 static void goodix_ts_set_input_params(struct input_dev *input_dev,
 				       struct goodix_ts_board_data *ts_bdata)
 {
-	int i;
+	unsigned int i;
 
 	if (ts_bdata->swap_axis)
 		swap(ts_bdata->panel_max_x, ts_bdata->panel_max_y);
@@ -2084,7 +2085,7 @@ int goodix_ts_core_init(void)
 }
 
 /* uninit module manually */
-int goodix_ts_core_release(struct goodix_ts_core *core_data)
+int goodix_ts_core_release(void)
 {
 	ts_debug("goodix core module removed");
 

@@ -2,7 +2,7 @@
 
 extern struct goodix_module goodix_modules;
 int goodix_ts_stage2_init(struct goodix_ts_core *core_data);
-int goodix_ts_core_release(struct goodix_ts_core *core_data);
+int goodix_ts_core_release(void);
 
 static int goodix_parse_cfg_bin(struct goodix_cfg_bin *cfg_bin);
 static int goodix_get_reg_and_cfg(struct goodix_ts_device *ts_dev,
@@ -14,7 +14,8 @@ static void goodix_cfg_pkg_leToCpu(struct goodix_cfg_package *pkg);
 static int goodix_parse_cfg_bin(struct goodix_cfg_bin *cfg_bin)
 {
 	u8 checksum;
-	int i, r;
+	unsigned int i;
+	int r;
 	u16 offset1, offset2;
 
 	if (!cfg_bin->bin_data || cfg_bin->bin_data_len == 0) {
@@ -585,7 +586,7 @@ static int goodix_later_init_thread(void *data)
 	ts_err("stage2 init failed, %d", ret);
 
 release_core:
-	goodix_ts_core_release(ts_core);
+	goodix_ts_core_release();
 	return ret;
 }
 
