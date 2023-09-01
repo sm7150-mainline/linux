@@ -99,7 +99,7 @@ static int ss_ea_f10_on(struct ss_ea_f10 *ctx)
 	dsi_dcs_write_seq(dsi, 0xfc, 0xa5, 0xa5);
 	dsi_dcs_write_seq(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20);
 
-	ret = mipi_dsi_dcs_set_display_brightness(dsi, 0x0000);
+	ret = mipi_dsi_dcs_set_display_brightness_large(dsi, 0x0000);
 	if (ret < 0) {
 		dev_err(dev, "Failed to set display brightness: %d\n", ret);
 		return ret;
@@ -227,7 +227,7 @@ static int ss_ea_f10_bl_update_status(struct backlight_device *bl)
 
 	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
 
-	ret = mipi_dsi_dcs_set_display_brightness(dsi, brightness);
+	ret = mipi_dsi_dcs_set_display_brightness_large(dsi, brightness);
 	if (ret < 0)
 		return ret;
 
@@ -246,7 +246,7 @@ static int ss_ea_f10_bl_get_brightness(struct backlight_device *bl)
 
 	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
 
-	ret = mipi_dsi_dcs_get_display_brightness(dsi, &brightness);
+	ret = mipi_dsi_dcs_get_display_brightness_large(dsi, &brightness);
 	if (ret < 0)
 		return ret;
 
