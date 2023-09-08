@@ -51,6 +51,7 @@ properties:
           - qcom,sm6115-qfprom
           - qcom,sm6350-qfprom
           - qcom,sm6375-qfprom
+          - qcom,sm7150-qfprom
           - qcom,sm8150-qfprom
           - qcom,sm8250-qfprom
           - qcom,sm8450-qfprom
