@@ -57,6 +57,7 @@ properties:
       - items:
           - enum:
               - qcom,qcm2290-ipa
+              - qcom,sm7150-ipa
           - const: qcom,sc7180-ipa
       - items:
           - enum:
