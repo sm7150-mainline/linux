@@ -36,6 +36,7 @@ properties:
               - qcom,sdm670-qusb2-phy
               - qcom,sdm845-qusb2-phy
               - qcom,sm6350-qusb2-phy
+              - qcom,sm7150-qusb2-phy
           - const: qcom,qusb2-v2-phy
   reg:
     maxItems: 1
