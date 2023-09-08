@@ -47,6 +47,7 @@ properties:
               - qcom,qcs615-gpi-dma
               - qcom,sdm670-gpi-dma
               - qcom,sm6125-gpi-dma
+              - qcom,sm7150-gpi-dma
               - qcom,sm8150-gpi-dma
               - qcom,sm8250-gpi-dma
           - const: qcom,sdm845-gpi-dma
