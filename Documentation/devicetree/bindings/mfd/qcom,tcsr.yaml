@@ -35,6 +35,7 @@ properties:
           - qcom,sdx75-tcsr
           - qcom,sm4450-tcsr
           - qcom,sm6115-tcsr
+          - qcom,sm7150-tcsr
           - qcom,sm8150-tcsr
           - qcom,sm8250-tcsr
           - qcom,sm8350-tcsr
