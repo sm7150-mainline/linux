@@ -47,6 +47,7 @@ properties:
               - qcom,apss-wdt-shikra
               - qcom,apss-wdt-sm6115
               - qcom,apss-wdt-sm6350
+              - qcom,apss-wdt-sm7150
               - qcom,apss-wdt-sm8150
               - qcom,apss-wdt-sm8250
               - qcom,apss-wdt-x1e80100
