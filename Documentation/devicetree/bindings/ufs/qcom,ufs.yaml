@@ -38,6 +38,7 @@ properties:
           - qcom,sm6115-ufshc
           - qcom,sm6125-ufshc
           - qcom,sm6350-ufshc
+          - qcom,sm7150-ufshc
           - qcom,sm8150-ufshc
       - const: qcom,ufshc
       - const: jedec,ufs-2.0
