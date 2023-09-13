@@ -113,6 +113,7 @@ struct goodix_ts_board_data {
 	unsigned int avdd_load;
 	unsigned int reset_gpio;
 	unsigned int irq_gpio;
+	unsigned int vdd_gpio;
 	int irq;
 	unsigned int irq_flags;
 

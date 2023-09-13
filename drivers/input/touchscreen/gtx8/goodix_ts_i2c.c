@@ -158,6 +158,17 @@ static int goodix_parse_dt(struct device_node *node,
 	ts_debug("get irq-gpio[%d] from dt", r);
 	board_data->irq_gpio = r;
 
+	r = of_get_named_gpio(node, "goodix,vdd-gpio", 0);
+	if (r == -ENOENT) {
+		ts_debug("no vdd-gpio in dt");
+		r = 0;
+	} else if (r < 0) {
+		ts_err("invalid vdd-gpio in dt: %d", r);
+		return -EINVAL;
+	}
+	ts_debug("get vdd-gpio[%d] from dt", r);
+	board_data->vdd_gpio = r;
+
 	r = of_property_read_u32(node, "goodix,irq-flags",
 				 &board_data->irq_flags);
 	if (r) {
