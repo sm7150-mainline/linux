@@ -1297,11 +1297,6 @@ static int goodix_ts_gpio_setup(struct goodix_ts_core *core_data)
 	ts_debug("GPIO setup,reset-gpio:%d, irq-gpio:%d", ts_bdata->reset_gpio,
 		 ts_bdata->irq_gpio);
 
-	// Different touchscreen versions require different setups.
-	// gt9896 uses GPIOF_OUT_INIT_LOW for the reset gpio, while 9886
-	// uses GPIOF_OUT_INIT_HIGH.
-	// We should easily be able to check because the 9896 devices have
-	// a vdd gpio.
 	if (ts_bdata->vdd_gpio) {
 		r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->vdd_gpio,
 					GPIOF_OUT_INIT_HIGH, "ts_vdd_gpio");
@@ -1309,23 +1304,13 @@ static int goodix_ts_gpio_setup(struct goodix_ts_core *core_data)
 			ts_err("Failed to request vdd gpio, r:%d", r);
 			return r;
 		}
-		gpio_direction_output(ts_bdata->vdd_gpio, 1);
+	}
 
-		r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->reset_gpio,
-					  GPIOF_OUT_INIT_LOW, "ts_reset_gpio");
-		if (r < 0) {
-			ts_err("Failed to request reset gpio, r:%d", r);
-			return r;
-		}
-		udelay(1000);
-		gpio_direction_output(ts_bdata->reset_gpio, 1);
-	} else {
-		r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->reset_gpio,
-					  GPIOF_OUT_INIT_HIGH, "ts_reset_gpio");
-		if (r < 0) {
-			ts_err("Failed to request reset gpio, r:%d", r);
-			return r;
-		}
+	r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->reset_gpio,
+				  GPIOF_OUT_INIT_HIGH, "ts_reset_gpio");
+	if (r < 0) {
+		ts_err("Failed to request reset gpio, r:%d", r);
+		return r;
 	}
 
 	r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->irq_gpio,
