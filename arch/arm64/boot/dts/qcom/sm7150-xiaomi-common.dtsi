@@ -403,7 +403,7 @@
 		vddio-supply = <&vreg_l13a_1p8>;
 		vdd3p3-supply = <&vreg_l18a_2p8>;
 
-		backlight = <&pm8150l_wled>;
+		//backlight = <&pm8150l_wled>;
 		reset-gpios = <&pm8150l_gpios 9 GPIO_ACTIVE_LOW>;
 
 		pinctrl-0 = <&panel_reset_pin &panel_te_pin>;
