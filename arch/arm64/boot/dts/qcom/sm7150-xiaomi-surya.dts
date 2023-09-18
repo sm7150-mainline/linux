@@ -6,6 +6,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/sound/qcom,q6asm.h>
+
 #include "sm7150-xiaomi-common.dtsi"
 
 / {
@@ -134,7 +136,7 @@
 	tas2564: codec@4c {
 		compatible = "ti,tas2564";
 		reg = <0x4c>;
-		#sound-dai-cells = <1>;
+		#sound-dai-cells = <0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&audio_pa_reset_pin>;
 		interrupt-parent = <&tlmm>;
@@ -200,6 +202,24 @@
 	status = "okay";
 };
 
+&q6afedai {
+	qi2s@127 {
+		reg = <TERTIARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+
+	qi2s@128 {
+		reg = <TERTIARY_MI2S_TX>;
+		qcom,sd-lines = <1>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+};
+
 &remoteproc_adsp {
 	firmware-name = "qcom/sm7150/surya/adsp.mbn";
 	status = "okay";
@@ -217,6 +237,35 @@
 
 &sdhc_2 {
 	status = "okay";
+};
+
+&sound {
+	compatible = "qcom,sm8250-sndcard";
+	pinctrl-0 = <&ter_mi2s_active>;
+	pinctrl-names = "default";
+	model = "Poco X3";
+
+	mm1-dai-link {
+		link-name = "MultiMedia1";
+		cpu {
+			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+		};
+	};
+
+	i2s-dai-link {
+		link-name = "I2S Playback";
+		cpu {
+			sound-dai = <&q6afedai TERTIARY_MI2S_RX>;
+		};
+
+		platform {
+			sound-dai = <&q6routing>;
+		};
+
+		codec {
+			sound-dai = <&tas2564>;
+		};
+	};
 };
 
 &spi0 {
@@ -361,6 +410,11 @@
 			  "RFFE2_CLK",
 			  "RFFE1_DATA",
 			  "RFFE1_CLK";
+
+	 ter_mi2s_active: ter-mi2s-active-state {
+		pins = "gpio53", "gpio54", "gpio55", "gpio56";
+		function = "ter_mi2s";
+	};
 };
 
 &venus {
