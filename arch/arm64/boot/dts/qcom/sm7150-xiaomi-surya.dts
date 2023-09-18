@@ -55,6 +55,28 @@
 	};
 };
 
+&cci0 {
+	status = "okay";
+};
+
+&cci0_i2c0 {
+	/* Sony IMX682 Main @ 50 */
+};
+
+&cci0_i2c1 {
+	/* OmniVision ov02b1b Depth @ 50 */
+};
+
+&cci1 {
+	status = "okay";
+};
+
+&cci1_i2c0 {
+	/* Samsung S5K3T2 Front @ ? */
+	/* Sk Hynix Hi-259 Macro @ ? */
+	/* Sk Hynix Hi-1337 Ultrawide @ ? */
+};
+
 &i2c1 {
 	clock-frequency = <100000>;
 	status = "okay";
