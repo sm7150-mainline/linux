@@ -781,6 +781,40 @@
 			drive-strength = <2>;
 		};
 	};
+
+	smartpa_int_active: smartpa_int_active {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
+
+	smartpa_int_suspend: smartpa_int_suspend {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
+
+	smartpa_enable_active: smartpa_enable_active {
+		pins = "gpio12";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
+		output-low;
+	};
+
+	smartpa_enable_suspend: smartpa_enable_suspend {
+		pins = "gpio12";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
+		output-low;
+	};
 };
 
 &uart3 {
