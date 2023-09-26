@@ -191,7 +191,7 @@ static int goodix_parse_dt(struct device_node *node,
 
 	r = of_property_read_u32(node, "vtouch-load", &board_data->avdd_load);
 	if (r) {
-		ts_err("can't get vtouch-load");
+		ts_debug("can't get vtouch-load");
 		board_data->avdd_load = 0;
 	}
 
