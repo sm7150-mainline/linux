@@ -8,6 +8,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/sound/qcom,q6asm.h>
+
 #include "sm7150-xiaomi-common.dtsi"
 
 /delete-node/ &wlan_msa_mem;
@@ -95,7 +97,21 @@
 	clock-frequency = <100000>;
 	status = "okay";
 
-	/* nxp,tfa9874 (speaker amplifier) @ 34 */
+	tfa9874: tfa9874@34 {
+		compatible = "nxp,tfa9874";
+		reg = <0x34>;
+		status = "okay";
+		reset-gpio = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 56 GPIO_ACTIVE_HIGH>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <56 0>;
+		interrupt-names = "smartpa_irq";
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&smartpa_int_active &smartpa_enable_active>;
+		pinctrl-1 = <&smartpa_int_suspend &smartpa_enable_suspend>;
+		sound-name-prefix = "Speaker";
+		#sound-dai-cells = <0>;
+	};
 };
 
 &i2c7 {
@@ -179,6 +195,32 @@
 	};
 };
 
+&q6afedai {
+	qi2s@16 {
+		reg = <PRIMARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+
+	/*
+	qi2s@17 {
+		reg = <PRIMARY_MI2S_TX>;
+		qcom,sd-lines = <1>;
+	};
+	*/
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+
+	/*
+	dai@1 {
+		reg = <1>;
+	};
+	*/
+};
+
 &remoteproc_adsp {
 	firmware-name = "qcom/sm7150/davinci/adsp.mbn";
 };
@@ -189,6 +231,35 @@
 
 &remoteproc_mpss {
 	firmware-name = "qcom/sm7150/davinci/modem.mbn";
+};
+
+&sound {
+	compatible = "qcom,sm8250-sndcard";
+	pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
+	pinctrl-names = "default";
+	model = "Xiaomi Mi 9T";
+
+	mm1-dai-link {
+		link-name = "MultiMedia1";
+		cpu {
+			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+		};
+	};
+
+	speaker_playback_dai {
+		link-name = "Primary Spkr Playback";
+		cpu {
+			sound-dai = <&q6afedai PRIMARY_MI2S_RX>;
+		};
+
+		platform {
+			sound-dai = <&q6routing>;
+		};
+
+		codec {
+			sound-dai = <&tfa9874>;
+		};
+	};
 };
 
 &venus {
