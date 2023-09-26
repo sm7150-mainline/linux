@@ -470,7 +470,8 @@ static long goodix_tools_compat_ioctl(struct file *file, unsigned int cmd,
 }
 #endif
 
-static int goodix_tools_open(struct inode *inode, struct file *file)
+static int goodix_tools_open(struct inode *inode __attribute__((unused)),
+			     struct file *file __attribute__((unused)))
 {
 	int ret = 0;
 
@@ -485,7 +486,8 @@ static int goodix_tools_open(struct inode *inode, struct file *file)
 	return ret;
 }
 
-static int goodix_tools_release(struct inode *inode, struct file *file)
+static int goodix_tools_release(struct inode *inode __attribute__((unused)),
+				struct file *file __attribute__((unused)))
 {
 	int ret = 0;
 	/* when the last close this dev node unregister the module */
@@ -497,12 +499,10 @@ static int goodix_tools_release(struct inode *inode, struct file *file)
  * goodix_tools_module_irq - goodix tools Irq handle
  * This functions is executed when interrupt happened
  *
- * @core_data: pointer to touch core data
  * @module: pointer to goodix_ext_module struct
  * return: EVT_CONTINUE let other module handle this irq
  */
-static int goodix_tools_module_irq(struct goodix_ts_core *core_data,
-				   struct goodix_ext_module *module)
+static int goodix_tools_module_irq(struct goodix_ext_module *module)
 {
 	struct goodix_tools_dev *dev = module->priv_data;
 	struct goodix_ts_device *ts_dev = dev->ts_core->ts_dev;

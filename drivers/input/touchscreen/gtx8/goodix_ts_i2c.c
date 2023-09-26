@@ -1798,7 +1798,7 @@ static const struct goodix_ts_hw_ops hw_i2c_ops = {
 
 static struct platform_device *goodix_pdev;
 
-static void goodix_pdev_release(struct device *dev)
+static void goodix_pdev_release(struct device *dev __attribute__((unused)))
 {
 	ts_debug("goodix pdev released");
 }
@@ -1878,7 +1878,7 @@ err_pdev:
 	return r;
 }
 
-static void goodix_i2c_remove(struct i2c_client *client)
+static void goodix_i2c_remove(struct i2c_client *client __attribute__((unused)))
 {
 	if (goodix_pdev) {
 		platform_device_unregister(goodix_pdev);

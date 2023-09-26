@@ -205,9 +205,6 @@ enum ts_event_type {
 
 /* notifier event */
 enum ts_notify_event {
-	NOTIFY_FWUPDATE_START,
-	NOTIFY_FWUPDATE_FAILED,
-	NOTIFY_FWUPDATE_SUCCESS,
 	NOTIFY_SUSPEND,
 	NOTIFY_RESUME,
 	NOTIFY_ESD_OFF,
@@ -414,7 +411,6 @@ struct goodix_ts_esd {
  * @irq: irq number
  * @irq_enabled: irq enabled/disabled flag
  * @suspended: suspend/resume flag
- * @ts_notifier: generic notifier
  * @ts_esd: esd protector structure
  * @fb_notifier: framebuffer notifier
  * @early_suspend: early suspend
@@ -441,7 +437,6 @@ struct goodix_ts_core {
 	atomic_t irq_enabled;
 	atomic_t suspended;
 
-	struct notifier_block ts_notifier;
 	struct goodix_ts_esd ts_esd;
 
 #ifdef CONFIG_FB
@@ -480,8 +475,7 @@ struct goodix_ext_module_funcs {
 			     struct goodix_ext_module *module);
 	int (*after_resume)(struct goodix_ts_core *core_data,
 			    struct goodix_ext_module *module);
-	int (*irq_event)(struct goodix_ts_core *core_data,
-			 struct goodix_ext_module *module);
+	int (*irq_event)(struct goodix_ext_module *module);
 };
 
 /*

@@ -240,7 +240,8 @@ static void goodix_remove_all_ext_modules(void)
 	mutex_unlock(&goodix_modules.mutex);
 }
 
-static void goodix_ext_sysfs_release(struct kobject *kobj)
+static void goodix_ext_sysfs_release(struct kobject *kobj
+				     __attribute__((unused)))
 {
 	ts_debug("Kobject released!");
 }
@@ -353,8 +354,10 @@ static void goodix_debugfs_exit(void)
 }
 
 /* show external module information */
-static ssize_t goodix_ts_extmod_show(struct device *dev,
-				     struct device_attribute *attr, char *buf)
+static ssize_t goodix_ts_extmod_show(struct device *dev __attribute__((unused)),
+				     struct device_attribute *attr
+				     __attribute__((unused)),
+				     char *buf)
 {
 	struct goodix_ext_module *module, *next;
 	size_t offset = 0;
@@ -380,8 +383,10 @@ static ssize_t goodix_ts_extmod_show(struct device *dev,
 }
 
 /* show driver information */
-static ssize_t goodix_ts_driver_info_show(struct device *dev,
-					  struct device_attribute *attr,
+static ssize_t goodix_ts_driver_info_show(struct device *dev
+					  __attribute__((unused)),
+					  struct device_attribute *attr
+					  __attribute__((unused)),
 					  char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "DriverVersion:%s\n",
@@ -390,7 +395,8 @@ static ssize_t goodix_ts_driver_info_show(struct device *dev,
 
 /* show chip infoamtion */
 static ssize_t goodix_ts_chip_info_show(struct device *dev,
-					struct device_attribute *attr,
+					struct device_attribute *attr
+					__attribute__((unused)),
 					char *buf)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -416,7 +422,8 @@ static ssize_t goodix_ts_chip_info_show(struct device *dev,
 
 /* reset chip */
 static ssize_t goodix_ts_reset_store(struct device *dev,
-				     struct device_attribute *attr,
+				     struct device_attribute *attr
+				     __attribute__((unused)),
 				     const char *buf, size_t count)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -435,7 +442,9 @@ static ssize_t goodix_ts_reset_store(struct device *dev,
 }
 
 static ssize_t goodix_ts_read_cfg_show(struct device *dev,
-				       struct device_attribute *attr, char *buf)
+				       struct device_attribute *attr
+				       __attribute__((unused)),
+				       char *buf)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
 	struct goodix_ts_device *ts_dev = core_data->ts_dev;
@@ -524,7 +533,8 @@ static int goodix_ts_convert_0x_data(const u8 *buf, int buf_size,
 }
 
 static ssize_t goodix_ts_send_cfg_store(struct device *dev,
-					struct device_attribute *attr,
+					struct device_attribute *attr
+					__attribute__((unused)),
 					const char *buf, size_t count)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -582,7 +592,9 @@ exit:
 
 /* show irq information */
 static ssize_t goodix_ts_irq_info_show(struct device *dev,
-				       struct device_attribute *attr, char *buf)
+				       struct device_attribute *attr
+				       __attribute__((unused)),
+				       char *buf)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
 	struct irq_desc *desc;
@@ -626,7 +638,8 @@ static ssize_t goodix_ts_irq_info_show(struct device *dev,
 
 /* enable/disable irq */
 static ssize_t goodix_ts_irq_info_store(struct device *dev,
-					struct device_attribute *attr,
+					struct device_attribute *attr
+					__attribute__((unused)),
 					const char *buf, size_t count)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -646,7 +659,9 @@ static u8 rw_flag;
 static u8 store_buf[32];
 static u8 show_buf[PAGE_SIZE];
 static ssize_t goodix_ts_reg_rw_show(struct device *dev,
-				     struct device_attribute *attr, char *buf)
+				     struct device_attribute *attr
+				     __attribute__((unused)),
+				     char *buf)
 {
 	int ret;
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -676,7 +691,8 @@ static ssize_t goodix_ts_reg_rw_show(struct device *dev,
 }
 
 static ssize_t goodix_ts_reg_rw_store(struct device *dev,
-				      struct device_attribute *attr,
+				      struct device_attribute *attr
+				      __attribute__((unused)),
 				      const char *buf, size_t count)
 {
 	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
@@ -795,10 +811,12 @@ static const struct attribute_group sysfs_group = {
 	.attrs = sysfs_attrs,
 };
 
-static ssize_t goodix_sysfs_config_write(struct file *file,
+static ssize_t goodix_sysfs_config_write(struct file *file
+					 __attribute__((unused)),
 					 struct kobject *kobj,
-					 struct bin_attribute *attr, char *buf,
-					 loff_t pos, size_t count)
+					 struct bin_attribute *attr
+					 __attribute__((unused)),
+					 char *buf, loff_t pos, size_t count)
 {
 	struct platform_device *pdev =
 		container_of(kobj_to_dev(kobj), struct platform_device, dev);
@@ -834,9 +852,10 @@ static ssize_t goodix_sysfs_config_write(struct file *file,
 	return count;
 }
 
-static ssize_t goodix_sysfs_config_read(struct file *file, struct kobject *kobj,
-					struct bin_attribute *attr, char *buf,
-					loff_t pos, size_t size)
+static ssize_t goodix_sysfs_config_read(
+	struct file *file __attribute__((unused)), struct kobject *kobj,
+	struct bin_attribute *attr __attribute__((unused)), char *buf,
+	loff_t pos, size_t size __attribute__((unused)))
 {
 	struct platform_device *pdev =
 		container_of(kobj_to_dev(kobj), struct platform_device, dev);
@@ -1018,7 +1037,8 @@ static void goodix_ts_report_finger(struct input_dev *dev,
  * @core_data: pointer to touch core data
  * return: 0 ok, <0 failed
  */
-static irqreturn_t goodix_ts_threadirq_func(int irq, void *data)
+static irqreturn_t goodix_ts_threadirq_func(int irq __attribute__((unused)),
+					    void *data)
 {
 	struct goodix_ts_core *core_data = data;
 	struct goodix_ts_device *ts_dev = core_data->ts_dev;
@@ -1033,7 +1053,7 @@ static irqreturn_t goodix_ts_threadirq_func(int irq, void *data)
 	list_for_each_entry_safe(ext_module, next, &goodix_modules.head, list) {
 		if (!ext_module->funcs->irq_event)
 			continue;
-		r = ext_module->funcs->irq_event(core_data, ext_module);
+		r = ext_module->funcs->irq_event(ext_module);
 		if (r == EVT_CANCEL_IRQEVT) {
 			mutex_unlock(&goodix_modules.mutex);
 			return IRQ_HANDLED;
@@ -1298,8 +1318,9 @@ static int goodix_ts_gpio_setup(struct goodix_ts_core *core_data)
 		 ts_bdata->irq_gpio);
 
 	if (ts_bdata->vdd_gpio) {
-		r = devm_gpio_request_one(&core_data->pdev->dev, ts_bdata->vdd_gpio,
-					GPIOF_OUT_INIT_HIGH, "ts_vdd_gpio");
+		r = devm_gpio_request_one(&core_data->pdev->dev,
+					  ts_bdata->vdd_gpio,
+					  GPIOF_OUT_INIT_HIGH, "ts_vdd_gpio");
 		if (r < 0) {
 			ts_err("Failed to request vdd gpio, r:%d", r);
 			return r;
@@ -1549,19 +1570,17 @@ static void goodix_ts_esd_off(struct goodix_ts_core *core)
  *  turn on the esd protector.
  */
 static int goodix_esd_notifier_callback(struct notifier_block *nb,
-					unsigned long action, void *data)
+					unsigned long action,
+					void *data __attribute__((unused)))
 {
 	struct goodix_ts_esd *ts_esd =
 		container_of(nb, struct goodix_ts_esd, esd_notifier);
 
 	switch (action) {
-	case NOTIFY_FWUPDATE_START:
 	case NOTIFY_SUSPEND:
 	case NOTIFY_ESD_OFF:
 		goodix_ts_esd_off(ts_esd->ts_core);
 		break;
-	case NOTIFY_FWUPDATE_FAILED:
-	case NOTIFY_FWUPDATE_SUCCESS:
 	case NOTIFY_RESUME:
 	case NOTIFY_ESD_ON:
 		goodix_ts_esd_on(ts_esd->ts_core);
@@ -1857,34 +1876,6 @@ static int goodix_ts_pm_resume(struct device *dev)
 #endif
 #endif
 
-/**
- * goodix_generic_noti_callback - generic notifier callback
- *  for goodix touch notification event.
- */
-static int goodix_generic_noti_callback(struct notifier_block *self,
-					unsigned long action, void *data)
-{
-	struct goodix_ts_core *ts_core =
-		container_of(self, struct goodix_ts_core, ts_notifier);
-	struct goodix_ts_device *ts_dev = ts_device(ts_core);
-	const struct goodix_ts_hw_ops *hw_ops = ts_hw_ops(ts_core);
-	int r;
-
-	ts_debug("notify event type 0x%x", (unsigned int)action);
-	switch (action) {
-	case NOTIFY_FWUPDATE_SUCCESS:
-	case NOTIFY_FWUPDATE_FAILED:
-		r = hw_ops->read_version(ts_dev, &ts_dev->chip_version);
-		if (r < 0)
-			ts_debug("failed read fw version info[ignore]");
-		break;
-	default:
-		break;
-	}
-
-	return 0;
-}
-
 int goodix_ts_stage2_init(struct goodix_ts_core *core_data)
 {
 	int r;
@@ -2015,10 +2006,6 @@ static int goodix_ts_probe(struct platform_device *pdev)
 		ts_debug("Failed start cfg_bin_proc");
 		goto out;
 	}
-
-	/* generic notifier callback */
-	core_data->ts_notifier.notifier_call = goodix_generic_noti_callback;
-	goodix_ts_register_notifier(&core_data->ts_notifier);
 
 	core_data->initialized = 1;
 	goodix_modules.core_data = core_data;
