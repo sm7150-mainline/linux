@@ -95,7 +95,19 @@
 	clock-frequency = <100000>;
 	status = "okay";
 
-	/* nxp,tfa9874 (speaker amplifier) @ 34 */
+	tfa9874: codec@34 {
+		compatible = "nxp,tfa9874";
+		reg = <0x34>;
+
+		reset-gpio = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 56 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&amp_reset_default &amp_int_default>;
+
+		sound-name-prefix = "Speaker";
+		#sound-dai-cells = <0>;
+	};
 };
 
 &i2c7 {
@@ -224,6 +236,19 @@
 	};
 };
 
+&q6afedai {
+	qi2s@16 {
+		reg = <PRIMARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+};
+
 &remoteproc_adsp {
 	firmware-name = "qcom/sm7150/davinci/adsp.mbn";
 };
@@ -234,6 +259,35 @@
 
 &remoteproc_mpss {
 	firmware-name = "qcom/sm7150/davinci/modem.mbn";
+};
+
+&sound {
+	compatible = "qcom,sm8250-sndcard";
+	pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
+	pinctrl-names = "default";
+	model = "Xiaomi Mi 9T";
+
+	mm1-dai-link {
+		link-name = "MultiMedia1";
+		cpu {
+			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+		};
+	};
+
+	speaker_playback_dai {
+		link-name = "Primary Spkr Playback";
+		cpu {
+			sound-dai = <&q6afedai PRIMARY_MI2S_RX>;
+		};
+
+		platform {
+			sound-dai = <&q6routing>;
+		};
+
+		codec {
+			sound-dai = <&tfa9874>;
+		};
+	};
 };
 
 &tlmm {
@@ -351,6 +405,23 @@
 			  "NC",
 			  "RFFE1_DATA",
 			  "RFFE1_CLK";
+
+	amp_reset_default: amp-reset-default-state {
+		pins = "gpio12";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
+		output-low;
+	};
+
+	amp_int_default: amp-int-default-state {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
+	};
 };
 
 &venus {
