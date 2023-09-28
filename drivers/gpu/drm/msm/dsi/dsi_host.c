@@ -871,7 +871,7 @@ static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mod
 	 * Since the current driver only supports slice_per_pkt = 1,
 	 * pkt_per_line will be equal to slice per intf for now.
 	 */
-	pkt_per_line = slice_per_intf;
+	pkt_per_line = slice_per_intf * 2; // HACK
 
 	if (is_cmd_mode) /* packet data type */
 		reg = DSI_COMMAND_COMPRESSION_MODE_CTRL_STREAM0_DATATYPE(MIPI_DSI_DCS_LONG_WRITE);
