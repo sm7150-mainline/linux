@@ -667,6 +667,19 @@ config TOUCHSCREEN_IMAGIS
 	  To compile this driver as a module, choose M here: the
 	  module will be called imagis.
 
+config TOUCHSCREEN_NT36XXX_SPI
+	tristate "Novatek NT36XXX In-Cell SPI touchscreen controller"
+	depends on SPI_MASTER
+	select REGMAP
+        help
+          Say Y here if you have a Novatek NT36xxx series In-Cell
+          touchscreen connected to your system over SPI.
+
+          If unsure, say N.
+
+          To compile this driver as a module, choose M here: the
+          module will be called nt36xxx_ts_spi.
+
 config TOUCHSCREEN_IMX6UL_TSC
 	tristate "Freescale i.MX6UL touchscreen controller"
 	depends on ((OF && GPIOLIB) || COMPILE_TEST) && HAS_IOMEM
