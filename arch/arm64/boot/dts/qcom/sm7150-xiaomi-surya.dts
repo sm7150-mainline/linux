@@ -35,6 +35,58 @@
 		};
 	};
 
+	vreg_wide_ldo_avdd2: regulator-wide-ldo-avdd2 {
+		compatible = "regulator-fixed";
+		regulator-name = "wide_ldo_avdd2";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm8150l_gpios 4 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_uw_ldo_ois_drv: regulator-vreg-uw-ldo-ois-drv {
+		compatible = "regulator-fixed";
+		regulator-name = "uw_ldo_ois_drv";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&tlmm 65 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_camera_vdig: regulator-camera-vdig {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_vdig";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm8150l_gpios 12 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <233>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
+	vreg_camera_mipi_switch_en: gpio-camera-mipi-switch-en {
+		compatible = "regulator-fixed";
+		regulator-name = "camera_mipi_switch_en";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+
+		gpio = <&pm6150_gpios 2 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <233>;
+		enable-active-high;
+
+		vin-supply = <&vreg_bob>;
+	};
+
 	reserved-memory {
 		framebuffer_region@9c000000 {
 			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
