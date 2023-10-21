@@ -11,6 +11,8 @@
 #include <dt-bindings/clock/qcom,sm7150-gcc.h>
 #include <dt-bindings/clock/qcom,sm7150-videocc.h>
 #include <dt-bindings/dma/qcom-gpi.h>
+#include <dt-bindings/interconnect/qcom,osm-l3.h>
+#include <dt-bindings/interconnect/qcom,sm7150.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/qcom-rpmpd.h>
 #include <dt-bindings/power/qcom,rpmhpd.h>
@@ -1298,6 +1300,54 @@
 			};
 		};
 
+		/*config_noc: interconnect@1500000 {
+			compatible = "qcom,sm7150-config-noc";
+			reg = <0 0x01500000 0 0x28000>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};
+
+		system_noc: interconnect@1620000 {
+			compatible = "qcom,sm7150-system-noc";
+			reg = <0 0x01620000 0 0x40000>; // <0 0x01620000 0 0x18080> ?
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+
+			clk_virt: interconnect-clk-virt {
+				compatible = "qcom,sm7150-clk-virt";
+				#interconnect-cells = <2>;
+				qcom,bcm-voters = <&apps_bcm_voter>;
+			};
+		};
+
+		aggre1_noc: interconnect@16e0000 {
+			compatible = "qcom,sm7150-aggre1-noc";
+			reg = <0 0x016e0000 0 0x11080>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};
+
+		aggre2_noc: interconnect@1700000 {
+			compatible = "qcom,sm7150-aggre2-noc";
+			reg = <0 0x01700000 0 0x1f080>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};
+
+		compute_noc: interconnect@80a8000 {
+			compatible = "qcom,sm7150-compute-noc";
+			reg = <0 0x080a8000 0 0x1400>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};
+
+		mmss_noc: interconnect@1740000 {
+			compatible = "qcom,sm7150-mmss-noc";
+			reg = <0 0x01740000 0 0x1c100>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};*/
+
 		ufs_mem_hc: ufshc@1d84000 {
 			compatible = "qcom,sm7150-ufshc", "qcom,ufshc",
 				     "jedec,ufs-2.0";
@@ -2347,6 +2397,13 @@
 			};
 		};
 
+		/*dc_noc: interconnect@9160000 {
+			compatible = "qcom,sm7150-dc-noc";
+			reg = <0 0x09160000 0 0x3200>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};*/
+
 		system-cache-controller@9200000 {
 			compatible = "qcom,sm7150-llcc";
 			reg = <0 0x09200000 0 0x50000>,
@@ -2356,6 +2413,13 @@
 				    "llcc_broadcast_base";
 			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
 		};
+
+		/*gem_noc: interconnect@9680000 {
+			compatible = "qcom,sm7150-gem-noc";
+			reg = <0 0x09680000 0 0x3e200>;
+			#interconnect-cells = <2>;
+			qcom,bcm-voters = <&apps_bcm_voter>;
+		};*/
 
 		usb_1: usb@a6f8800 {
 			compatible = "qcom,sm7150-dwc3", "qcom,dwc3";
