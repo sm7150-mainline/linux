@@ -2025,8 +2025,7 @@ static int goodix_ts_remove(struct platform_device *pdev)
 	goodix_ts_power_off(core_data);
 	goodix_debugfs_exit();
 	goodix_ts_sysfs_exit(core_data);
-	// can't free the memory for tools or gesture module
-	//kfree(core_data);
+	kfree(core_data);
 	return 0;
 }
 

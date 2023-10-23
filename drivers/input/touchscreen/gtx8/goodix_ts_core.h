@@ -324,7 +324,6 @@ enum goodix_cfg_bin_state {
  * @hw_ops: hardware operations
  * @chip_version: firmware version information
  * @sleep_cmd: sleep commang
- * @gesture_cmd: gesture command
  * @dev: device pointer,may be a i2c or spi device
  * @of_node: device node
  */
