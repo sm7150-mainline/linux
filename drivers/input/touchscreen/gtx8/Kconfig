@@ -23,14 +23,4 @@ config TOUCHSCREEN_GOODIX_GTX8_GESTURE
 
 	  To compile this driver as a module, choose M here.
 
-config TOUCHSCREEN_GOODIX_GTX8_TOOLS
-	tristate "Goodix touch tools support"
-	default y
-	help
-	  Say Y here to enable debug tools.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here.
-
 endif
