@@ -294,7 +294,6 @@ static const struct adreno_info gpulist[] = {
 			{ 127, 4 },
 		),
 	}, {
-		.machine = "qcom,sm7150",
 		.chip_ids = ADRENO_CHIP_IDS(0x06010800),
 		.family = ADRENO_6XX_GEN1,
 		.revn = 618,
@@ -310,27 +309,17 @@ static const struct adreno_info gpulist[] = {
 		.hwcg = a615_hwcg,
 		.speedbins = ADRENO_SPEEDBINS(
 			{ 0,   0 },
+			// SC7180 && SM7125
+			{ 107, 1 }
+			{ 130, 2 }
+			{ 159, 3 }
+			{ 169, 4 },
+			{ 174, 5 },
+			// SM7150
 			{ 128, 1 },
 			{ 146, 2 },
 			{ 167, 3 },
 			{ 172, 4 },
-		),
-	}, {
-		.chip_ids = ADRENO_CHIP_IDS(0x06010800),
-		.family = ADRENO_6XX_GEN1,
-		.revn = 618,
-		.fw = {
-			[ADRENO_FW_SQE] = "a630_sqe.fw",
-			[ADRENO_FW_GMU] = "a630_gmu.bin",
-		},
-		.gmem = SZ_512K,
-		.inactive_period = DRM_MSM_INACTIVE_PERIOD,
-		.quirks = ADRENO_QUIRK_HAS_CACHED_COHERENT,
-		.init = a6xx_gpu_init,
-		.speedbins = ADRENO_SPEEDBINS(
-			{ 0,   0 },
-			{ 169, 1 },
-			{ 174, 2 },
 		),
 	}, {
 		.machine = "qcom,sm4350",
