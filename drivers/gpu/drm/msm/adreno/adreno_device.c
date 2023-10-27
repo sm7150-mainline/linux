@@ -310,9 +310,9 @@ static const struct adreno_info gpulist[] = {
 		.speedbins = ADRENO_SPEEDBINS(
 			{ 0,   0 },
 			// SC7180 && SM7125
-			{ 107, 1 }
-			{ 130, 2 }
-			{ 159, 3 }
+			{ 107, 1 },
+			{ 130, 2 },
+			{ 159, 3 },
 			{ 169, 4 },
 			{ 174, 5 },
 			// SM7150
