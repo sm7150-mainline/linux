@@ -36,10 +36,8 @@
 #include <linux/completion.h>
 #include <linux/debugfs.h>
 #include <linux/of_irq.h>
-#ifdef CONFIG_OF
 #include <linux/of_gpio.h>
 #include <linux/regulator/consumer.h>
-#endif
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
@@ -60,12 +58,8 @@
 #define GOODIX_PID_MAX_LEN 8
 #define GOODIX_VID_MAX_LEN 8
 
-#define GOODIX_DEFAULT_CFG_NAME "goodix_config.cfg"
-
-#define IC_TYPE_NONE 0
-#define IC_TYPE_NORMANDY 1
-#define IC_TYPE_NANJING 2
-#define IC_TYPE_YELLOWSTONE 3
+#define IC_TYPE_NORMANDY 0
+#define IC_TYPE_YELLOWSTONE 1
 
 #define GOODIX_TOUCH_EVENT 0x80
 #define GOODIX_REQUEST_EVENT 0x40
@@ -129,7 +123,6 @@ struct goodix_ts_board_data {
 	unsigned int panel_key_map[GOODIX_MAX_TP_KEY];
 	unsigned int x2x;
 	unsigned int y2y;
-	bool pen_enable;
 	unsigned int tp_key_num;
 	/*add end*/
 
@@ -209,8 +202,6 @@ enum ts_notify_event {
 	NOTIFY_RESUME,
 	NOTIFY_ESD_OFF,
 	NOTIFY_ESD_ON,
-	NOTIFY_CFG_BIN_FAILED,
-	NOTIFY_CFG_BIN_SUCCESS,
 };
 
 enum touch_point_status {
@@ -278,8 +269,6 @@ struct goodix_ts_version {
 };
 
 struct goodix_ts_regs {
-	u16 cfg_send_flag;
-
 	u16 version_base;
 	u8 version_len;
 
@@ -292,15 +281,46 @@ struct goodix_ts_regs {
 	u16 sensor_id;
 	u8 sensor_id_mask;
 
-	u16 fw_mask;
-	u16 fw_status;
 	u16 cfg_addr;
 	u16 esd;
 	u16 command;
 	u16 coor;
-	u16 gesture;
 	u16 fw_request;
 	u16 proximity;
+};
+
+static const struct goodix_ts_regs goodix_ts_regs_normandy = {
+	version_base: 17708,
+	version_len: 72,
+	pid: 17717,
+	pid_len: 4,
+	vid: 17725,
+	vid_len: 4,
+	sensor_id: 17729,
+	sensor_id_mask: 15,
+	cfg_addr: 28536,
+	esd: 12531,
+	command: 28520,
+	coor: 16640,
+	fw_request: 0,
+	proximity: 0,
+};
+
+static const struct goodix_ts_regs goodix_ts_regs_yellowstone = {
+	version_base: 16404,
+	version_len: 135,
+	pid: 16418,
+	pid_len: 4,
+	vid: 16426,
+	vid_len: 4,
+	sensor_id: 16431,
+	sensor_id_mask: 15,
+	cfg_addr: 38648,
+	esd: 16742,
+	command: 16736,
+	coor: 16768,
+	fw_request: 16768,
+	proximity: 16770,
 };
 
 enum goodix_cfg_bin_state {
@@ -319,8 +339,6 @@ enum goodix_cfg_bin_state {
  * @cfg_bin_state: see enum goodix_cfg_bin_state
  * @fw_uptodate: set to 1 after do fw update
  * @board_data: board data obtained from dts
- * @normal_cfg: normal config data
- * @highsense_cfg: high sense config data
  * @hw_ops: hardware operations
  * @chip_version: firmware version information
  * @sleep_cmd: sleep commang
@@ -335,8 +353,6 @@ struct goodix_ts_device {
 	int cfg_bin_state;
 	struct goodix_ts_regs reg;
 	struct goodix_ts_board_data board_data;
-	struct goodix_ts_config normal_cfg;
-	struct goodix_ts_config highsense_cfg;
 	const struct goodix_ts_hw_ops *hw_ops;
 
 	struct goodix_ts_version chip_version;
@@ -350,7 +366,6 @@ struct goodix_ts_device {
  * @read: read data from touch device
  * @write: write data to touch device
  * @send_cmd: send command to touch device
- * @send_config: send configuration data
  * @read_version: read firmware version
  * @event_handler: touch event handler
  * @suspend: put touch device into low power mode
@@ -370,9 +385,6 @@ struct goodix_ts_hw_ops {
 			   unsigned char *data, unsigned int len);
 	int (*send_cmd)(struct goodix_ts_device *dev,
 			struct goodix_ts_cmd *cmd);
-	int (*send_config)(struct goodix_ts_device *dev,
-			   struct goodix_ts_config *config);
-	int (*read_config)(struct goodix_ts_device *dev, u8 *config_data);
 	int (*read_version)(struct goodix_ts_device *dev,
 			    struct goodix_ts_version *version);
 	int (*event_handler)(struct goodix_ts_device *dev,

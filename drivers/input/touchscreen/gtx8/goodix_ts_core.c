@@ -41,7 +41,6 @@
 #define PINCTRL_STATE_SUSPEND "sleep"
 
 static int goodix_ts_remove(struct platform_device *pdev);
-int goodix_start_later_init(struct goodix_ts_core *ts_core);
 void goodix_ts_dev_release(void);
 
 struct goodix_module goodix_modules;
@@ -441,155 +440,6 @@ static ssize_t goodix_ts_reset_store(struct device *dev,
 	return count;
 }
 
-static ssize_t goodix_ts_read_cfg_show(struct device *dev,
-				       struct device_attribute *attr
-				       __attribute__((unused)),
-				       char *buf)
-{
-	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
-	struct goodix_ts_device *ts_dev = core_data->ts_dev;
-	int ret, i, offset;
-	char *cfg_buf;
-
-	cfg_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-	if (!cfg_buf)
-		return -ENOMEM;
-
-	if (ts_dev->hw_ops->read_config)
-		ret = ts_dev->hw_ops->read_config(ts_dev, cfg_buf);
-	else
-		ret = -EINVAL;
-
-	if (ret > 0) {
-		offset = 0;
-		for (i = 0; i < ret; i++) {
-			if (i != 0 && i % 20 == 0)
-				buf[offset++] = '\n';
-			offset += snprintf(&buf[offset], PAGE_SIZE - offset,
-					   "%02x,", cfg_buf[i]);
-		}
-	}
-	kfree(cfg_buf);
-	if (ret <= 0)
-		return ret;
-
-	return offset;
-}
-
-static u8 ascii2hex(u8 a)
-{
-	s8 value = 0;
-
-	if (a >= '0' && a <= '9')
-		value = a - '0';
-	else if (a >= 'A' && a <= 'F')
-		value = a - 'A' + 0x0A;
-	else if (a >= 'a' && a <= 'f')
-		value = a - 'a' + 0x0A;
-	else
-		value = 0xff;
-
-	return value;
-}
-
-static int goodix_ts_convert_0x_data(const u8 *buf, int buf_size,
-				     unsigned char *out_buf, int *out_buf_len)
-{
-	int i, m_size = 0;
-	int temp_index = 0;
-	u8 high, low;
-
-	for (i = 0; i < buf_size; i++) {
-		if (buf[i] == 'x' || buf[i] == 'X')
-			m_size++;
-	}
-
-	if (m_size <= 1) {
-		ts_err("cfg file ERROR, valid data count:%d\n", m_size);
-		return -EINVAL;
-	}
-	*out_buf_len = m_size;
-
-	for (i = 0; i < buf_size; i++) {
-		if (buf[i] != 'x' && buf[i] != 'X')
-			continue;
-
-		if (temp_index >= m_size) {
-			ts_err("exchange cfg data error, overflow,"
-			       "temp_index:%d,m_size:%d\n",
-			       temp_index, m_size);
-			return -EINVAL;
-		}
-		high = ascii2hex(buf[i + 1]);
-		low = ascii2hex(buf[i + 2]);
-		if (high == 0xff || low == 0xff) {
-			ts_err("failed convert: 0x%x, 0x%x", buf[i + 1],
-			       buf[i + 2]);
-			return -EINVAL;
-		}
-		out_buf[temp_index++] = (high << 4) + low;
-	}
-	return 0;
-}
-
-static ssize_t goodix_ts_send_cfg_store(struct device *dev,
-					struct device_attribute *attr
-					__attribute__((unused)),
-					const char *buf, size_t count)
-{
-	struct goodix_ts_core *core_data = dev_get_drvdata(dev);
-	struct goodix_ts_device *ts_dev = core_data->ts_dev;
-	int en, r;
-	const struct firmware *cfg_img;
-	struct goodix_ts_config *config = NULL;
-
-	if (sscanf(buf, "%d", &en) != 1)
-		return -EINVAL;
-
-	if (en != 1)
-		return -EINVAL;
-
-	disable_irq(core_data->irq);
-
-	/*request configuration*/
-	r = request_firmware(&cfg_img, GOODIX_DEFAULT_CFG_NAME, dev);
-	if (r < 0) {
-		ts_err("cfg file [%s] not available,errno:%d",
-		       GOODIX_DEFAULT_CFG_NAME, r);
-		goto exit;
-	} else
-		ts_debug("cfg file [%s] is ready", GOODIX_DEFAULT_CFG_NAME);
-
-	config = kzalloc(sizeof(*config), GFP_KERNEL);
-	if (config == NULL)
-		goto exit;
-
-	/*parse cfg data*/
-	if (goodix_ts_convert_0x_data(cfg_img->data, cfg_img->size,
-				      config->data, &config->length)) {
-		ts_err("convert config data FAILED");
-		goto exit;
-	}
-
-	config->reg_base = ts_dev->reg.cfg_addr;
-	mutex_init(&config->lock);
-	config->initialized = TS_CFG_STABLE;
-
-	if (ts_dev->hw_ops->send_config)
-		ts_dev->hw_ops->send_config(ts_dev, config);
-
-exit:
-	enable_irq(core_data->irq);
-	kfree(config);
-	config = NULL;
-	if (cfg_img) {
-		release_firmware(cfg_img);
-		cfg_img = NULL;
-	}
-
-	return count;
-}
-
 /* show irq information */
 static ssize_t goodix_ts_irq_info_show(struct device *dev,
 				       struct device_attribute *attr
@@ -779,8 +629,6 @@ static DEVICE_ATTR(extmod_info, S_IRUGO, goodix_ts_extmod_show, NULL);
 static DEVICE_ATTR(driver_info, S_IRUGO, goodix_ts_driver_info_show, NULL);
 static DEVICE_ATTR(chip_info, S_IRUGO, goodix_ts_chip_info_show, NULL);
 static DEVICE_ATTR(reset, S_IWUSR | S_IWGRP, NULL, goodix_ts_reset_store);
-static DEVICE_ATTR(send_cfg, S_IWUSR | S_IWGRP, NULL, goodix_ts_send_cfg_store);
-static DEVICE_ATTR(read_cfg, S_IRUGO, goodix_ts_read_cfg_show, NULL);
 static DEVICE_ATTR(irq_info, S_IRUGO | S_IWUSR | S_IWGRP,
 		   goodix_ts_irq_info_show, goodix_ts_irq_info_store);
 static DEVICE_ATTR(reg_rw, S_IRUGO | S_IWUSR | S_IWGRP, goodix_ts_reg_rw_show,
@@ -791,8 +639,6 @@ static struct attribute *sysfs_attrs[] = {
 	&dev_attr_driver_info.attr,
 	&dev_attr_chip_info.attr,
 	&dev_attr_reset.attr,
-	&dev_attr_send_cfg.attr,
-	&dev_attr_read_cfg.attr,
 	&dev_attr_irq_info.attr,
 	&dev_attr_reg_rw.attr,
 	NULL,
@@ -802,98 +648,13 @@ static const struct attribute_group sysfs_group = {
 	.attrs = sysfs_attrs,
 };
 
-static ssize_t goodix_sysfs_config_write(struct file *file
-					 __attribute__((unused)),
-					 struct kobject *kobj,
-					 struct bin_attribute *attr
-					 __attribute__((unused)),
-					 char *buf, loff_t pos, size_t count)
-{
-	struct platform_device *pdev =
-		container_of(kobj_to_dev(kobj), struct platform_device, dev);
-	struct goodix_ts_core *ts_core = platform_get_drvdata(pdev);
-	struct goodix_ts_device *ts_dev = ts_core->ts_dev;
-	struct goodix_ts_config *config = NULL;
-	int ret;
-
-	if (pos != 0 || count > GOODIX_CFG_MAX_SIZE) {
-		ts_debug("pos(%d) != 0, cfg size %zu", (int)pos, count);
-		return -EINVAL;
-	}
-
-	config = kzalloc(sizeof(struct goodix_ts_config), GFP_KERNEL);
-	if (config == NULL)
-		return -ENOMEM;
-
-	memcpy(config->data, buf, count);
-	config->length = count;
-	config->reg_base = ts_dev->reg.cfg_addr;
-	mutex_init(&config->lock);
-	config->initialized = true;
-
-	ret = ts_dev->hw_ops->send_config(ts_dev, config);
-	if (ret) {
-		count = -EINVAL;
-		ts_err("send config failed %d", ret);
-	} else {
-		ts_debug("send config success");
-	}
-
-	kfree(config);
-	return count;
-}
-
-static ssize_t goodix_sysfs_config_read(
-	struct file *file __attribute__((unused)), struct kobject *kobj,
-	struct bin_attribute *attr __attribute__((unused)), char *buf,
-	loff_t pos, size_t size __attribute__((unused)))
-{
-	struct platform_device *pdev =
-		container_of(kobj_to_dev(kobj), struct platform_device, dev);
-	struct goodix_ts_core *ts_core = platform_get_drvdata(pdev);
-	struct goodix_ts_device *ts_dev = ts_core->ts_dev;
-	int ret;
-
-	ts_debug("pos = %d, size = %zu", (int)pos, size);
-
-	if (pos != 0)
-		return 0;
-
-	if (ts_dev->hw_ops->read_config)
-		ret = ts_dev->hw_ops->read_config(ts_dev, buf);
-	else
-		ret = -EINVAL;
-
-	ts_debug("read config ret %d", ret);
-	return ret;
-}
-
-static struct bin_attribute goodix_config_bin_attr = {
-	.attr = {
-		.name = "config_bin",
-		.mode = S_IRUGO | S_IWUSR | S_IWGRP,
-	},
-	.size = GOODIX_CFG_MAX_SIZE,
-	.read = goodix_sysfs_config_read,
-	.write = goodix_sysfs_config_write,
-};
-
 static int goodix_ts_sysfs_init(struct goodix_ts_core *core_data)
 {
 	int ret;
 
-	ret = sysfs_create_bin_file(&core_data->pdev->dev.kobj,
-				    &goodix_config_bin_attr);
-	if (ret) {
-		ts_err("failed create config bin attr");
-		return ret;
-	}
-
 	ret = sysfs_create_group(&core_data->pdev->dev.kobj, &sysfs_group);
 	if (ret) {
 		ts_err("failed create core sysfs group");
-		sysfs_remove_bin_file(&core_data->pdev->dev.kobj,
-				      &goodix_config_bin_attr);
 		return ret;
 	}
 
@@ -902,8 +663,6 @@ static int goodix_ts_sysfs_init(struct goodix_ts_core *core_data)
 
 static void goodix_ts_sysfs_exit(struct goodix_ts_core *core_data)
 {
-	sysfs_remove_bin_file(&core_data->pdev->dev.kobj,
-			      &goodix_config_bin_attr);
 	sysfs_remove_group(&core_data->pdev->dev.kobj, &sysfs_group);
 }
 
@@ -944,35 +703,6 @@ int goodix_ts_blocking_notify(enum ts_notify_event evt, void *v)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(goodix_ts_blocking_notify);
-
-static void goodix_ts_report_pen(struct input_dev *dev,
-				 struct goodix_pen_data *pen_data)
-{
-	int i;
-
-	if (pen_data->coords.status == TS_TOUCH) {
-		input_report_key(dev, BTN_TOUCH, 1);
-		input_report_key(dev, pen_data->coords.tool_type, 1);
-	} else if (pen_data->coords.status == TS_RELEASE) {
-		input_report_key(dev, BTN_TOUCH, 0);
-		input_report_key(dev, pen_data->coords.tool_type, 0);
-	}
-	if (pen_data->coords.status) {
-		input_report_abs(dev, ABS_X, pen_data->coords.x);
-		input_report_abs(dev, ABS_Y, pen_data->coords.y);
-		input_report_abs(dev, ABS_PRESSURE, pen_data->coords.p);
-	}
-	/* report pen button */
-	for (i = 0; i < GOODIX_MAX_PEN_KEY; i++) {
-		if (!pen_data->keys[i].status)
-			continue;
-		if (pen_data->keys[i].status == TS_TOUCH)
-			input_report_key(dev, pen_data->keys[i].code, 1);
-		else if (pen_data->keys[i].status == TS_RELEASE)
-			input_report_key(dev, pen_data->keys[i].code, 0);
-	}
-	input_sync(dev);
-}
 
 static void goodix_ts_report_finger(struct input_dev *dev,
 				    struct goodix_touch_data *touch_data)
@@ -1059,11 +789,6 @@ static irqreturn_t goodix_ts_threadirq_func(int irq __attribute__((unused)),
 			/* report touch */
 			goodix_ts_report_finger(core_data->input_dev,
 						&ts_event->touch_data);
-		}
-		if (ts_dev->board_data.pen_enable &&
-		    ts_event->event_type == EVENT_PEN) {
-			goodix_ts_report_pen(core_data->pen_dev,
-					     &ts_event->pen_data);
 		}
 	}
 
@@ -1422,60 +1147,11 @@ static int goodix_ts_input_dev_config(struct goodix_ts_core *core_data)
 	return 0;
 }
 
-static int goodix_ts_pen_dev_config(struct goodix_ts_core *core_data)
-{
-	struct goodix_ts_board_data *ts_bdata = board_data(core_data);
-	struct input_dev *pen_dev = NULL;
-	int r;
-
-	pen_dev = input_allocate_device();
-	if (!pen_dev) {
-		ts_err("Failed to allocated pen device");
-		return -ENOMEM;
-	}
-	core_data->pen_dev = pen_dev;
-	input_set_drvdata(pen_dev, core_data);
-
-	pen_dev->name = GOODIX_PEN_DRIVER_NAME;
-	pen_dev->id.product = 0xDEAD;
-	pen_dev->id.vendor = 0xBEEF;
-	pen_dev->id.version = 10427;
-
-	pen_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-	__set_bit(ABS_X, pen_dev->absbit);
-	__set_bit(ABS_Y, pen_dev->absbit);
-	__set_bit(BTN_STYLUS, pen_dev->keybit);
-	__set_bit(BTN_STYLUS2, pen_dev->keybit);
-	__set_bit(BTN_TOUCH, pen_dev->keybit);
-	__set_bit(BTN_TOOL_PEN, pen_dev->keybit);
-	__set_bit(INPUT_PROP_DIRECT, pen_dev->propbit);
-	input_set_abs_params(pen_dev, ABS_X, 0, ts_bdata->panel_max_x, 0, 0);
-	input_set_abs_params(pen_dev, ABS_Y, 0, ts_bdata->panel_max_y, 0, 0);
-	input_set_abs_params(pen_dev, ABS_PRESSURE, 0, GOODIX_PEN_MAX_PRESSURE,
-			     0, 0);
-
-	r = input_register_device(pen_dev);
-	if (r < 0) {
-		ts_err("Unable to register pen device");
-		input_free_device(pen_dev);
-		return r;
-	}
-
-	return 0;
-}
-
 void goodix_ts_input_dev_remove(struct goodix_ts_core *core_data)
 {
 	input_unregister_device(core_data->input_dev);
 	input_free_device(core_data->input_dev);
 	core_data->input_dev = NULL;
-}
-
-void goodix_ts_pen_dev_remove(struct goodix_ts_core *core_data)
-{
-	input_unregister_device(core_data->pen_dev);
-	input_free_device(core_data->pen_dev);
-	core_data->pen_dev = NULL;
 }
 
 /**
@@ -1867,16 +1543,10 @@ static int goodix_ts_pm_resume(struct device *dev)
 #endif
 #endif
 
-int goodix_ts_stage2_init(struct goodix_ts_core *core_data)
+int goodix_ts_init(struct goodix_ts_core *core_data)
 {
 	int r;
 	struct goodix_ts_device *ts_dev = ts_device(core_data);
-
-	/* send normal-cfg to firmware */
-	r = ts_dev->hw_ops->send_config(ts_dev, &(ts_dev->normal_cfg));
-	if (r < 0) {
-		ts_debug("failed send normal config[ignore]");
-	}
 
 	r = ts_dev->hw_ops->read_version(ts_dev, &ts_dev->chip_version);
 	if (r < 0)
@@ -1889,18 +1559,11 @@ int goodix_ts_stage2_init(struct goodix_ts_core *core_data)
 		return r;
 	}
 
-	if (ts_dev->board_data.pen_enable) {
-		r = goodix_ts_pen_dev_config(core_data);
-		if (r < 0) {
-			ts_err("failed set pen device");
-			goto err_finger;
-		}
-	}
 	/* request irq line */
 	r = goodix_ts_irq_setup(core_data);
 	if (r < 0) {
 		ts_debug("failed set irq");
-		goto exit;
+		goto err_finger;
 	}
 	ts_debug("success register irq");
 
@@ -1920,10 +1583,6 @@ int goodix_ts_stage2_init(struct goodix_ts_core *core_data)
 	/* esd protector */
 	goodix_ts_esd_init(core_data);
 	return 0;
-exit:
-	if (ts_dev->board_data.pen_enable) {
-		goodix_ts_pen_dev_remove(core_data);
-	}
 err_finger:
 	goodix_ts_input_dev_remove(core_data);
 	return r;
@@ -1991,13 +1650,6 @@ static int goodix_ts_probe(struct platform_device *pdev)
 		goto out;
 	}
 
-	/* Try start a thread to get config-bin info */
-	r = goodix_start_later_init(core_data);
-	if (r) {
-		ts_debug("Failed start cfg_bin_proc");
-		goto out;
-	}
-
 	core_data->initialized = 1;
 	goodix_modules.core_data = core_data;
 	core_module_prob_sate = CORE_MODULE_PROB_SUCCESS;
@@ -2006,10 +1658,14 @@ out:
 		kfree(core_data);
 		core_data = NULL;
 		core_module_prob_sate = CORE_MODULE_PROB_FAILED;
+	} else {
+		goodix_ts_init(core_data);
 	}
+
 	ts_info("goodix_ts_probe OUT, r:%d", r);
 	/* wakeup ext module register work */
 	complete_all(&goodix_modules.core_comp);
+
 	return r;
 }
 

@@ -23,8 +23,8 @@
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
+#include <linux/of_device.h>
 #include "goodix_ts_core.h"
-#include "goodix_cfg_bin.h"
 
 #define TS_DRIVER_NAME "gtx8"
 #define I2C_MAX_TRANSFER_SIZE 256
@@ -90,7 +90,6 @@ enum TS_SEND_CFG_REPLY {
 #define IRQ_HEAD_LEN_NOR 2
 
 int goodix_ts_core_init(void);
-#ifdef CONFIG_OF
 /**
  * goodix_parse_dt_resolution - parse resolution from dt
  * @node: devicetree node
@@ -241,12 +240,6 @@ static int goodix_parse_dt(struct device_node *node,
 		}
 	}
 
-	/*get pen-enable switch and pen keys, must after "key map"*/
-	board_data->pen_enable =
-		of_property_read_bool(node, "goodix,pen-enable");
-	if (board_data->pen_enable)
-		ts_debug("goodix pen enabled");
-
 	ts_debug("***key:%d, %d, %d, %d", board_data->panel_key_map[0],
 		 board_data->panel_key_map[1], board_data->panel_key_map[2],
 		 board_data->panel_key_map[3]);
@@ -256,7 +249,6 @@ static int goodix_parse_dt(struct device_node *node,
 		 board_data->panel_max_p);
 	return 0;
 }
-#endif
 
 int goodix_i2c_test(struct goodix_ts_device *dev)
 {
@@ -831,449 +823,6 @@ exit:
 	return r;
 }
 
-static int goodix_wait_cfg_cmd_ready(struct goodix_ts_device *dev, u8 right_cmd,
-				     u8 send_cmd)
-{
-	int try_times = 0;
-	u8 cmd_flag = 0;
-	u8 cmd_buf[3] = { 0 };
-	u16 command_reg = dev->reg.command;
-	struct goodix_ts_cmd ts_cmd;
-
-	goodix_cmd_init(dev, &ts_cmd, send_cmd, 0, command_reg);
-
-	for (try_times = 0; try_times < TS_WAIT_CFG_READY_RETRY_TIMES;
-	     try_times++) {
-		if (goodix_i2c_read(dev, command_reg, cmd_buf, 3)) {
-			ts_err("Read cmd_reg error");
-			return -EINVAL;
-		}
-		cmd_flag = cmd_buf[0];
-		if (cmd_flag == right_cmd) {
-			return 0;
-		} else if (cmd_flag != send_cmd) {
-			ts_err("failed cmd_reg:0x%X, 0x%X, 0x%X", cmd_buf[0],
-			       cmd_buf[1], cmd_buf[2]);
-			if (goodix_send_command(dev, &ts_cmd)) {
-				ts_err("Resend cmd 0x%02X FAILED", send_cmd);
-				return -EINVAL;
-			}
-		}
-		usleep_range(10000, 11000);
-	}
-
-	return -EINVAL;
-}
-
-static int _do_goodix_send_config(struct goodix_ts_device *dev,
-				  struct goodix_ts_config *config)
-{
-	int r = 0;
-	int try_times = 0;
-	u8 buf[3] = { 0 };
-	u16 command_reg = dev->reg.command;
-	u16 cfg_reg = dev->reg.cfg_addr;
-	struct goodix_ts_cmd ts_cmd;
-
-	/*1. Inquire command_reg until it's free*/
-	for (try_times = 0; try_times < TS_WAIT_CMD_FREE_RETRY_TIMES;
-	     try_times++) {
-		if (!goodix_i2c_read(dev, command_reg, buf, 1) &&
-		    buf[0] == TS_CMD_REG_READY)
-			break;
-		usleep_range(10000, 11000);
-	}
-	if (try_times >= TS_WAIT_CMD_FREE_RETRY_TIMES) {
-		ts_err("failed send cfg, reg:0x%04x is not 0xff", command_reg);
-		r = -EINVAL;
-		goto exit;
-	}
-
-	/*2. send "start write cfg" command*/
-	goodix_cmd_init(dev, &ts_cmd, COMMAND_START_SEND_CFG, 0,
-			dev->reg.command);
-	if (goodix_send_command(dev, &ts_cmd)) {
-		ts_err("failed send cfg, COMMAND_START_SEND_CFG ERROR");
-		r = -EINVAL;
-		goto exit;
-	}
-
-	/*3. wait ic set command_reg to 0x82*/
-	if (goodix_wait_cfg_cmd_ready(dev, COMMAND_SEND_CFG_PREPARE_OK,
-				      COMMAND_START_SEND_CFG)) {
-		ts_err("failed send cfg, reg:0x%04x is not 0x82", command_reg);
-		r = -EINVAL;
-		goto exit;
-	}
-
-	/*4. write cfg*/
-	if (goodix_i2c_write(dev, cfg_reg, config->data, config->length)) {
-		ts_err("Send cfg FAILED, write cfg to fw ERROR");
-		r = -EINVAL;
-		goto exit;
-	}
-
-	/*5. send "end send cfg" command*/
-	goodix_cmd_init(dev, &ts_cmd, COMMAND_END_SEND_CFG, 0,
-			dev->reg.command);
-	if (goodix_send_command(dev, &ts_cmd)) {
-		ts_err("failed send cfg, COMMAND_END_SEND_CFG ERROR");
-		r = -EINVAL;
-		goto exit;
-	}
-
-	if (dev->ic_type == IC_TYPE_YELLOWSTONE) {
-		/*6. wait 0x7f or 0x7e */
-		for (try_times = 0; try_times < TS_WAIT_CMD_FREE_RETRY_TIMES;
-		     try_times++) {
-			r = goodix_i2c_read(dev, command_reg, buf, 3);
-			if (!r && (buf[0] == TS_CMD_CFG_ERR ||
-				   buf[0] == TS_CMD_CFG_OK))
-				break;
-			usleep_range(10000, 11000);
-		}
-		ts_debug("send config result: %*ph", 3, buf);
-		/* set 0x7D to end send config process */
-		goodix_cmd_init(dev, &ts_cmd, COMMAND_END_SEND_CFG_YS, 0,
-				dev->reg.command);
-		if (goodix_send_command(dev, &ts_cmd)) {
-			ts_err("failed send cfg end cmd");
-			r = -EINVAL;
-			goto exit;
-		}
-
-		if (try_times >= TS_WAIT_CMD_FREE_RETRY_TIMES) {
-			ts_err("failed get result");
-			r = -EINVAL;
-			goto exit;
-		}
-		if (buf[0] == TS_CMD_CFG_ERR) {
-			if (buf[2] != TS_CFG_REPLY_DATA_EQU)
-				ts_err("failed send cfg");
-			else
-				ts_debug("config data equal with flash");
-			r = -EINVAL;
-			goto exit;
-		}
-	} else {
-		/*6. wait ic set command_reg to 0xff*/
-		for (try_times = 0; try_times < TS_WAIT_CMD_FREE_RETRY_TIMES;
-		     try_times++) {
-			if (!goodix_i2c_read(dev, command_reg, buf, 1) &&
-			    buf[0] == TS_CMD_REG_READY)
-				break;
-			usleep_range(10000, 11000);
-		}
-		if (try_times >= TS_WAIT_CMD_FREE_RETRY_TIMES) {
-			ts_err("failed send cfg, reg:0x%04x is 0x%x not 0xff",
-			       command_reg, buf[0]);
-			r = -EINVAL;
-			goto exit;
-		}
-	}
-
-	ts_debug("Send cfg SUCCESS");
-	r = 0;
-
-exit:
-	return r;
-}
-
-/*static int goodix_check_cfg_valid(struct goodix_ts_device *dev, u8 *cfg, u32 length)
-{
-	int ret;
-	u8 bag_num;
-	u8 checksum;
-	int i, j;
-	int bag_start = 0;
-	int bag_end = 0;
-
-	if (!cfg || length < TS_CFG_HEAD_LEN) {
-		ts_err("cfg is INVALID, len:%d", length);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	checksum = 0;
-	for (i = 0; i < TS_CFG_HEAD_LEN; i++)
-		checksum += cfg[i];
-	if (checksum != 0) {
-		ts_err("cfg head checksum ERROR, checksum:0x%02x",
-			checksum);
-		ret = -EINVAL;
-		goto exit;
-	}
-	bag_num = cfg[TS_CFG_BAG_NUM_INDEX];
-	bag_start = TS_CFG_BAG_START_INDEX;
-
-	ts_debug("cfg bag_num:%d, cfg length:%d", bag_num, length);
-	for (j = 0; j < bag_num; j++) {
-		if (bag_start >= length - 1) {
-			ts_err("ERROR, overflow!!bag_start:%d, cfg_len:%d",
-				bag_start, length);
-			ret = -EINVAL;
-			goto exit;
-		}
-
-		bag_end = bag_start + cfg[bag_start + 1] + 3;
-
-		checksum = 0;
-		if (bag_end > length) {
-			ts_err("ERROR, overflow!!bag:%d, bag_start:%d,"
-				"bag_end:%d, cfg length:%d",
-				j, bag_start, bag_end, length);
-			ret = -EINVAL;
-			goto exit;
-		}
-		for (i = bag_start; i < bag_end; i++)
-			checksum += cfg[i];
-		if (checksum != 0) {
-			ts_err("cfg INVALID, bag:%d checksum ERROR:0x%02x",
-			       j, checksum);
-			ret = -EINVAL;
-			goto exit;
-		}
-		bag_start = bag_end;
-	}
-
-	ret = 0;
-	ts_debug("configuration check SUCCESS");
-
-exit:
-	return ret;
-}*/
-
-static int goodix_send_config(struct goodix_ts_device *dev,
-			      struct goodix_ts_config *config)
-{
-	int r = 0;
-
-	if (!config || !config->initialized) {
-		ts_err("invalid config data");
-		return -EINVAL;
-	}
-
-	/*check configuration valid*/
-	// TODO remove this
-	// r = goodix_check_cfg_valid(dev, config->data, config->length);
-	// if (r != 0) {
-	// 	ts_err("cfg check FAILED");
-	// 	return -EINVAL;
-	// }
-
-	ts_debug("ver:%02xh,size:%d", config->data[0], config->length);
-	mutex_lock(&config->lock);
-
-	/*disable doze mode*/
-	if (!goodix_set_i2c_doze_mode(dev, false)) {
-		r = _do_goodix_send_config(dev, config);
-	} else {
-		ts_err("failed disable doze[abort]");
-		r = -EINVAL;
-	}
-	/*enable doze mode*/
-	goodix_set_i2c_doze_mode(dev, true);
-
-	mutex_unlock(&config->lock);
-	return r;
-}
-
-/* success return config length else return -1 */
-static int goodix_read_config_ys(struct goodix_ts_device *dev, u8 *buf)
-{
-	u32 cfg_addr = dev->reg.cfg_addr;
-	int sub_bags = 0;
-	int offset = 0;
-	int subbag_len;
-	u16 checksum;
-	int i;
-	int ret;
-
-	ret = goodix_i2c_read(dev, cfg_addr, buf, TS_CFG_HEAD_LEN_YS);
-	if (ret)
-		goto err_out;
-
-	offset = TS_CFG_HEAD_LEN_YS;
-	sub_bags = buf[TS_CFG_BAG_NUM_INDEX];
-	checksum = checksum_u8_ys(buf, TS_CFG_HEAD_LEN_YS);
-	if (checksum) {
-		ts_err("Config head checksum err:0x%x,data:%*ph", checksum,
-		       TS_CFG_HEAD_LEN_YS, buf);
-		ret = -EINVAL;
-		goto err_out;
-	}
-
-	ts_debug("config_version:%u, vub_bags:%u", buf[0], sub_bags);
-	for (i = 0; i < sub_bags; i++) {
-		/* read sub head [0]: sub bag num, [1]: sub bag length */
-		ret = goodix_i2c_read(dev, cfg_addr + offset, buf + offset, 2);
-		if (ret)
-			goto err_out;
-
-		/* read sub bag data */
-		subbag_len = buf[offset + 1];
-
-		ts_debug("sub bag num:%u,sub bag length:%u", buf[offset],
-			 subbag_len);
-		ret = goodix_i2c_read(dev, cfg_addr + offset + 2,
-				      buf + offset + 2, subbag_len + 2);
-		if (ret)
-			goto err_out;
-		checksum = checksum_u8_ys(buf + offset, subbag_len + 4);
-		if (checksum) {
-			ts_err("sub bag checksum err:0x%x", checksum);
-			ret = -EINVAL;
-			goto err_out;
-		}
-		offset += subbag_len + 4;
-		ts_debug("sub bag %d, data:%*ph", buf[offset],
-			 buf[offset + 1] + 4, buf + offset);
-	}
-	ret = offset;
-
-err_out:
-	return ret;
-}
-
-/* success return config length else return -1 */
-static int goodix_read_config_nor(struct goodix_ts_device *dev, u8 *buf)
-{
-	u32 cfg_addr = dev->reg.cfg_addr;
-	int sub_bags = 0;
-	int offset = 0;
-	int subbag_len;
-	u8 checksum;
-	int i;
-	int ret;
-
-	/*disable doze mode*/
-	if (goodix_set_i2c_doze_mode(dev, false)) {
-		ts_err("failed disable doze mode[abort]");
-		ret = -EINVAL;
-		goto err_out;
-	}
-
-	ret = goodix_i2c_read(dev, cfg_addr, buf, TS_CFG_HEAD_LEN);
-	if (ret)
-		goto err_out;
-
-	offset = TS_CFG_BAG_START_INDEX;
-	sub_bags = buf[TS_CFG_BAG_NUM_INDEX];
-	checksum = checksum_u8(buf, TS_CFG_HEAD_LEN);
-	if (checksum) {
-		ts_err("Config head checksum err:0x%x,data:%*ph", checksum,
-		       TS_CFG_HEAD_LEN, buf);
-		ret = -EINVAL;
-		goto err_out;
-	}
-
-	ts_debug("config_version:%u, vub_bags:%u", buf[0], sub_bags);
-	for (i = 0; i < sub_bags; i++) {
-		/* read sub head [0]: sub bag num, [1]: sub bag length */
-		ret = goodix_i2c_read(dev, cfg_addr + offset, buf + offset, 2);
-		if (ret)
-			goto err_out;
-
-		/* read sub bag data */
-		subbag_len = buf[offset + 1];
-
-		ts_debug("sub bag num:%u,sub bag length:%u", buf[offset],
-			 subbag_len);
-		ret = goodix_i2c_read(dev, cfg_addr + offset + 2,
-				      buf + offset + 2, subbag_len + 1);
-		if (ret)
-			goto err_out;
-		checksum = checksum_u8(buf + offset, subbag_len + 3);
-		if (checksum) {
-			ts_err("sub bag checksum err:0x%x", checksum);
-			ret = -EINVAL;
-			goto err_out;
-		}
-		offset += subbag_len + 3;
-		ts_debug("sub bag %d, data:%*ph", buf[offset],
-			 buf[offset + 1] + 3, buf + offset);
-	}
-	ret = offset;
-
-err_out:
-	/*enable doze mode*/
-	goodix_set_i2c_doze_mode(dev, true);
-
-	return ret;
-}
-
-/* success return config_len, <= 0 failed */
-static int goodix_read_config(struct goodix_ts_device *dev, u8 *config_data)
-{
-	struct goodix_ts_cmd ts_cmd;
-	u8 cmd_flag;
-	u32 cmd_reg = dev->reg.command;
-	int r = 0;
-	int i;
-
-	if (!config_data) {
-		ts_err("Illegal params");
-		return -EINVAL;
-	}
-	if (!dev->reg.command) {
-		ts_err("command register ERROR:0x%04x", dev->reg.command);
-		return -EINVAL;
-	}
-
-	/*disable doze mode*/
-	if (goodix_set_i2c_doze_mode(dev, false)) {
-		ts_err("failed disabled doze[abort]");
-		r = -EINVAL;
-		goto exit;
-	}
-
-	/* wait for IC in IDLE state */
-	for (i = 0; i < TS_WAIT_CMD_FREE_RETRY_TIMES; i++) {
-		cmd_flag = 0;
-		r = goodix_i2c_read(dev, cmd_reg, &cmd_flag, 1);
-		if (r < 0 || cmd_flag == TS_CMD_REG_READY)
-			break;
-		usleep_range(10000, 11000);
-	}
-	if (cmd_flag != TS_CMD_REG_READY) {
-		ts_err("Wait for IC ready IDLE state timeout:addr 0x%x\n",
-		       cmd_reg);
-		r = -EAGAIN;
-		goto exit;
-	}
-	/* 0x86 read config command */
-	goodix_cmd_init(dev, &ts_cmd, COMMAND_START_READ_CFG, 0, cmd_reg);
-	r = goodix_send_command(dev, &ts_cmd);
-	if (r) {
-		ts_err("Failed send read config command");
-		goto exit;
-	}
-	/* wait for config data ready */
-	if (goodix_wait_cfg_cmd_ready(dev, COMMAND_READ_CFG_PREPARE_OK,
-				      COMMAND_START_READ_CFG)) {
-		ts_err("Wait for config data ready timeout");
-		r = -EAGAIN;
-		goto exit;
-	}
-
-	if (dev->ic_type == IC_TYPE_YELLOWSTONE)
-		r = goodix_read_config_ys(dev, config_data);
-	else
-		r = goodix_read_config_nor(dev, config_data);
-	if (r <= 0)
-		ts_err("Failed read config data");
-
-	/* clear command */
-	goodix_cmd_init(dev, &ts_cmd, TS_CMD_REG_READY, 0, cmd_reg);
-	goodix_send_command(dev, &ts_cmd);
-
-exit:
-	/*enable doze mode*/
-	goodix_set_i2c_doze_mode(dev, true);
-
-	return r;
-}
-
 /**
  * goodix_hw_reset - reset device
  *
@@ -1323,15 +872,12 @@ static int goodix_request_handler(struct goodix_ts_device *dev)
 	switch (buffer[0]) {
 	case REQUEST_CONFIG:
 		ts_debug("HW request config");
-		r = goodix_send_config(dev, &(dev->normal_cfg));
-		if (r != 0)
-			ts_debug("request config, send config failed");
 		break;
 	case REQUEST_BAKREF:
 		ts_debug("HW request bakref");
 		break;
 	case REQUEST_RESET:
-		ts_debug("HW requset reset");
+		ts_debug("HW request reset");
 		r = goodix_hw_reset(dev);
 		if (r != 0)
 			ts_debug("request reset, reset failed");
@@ -1787,8 +1333,6 @@ static const struct goodix_ts_hw_ops hw_i2c_ops = {
 	.write_trans = goodix_i2c_write_trans,
 	.reset = goodix_hw_reset,
 	.event_handler = goodix_event_handler,
-	.send_config = goodix_send_config,
-	.read_config = goodix_read_config,
 	.send_cmd = goodix_send_command,
 	.read_version = goodix_read_version,
 	.suspend = goodix_hw_suspend,
@@ -1802,6 +1346,23 @@ static void goodix_pdev_release(struct device *dev __attribute__((unused)))
 {
 	ts_debug("goodix pdev released");
 }
+
+static const struct of_device_id i2c_matches[] = {
+	{
+		.compatible = "goodix,gt9896",
+	},
+	{
+		.compatible = "goodix,gt9886",
+	},
+	{
+		.compatible = "goodix,gt9889",
+	},
+	{
+		.compatible = "goodix,gt5863",
+	},
+	{},
+};
+MODULE_DEVICE_TABLE(of, i2c_matches);
 
 static int goodix_i2c_probe(struct i2c_client *client)
 {
@@ -1820,12 +1381,34 @@ static int goodix_i2c_probe(struct i2c_client *client)
 	if (!ts_device)
 		return -ENOMEM;
 
-	if (IS_ENABLED(CONFIG_OF) && client->dev.of_node) {
+	if (client->dev.of_node) {
 		/* parse devicetree property */
 		r = goodix_parse_dt(client->dev.of_node,
 				    &ts_device->board_data);
 		if (r < 0) {
-			ts_err("failed parse device info from dts, %d", r);
+			ts_err("failed to parse device info from dts, %d", r);
+			return -EINVAL;
+		}
+
+		/* guess touch ic based on compatible */
+		const struct of_device_id *of_id =
+			of_match_device(i2c_matches, &client->dev);
+		if (of_id) {
+			const char *compatible = of_id->compatible;
+
+			if (strcmp(compatible, "goodix,gt9896") == 0) {
+				ts_device->ic_type = IC_TYPE_YELLOWSTONE;
+				ts_device->reg = goodix_ts_regs_yellowstone;
+			} else if (strcmp(compatible, "goodix,gt9886") == 0 ||
+				   strcmp(compatible, "goodix,gt9889") == 0) {
+				ts_device->ic_type = IC_TYPE_NORMANDY;
+				ts_device->reg = goodix_ts_regs_normandy;
+			} else {
+				ts_err("unknown ic type");
+				return -EINVAL;
+			}
+		} else {
+			ts_err("failed to get device id");
 			return -EINVAL;
 		}
 	} else {
@@ -1833,7 +1416,7 @@ static int goodix_i2c_probe(struct i2c_client *client)
 		return -ENODEV;
 	}
 
-	ts_device->name = "Goodix TouchDevcie";
+	ts_device->name = "Goodix TouchDevice";
 	ts_device->dev = &client->dev;
 	ts_device->hw_ops = &hw_i2c_ops;
 
@@ -1887,25 +1470,6 @@ static void goodix_i2c_remove(struct i2c_client *client __attribute__((unused)))
 	}
 }
 
-#ifdef CONFIG_OF
-static const struct of_device_id i2c_matchs[] = {
-	{
-		.compatible = "goodix,gt9896",
-	},
-	{
-		.compatible = "goodix,gt9886",
-	},
-	{
-		.compatible = "goodix,gt9889",
-	},
-	{
-		.compatible = "goodix,gt5863",
-	},
-	{},
-};
-MODULE_DEVICE_TABLE(of, i2c_matchs);
-#endif
-
 static const struct i2c_device_id i2c_id_table[] = {
 	{ TS_DRIVER_NAME, 0 },
 	{},
@@ -1916,7 +1480,7 @@ static struct i2c_driver goodix_i2c_driver = {
 	.driver = {
 		.name = TS_DRIVER_NAME,
 		.owner = THIS_MODULE,
-		.of_match_table = of_match_ptr(i2c_matchs),
+		.of_match_table = of_match_ptr(i2c_matches),
 	},
 	.probe = goodix_i2c_probe,
 	.remove = goodix_i2c_remove,
