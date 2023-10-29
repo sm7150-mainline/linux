@@ -227,3 +227,8 @@
 	firmware-name = "qcom/sm7150/davinci/modem.mbn";
 	status = "okay";
 };
+
+&venus {
+	firmware-name = "qcom/sm7150/davinci/venus.mbn";
+	status = "okay";
+};
