@@ -283,6 +283,11 @@ sys_get_prop_image_version(struct venus_core *core,
 	if (ret)
 		goto done;
 
+	ret = sscanf(img_ver, "14:VIDEO.IR.%u.%u-%u",
+			&core->venus_ver.major, &core->venus_ver.minor, &core->venus_ver.rev);
+	if (ret)
+		goto done;
+
 	dev_err(dev, VDBGL "error reading F/W version\n");
 	return;
 
