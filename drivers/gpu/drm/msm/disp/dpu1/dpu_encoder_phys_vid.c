@@ -103,6 +103,8 @@ static void drm_mode_to_intf_timing_params(
 
 	timing->wide_bus_en = dpu_encoder_is_widebus_enabled(phys_enc->parent);
 	timing->compression_en = dpu_encoder_is_dsc_enabled(phys_enc->parent);
+	if (dpu_encoder_helper_get_dsc(phys_enc))
+		timing->compression_en = true;
 
 	/*
 	 * for DP, divide the horizonal parameters by 2 when
@@ -114,6 +116,15 @@ static void drm_mode_to_intf_timing_params(
 		timing->h_back_porch = timing->h_back_porch >> 1;
 		timing->h_front_porch = timing->h_front_porch >> 1;
 		timing->hsync_pulse_width = timing->hsync_pulse_width >> 1;
+	}
+
+	/*
+	 * for DSI, if compression is enabled, then divide the horizonal active
+	 * timing parameters by compression ratio.
+	 */
+	if (phys_enc->hw_intf->cap->type != INTF_DP && timing->compression_en) {
+		timing->width = timing->width / 3; /* XXX: don't assume 3:1 compression ratio */
+		timing->xres = timing->width;
 	}
 }
 
