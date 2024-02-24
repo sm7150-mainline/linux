@@ -737,6 +737,7 @@ static const struct adreno_info a6xx_gpus[] = {
 		.machine = "qcom,sm7150",
 		.chip_ids = ADRENO_CHIP_IDS(0x06010800),
 		.family = ADRENO_6XX_GEN1,
+		.revn = 618,
 		.fw = {
 			[ADRENO_FW_SQE] = "a630_sqe.fw",
 			[ADRENO_FW_GMU] = "a630_gmu.bin",
