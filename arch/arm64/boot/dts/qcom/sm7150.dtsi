@@ -3557,6 +3557,193 @@
 
 			status = "disabled";
 		};
+
+		lpass_tlmm: pinctrl@62b40000 {
+			compatible = "qcom,sm7150-lpass-lpi-pinctrl";
+			reg = <0 0x62b40000 0 0x20000>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&lpass_tlmm 0 0 32>;
+
+			clocks = <&q6afecc LPASS_HW_MACRO_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>;
+			clock-names = "core";
+
+			tx_swr_active: tx-swr-active-state {
+				clk-pins {
+					pins = "gpio18";
+					function = "swr_tx_clk";
+					drive-strength = <8>;
+					bias-bus-hold;
+				};
+
+				data1-pins {
+					pins = "gpio19";
+					function = "swr_tx_data";
+					drive-strength = <8>;
+					bias-bus-hold;
+				};
+
+				data2-pins {
+					pins = "gpio20";
+					function = "swr_tx_data";
+					drive-strength = <8>;
+					bias-bus-hold;
+				};
+			};
+
+			tx_swr_sleep: tx-swr-sleep-state {
+				clk-pins {
+					pins = "gpio18";
+					function = "swr_tx_clk";
+					drive-strength = <2>;
+					bias-bus-hold;
+				};
+
+				data1-pins {
+					pins = "gpio19";
+					function = "swr_tx_data";
+					drive-strength = <2>;
+					bias-bus-hold;
+				};
+
+				data2-pins {
+					pins = "gpio20";
+					function = "swr_tx_data";
+					drive-strength = <2>;
+					bias-bus-hold;
+				};
+			};
+
+			rx_swr_active: rx-swr-active-state {
+				clk-pins {
+					pins = "gpio21";
+					function = "swr_rx_clk";
+					drive-strength = <8>;
+					bias-bus-hold;
+				};
+
+				data-pins {
+					pins = "gpio22", "gpio23";
+					function = "swr_rx_data";
+					drive-strength = <8>;
+					bias-bus-hold;
+				};
+			};
+
+
+			rx_swr_sleep: rx-swr-sleep-state {
+				clk-pins {
+					pins = "gpio21";
+					function = "swr_rx_clk";
+					drive-strength = <2>;
+					bias-bus-hold;
+				};
+
+				data-pins {
+					pins = "gpio22", "gpio23";
+					function = "swr_rx_data";
+					drive-strength = <2>;
+					bias-bus-hold;
+				};
+			};
+
+			wcd9375_reset_active: wcd9375-reset-active-state {
+				pins = "gpio24";
+				function = "cdc_pdm_rx1_dre";
+				drive-strength = <16>;
+				output-high;
+			};
+
+			wcd9375_reset_sleep: wcd9375-reset-sleep-state {
+				pins = "gpio24";
+				function = "cdc_pdm_rx1_dre";
+				drive-strength = <16>;
+				bias-disable;
+				output-low;
+			};
+
+			dmic01_active: dmic01-active-state {
+				clk-pins {
+					pins = "gpio26";
+					function = "dmic1_clk";
+					drive-strength = <8>;
+					output-high;
+				};
+
+				data-pins {
+					pins = "gpio27";
+					function = "dmic1_data";
+					drive-strength = <8>;
+					input-enable;
+				};
+			};
+
+			dmic01_sleep: dmic01-sleep-state {
+				clk-pins {
+					pins = "gpio26";
+					function = "dmic1_clk";
+					drive-strength = <2>;
+					bias-disable;
+				};
+
+				data-pins {
+					pins = "gpio27";
+					function = "dmic1_data";
+					drive-strength = <2>;
+					pull-down;
+					input-enable;
+				};
+			};
+
+			dmic23_active: dmic23-active-state {
+				clk-pins {
+					pins = "gpio28";
+					function = "dmic2_clk";
+					drive-strength = <8>;
+					output-high;
+				};
+
+				data-pins {
+					pins = "gpio29";
+					function = "dmic2_data";
+					drive-strength = <8>;
+					input-enable;
+				};
+			};
+
+			dmic23_sleep: dmic23-sleep-state {
+				clk-pins {
+					pins = "gpio28";
+					function = "dmic2_clk";
+					drive-strength = <2>;
+					bias-disable;
+					output-low;
+				};
+
+				data-pins {
+					pins = "gpio29";
+					function = "dmic2_data";
+					drive-strength = <2>;
+					pull-down;
+					input-enable;
+				};
+			};
+
+			wcd934x_reset_active: wcd934x-reset-active-state {
+				pins = "gpio29";
+				function = "prim_mclk_b"; // ?
+				drive-strength = <16>;
+				output-high;
+			};
+
+			wcd934x_reset_sleep: lpi_wcd934x-reset-sleep-state {
+				pins = "gpio29";
+				function = "prim_mclk_b"; // ?
+				drive-strength = <16>;
+				bias-disable;
+				output-low;
+			};
+		};
 	};
 
 	thermal-zones {
