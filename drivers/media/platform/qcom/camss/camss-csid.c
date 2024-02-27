@@ -590,6 +590,9 @@ int msm_csid_subdev_init(struct camss *camss, struct csid_device *csid,
 			csid->base = camss->vfe[id].base + VFE_480_LITE_CSID_OFFSET;
 		else
 			csid->base = camss->vfe[id].base + VFE_480_CSID_OFFSET;
+	} else if (camss->res->version == CAMSS_7150) {
+		if (id >= 2) /* VFE/CSID lite */
+			csid->base = camss->vfe[id].base + VFE_480_LITE_CSID_OFFSET; // ????????
 	} else {
 		csid->base = devm_platform_ioremap_resource_byname(pdev, res->reg[0]);
 		if (IS_ERR(csid->base))
