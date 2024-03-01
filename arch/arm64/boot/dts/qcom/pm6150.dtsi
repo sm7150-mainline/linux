@@ -158,6 +158,18 @@
 			status = "disabled";
 		};
 
+		pm6150_qgauge: qgauge@4800 {
+			compatible = "qcom,pm6150-qg";
+			reg = <0x4800>;
+
+			io-channels = <&pm6150_adc ADC5_BAT_THERM_100K_PU>,
+				      <&pm6150_adc ADC5_BAT_ID_100K_PU>;
+			io-channel-names = "batt-therm",
+					   "batt-id";
+
+			status = "disabled";
+		};
+
 		pm6150_rtc: rtc@6000 {
 			compatible = "qcom,pm8941-rtc";
 			reg = <0x6000>, <0x6100>;
