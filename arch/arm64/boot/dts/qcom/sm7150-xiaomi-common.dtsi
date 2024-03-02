@@ -32,6 +32,13 @@
 		wifi0 = &wifi;
 	};
 
+	battery: battery {
+		compatible = "simple-battery";
+
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4400000>;
+	};
+
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -501,6 +508,11 @@
 
 &mdss_dsi0_phy {
 	vdds-supply = <&vdda_mipi_dsi0_pll>;
+	status = "okay";
+};
+
+&pm6150_qgauge {
+	monitored-battery = <&battery>;
 	status = "okay";
 };
 
