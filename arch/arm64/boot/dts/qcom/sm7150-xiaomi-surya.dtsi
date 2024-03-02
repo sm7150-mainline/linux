@@ -104,6 +104,10 @@
 	};
 };
 
+&battery {
+	charge-full-design-microamp-hours = <5160000>;
+};
+
 &cci0_i2c0 {
 	/* Sony IMX682 Main @ 50 */
 };
