@@ -158,6 +158,7 @@
 		shutdown-gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
 		sound-name-prefix = "Right";
 		ti,imon-slot-no = <1>;
+		ti,vmon-slot-no = <3>;
 	};
 
 	tas2564: codec@4d { /* EAR */
@@ -170,7 +171,8 @@
 		interrupts = <58 IRQ_TYPE_EDGE_FALLING>;
 		shutdown-gpios = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
 		sound-name-prefix = "Left";
-		ti,imon-slot-no = <1>;
+		ti,imon-slot-no = <2>;
+		ti,vmon-slot-no = <4>;
 	};
 
 	/* ti,bq25968 (charger) @ 65 */
