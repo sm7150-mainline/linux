@@ -127,7 +127,7 @@ static int qcom_qg_get_property(struct power_supply *psy,
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
-		val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
 		break;
 	case POWER_SUPPLY_PROP_TECHNOLOGY:
 		val->intval = POWER_SUPPLY_TECHNOLOGY_LIPO;
@@ -164,7 +164,7 @@ static int qcom_qg_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
 		ret = regmap_raw_read(chip->regmap, QG_SRAM_BASE +
 				QG_SDAM_LEARNED_CAPACITY_OFFSET, &val->intval, 2);
-		val->intval *= 1000;
+		val->intval *= 1000; /* mah to uah */
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
 		ret = qcom_qg_get_capacity(chip, &val->intval);
