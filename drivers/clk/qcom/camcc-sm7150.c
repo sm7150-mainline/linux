@@ -2035,7 +2035,7 @@ static int camcc_sm7150_probe(struct platform_device *pdev)
 	clk_fabia_pll_configure(&camcc_pll4, regmap, &camcc_pll3_config);
 
 	/* Keep some clocks always-on */
-	qcom_branch_set_clk_en(regmap, 0xc1a0); /* CAMCC_GDSC_CLK */
+	regmap_update_bits(regmap, 0xc1a0, BIT(0), BIT(0)); /* CAMCC_GDSC_CLK */
 
 	return qcom_cc_really_probe(pdev, &camcc_sm7150_desc, regmap);
 }
