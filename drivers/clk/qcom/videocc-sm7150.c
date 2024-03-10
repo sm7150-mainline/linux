@@ -339,7 +339,7 @@ static int videocc_sm7150_probe(struct platform_device *pdev)
 	clk_fabia_pll_configure(&videocc_pll0, regmap, &videocc_pll0_config);
 
 	/* Keep some clocks always-on */
-	qcom_branch_set_clk_en(regmap, 0x984); /* VIDEOCC_XO_CLK */
+	regmap_update_bits(regmap, 0x984, BIT(0), BIT(0)); /* VIDEOCC_XO_CLK */
 
 	return qcom_cc_really_probe(pdev, &videocc_sm7150_desc, regmap);
 }
