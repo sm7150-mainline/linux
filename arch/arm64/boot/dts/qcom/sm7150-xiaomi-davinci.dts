@@ -89,6 +89,10 @@
 	};
 };
 
+&battery {
+	charge-full-design-microamp-hours = <4000000>;
+};
+
 &framebuffer {
 	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
 	height = <2340>;
