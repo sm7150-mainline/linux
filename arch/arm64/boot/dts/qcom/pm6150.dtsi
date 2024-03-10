@@ -63,6 +63,13 @@
 			};
 		};
 
+		pm6150_charger: charger@1000 {
+			compatible = "qcom,pm6150-charger";
+			reg = <0x1000>;
+
+			status = "disabled";
+		};
+
 		pm6150_vbus: usb-vbus-regulator@1100 {
 			compatible = "qcom,pm6150-vbus-reg,
 				      qcom,pm8150b-vbus-reg";
