@@ -1001,7 +1001,7 @@ static int dispcc_sm7150_probe(struct platform_device *pdev)
 	regmap_update_bits(regmap, 0x8000, 0x7f0, 0x7f0);
 
 	/* Keep some clocks always-on */
-	qcom_branch_set_clk_en(regmap, 0x605c); /* DISPCC_XO_CLK */
+	regmap_update_bits(regmap, 0x605c, BIT(0), BIT(0)); /* DISPCC_XO_CLK */
 
 	return qcom_cc_really_probe(pdev, &dispcc_sm7150_desc, regmap);
 }
