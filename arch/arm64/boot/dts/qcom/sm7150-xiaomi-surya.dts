@@ -341,7 +341,8 @@
 
 		panel = <&panel>;
 
-		firmware-name = "novatek_ts_huaxing_fw.bin";
+		firmware-name =
+			"qcom/sm7150/surya/novatek_ts_huaxing_fw.bin";
 	};
 };
 
