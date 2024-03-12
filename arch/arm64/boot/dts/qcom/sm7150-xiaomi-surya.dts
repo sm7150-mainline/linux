@@ -141,18 +141,6 @@
 
 	/* ovti,wl2866d (cam regulator) @ 28 */
 
-	fsa4480: switcher@43 {
-		compatible = "fcs,fsa4480";
-		reg = <0x43>;
-
-		interrupts-extended = <&tlmm 42 IRQ_TYPE_LEVEL_LOW>;
-
-		vcc-supply = <&vreg_bob>;
-
-		mode-switch;
-		orientation-switch;
-	};
-
 	tas2562: codec@4c { /* SPK */
 		compatible = "ti,tas2562";
 		reg = <0x4c>;
