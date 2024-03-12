@@ -520,6 +520,10 @@
 	status = "okay";
 };
 
+&pm6150_rtc {
+	status = "okay";
+};
+
 &pm6150_typec {
 	vdd-vbus-supply = <&pm6150_vbus>;
 	vdd-pdphy-supply = <&vdda_usb_hs_3p1>;
@@ -532,14 +536,18 @@
 		data-role = "dual";
 		self-powered;
 
-		source-pdos = <PDO_FIXED(5000, 3000, /* 5V @ 3A */
-					 PDO_FIXED_DUAL_ROLE |
-					 PDO_FIXED_USB_COMM |
-					 PDO_FIXED_DATA_SWAP)>;
+		source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
+			       PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)>;
 
-		port {
-			pm6150_role_switch_out: endpoint {
-				remote-endpoint = <&dwc3_role_switch_in>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				pm6150_role_switch_in: endpoint {
+					remote-endpoint = <&usb_1_dwc3_hs>;
+				};
 			};
 		};
 	};
@@ -547,7 +555,7 @@
 
 &pm6150_vbus {
 	regulator-min-microamp = <500000>;
-	regulator-max-microamp = <500000>;
+	regulator-max-microamp = <3000000>;
 	status = "okay";
 };
 
@@ -874,13 +882,12 @@
 
 &usb_1_dwc3 {
 	dr_mode = "otg";
-	maximum-speed = "high-speed";
 	usb-role-switch;
-	port {
-		dwc3_role_switch_in: endpoint {
-			remote-endpoint = <&pm6150_role_switch_out>;
-		};
-	};
+	maximum-speed = "high-speed";
+};
+
+&usb_1_dwc3_hs {
+	remote-endpoint = <&pm6150_role_switch_in>;
 };
 
 &usb_1_hsphy {
