@@ -258,7 +258,10 @@ static struct gdsc venus_gdsc = {
 	.pd = {
 		.name = "venus_gdsc",
 	},
+	.cxcs = (unsigned int []){ 0x850, 0x9cc },
+	.cxc_count = 2,
 	.pwrsts = PWRSTS_OFF_ON,
+	.flags = POLL_CFG_GDSCR,
 };
 
 static struct gdsc vcodec0_gdsc = {
@@ -266,7 +269,9 @@ static struct gdsc vcodec0_gdsc = {
 	.pd = {
 		.name = "vcodec0_gdsc",
 	},
-	.flags = HW_CTRL,
+	.cxcs = (unsigned int []){ 0x890, 0x9ec },
+	.cxc_count = 2,
+	.flags = HW_CTRL | POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
@@ -275,7 +280,9 @@ static struct gdsc vcodec1_gdsc = {
 	.pd = {
 		.name = "vcodec1_gdsc",
 	},
-	.flags = HW_CTRL,
+	.cxcs = (unsigned int []){ 0x8d0, 0xa0c },
+	.cxc_count = 2,
+	.flags = HW_CTRL | POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
