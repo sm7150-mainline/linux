@@ -811,16 +811,17 @@ static const struct venus_resources sm7150_res = {
 	.opp_pmdomain = (const char *[]) { "cx", NULL },
 	.vcodec_num = 2,
 	.hfi_version = HFI_VERSION_4XX,
-	.vpu_version = VPU_VERSION_AR50,
+	.vpu_version = VPU_VERSION_IRIS1,
 	.vmem_id = VIDC_RESOURCE_NONE,
+	.num_vpp_pipes = 2,
 	.vmem_size = 0,
 	.vmem_addr = 0,
 	.dma_mask = 0xe0000000 - 1,
 	.cp_start = 0,
-	.cp_size = 0x70800000,
+	.cp_size = 0x25800000,
 	.cp_nonpixel_start = 0x1000000,
 	.cp_nonpixel_size = 0x24800000,
-	.fwname = "qcom/venus-5.4/venus.mdt",
+	.fwname = "qcom/vpu-1.0/venus.mdt",
 };
 
 static const struct freq_tbl sm8250_freq_table[] = {
