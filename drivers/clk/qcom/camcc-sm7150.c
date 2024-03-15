@@ -1839,13 +1839,15 @@ static struct clk_branch camcc_sleep_clk = {
 	},
 };
 
+static struct gdsc camcc_titan_top_gdsc;
+
 static struct gdsc camcc_bps_gdsc = {
 	.gdscr = 0x7004,
 	.pd = {
 		.name = "camcc_bps_gdsc",
 	},
+	.flags = HW_CTRL | POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
-	.flags = HW_CTRL,
 };
 
 static struct gdsc camcc_ife_0_gdsc = {
@@ -1853,6 +1855,8 @@ static struct gdsc camcc_ife_0_gdsc = {
 	.pd = {
 		.name = "camcc_ife_0_gdsc",
 	},
+	.flags = POLL_CFG_GDSCR,
+	.parent = &camcc_titan_top_gdsc.pd,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
@@ -1861,6 +1865,8 @@ static struct gdsc camcc_ife_1_gdsc = {
 	.pd = {
 		.name = "camcc_ife_1_gdsc",
 	},
+	.flags = POLL_CFG_GDSCR,
+	.parent = &titan_top_gdsc.pd,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
@@ -1869,8 +1875,8 @@ static struct gdsc camcc_ipe_0_gdsc = {
 	.pd = {
 		.name = "camcc_ipe_0_gdsc",
 	},
+	.flags = HW_CTRL | POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
-	.flags = HW_CTRL,
 };
 
 static struct gdsc camcc_ipe_1_gdsc = {
@@ -1878,8 +1884,8 @@ static struct gdsc camcc_ipe_1_gdsc = {
 	.pd = {
 		.name = "camcc_ipe_1_gdsc",
 	},
+	.flags = HW_CTRL | POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
-	.flags = HW_CTRL,
 };
 
 static struct gdsc camcc_titan_top_gdsc = {
@@ -1887,6 +1893,7 @@ static struct gdsc camcc_titan_top_gdsc = {
 	.pd = {
 		.name = "camcc_titan_top_gdsc",
 	},
+	.flags = POLL_CFG_GDSCR,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
