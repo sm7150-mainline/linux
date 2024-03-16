@@ -427,6 +427,11 @@
 	};
 };
 
+&camss {
+	vdda-supply = <&vdda_csi0_1p25>;
+	status = "okay";
+};
+
 &cci0 {
 	status = "okay";
 };
