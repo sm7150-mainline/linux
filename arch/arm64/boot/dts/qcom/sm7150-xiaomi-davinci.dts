@@ -162,6 +162,19 @@
 	compatible = "samsung,ams639rq08"; // or visionox,g1639fp106
 };
 
+&pm6150_gpios {
+	gpio-line-names = "NC", /* GPIO_1 */
+			  "NC",
+			  "SMB_STAT",
+			  "NC",
+			  "SLB",
+			  "NC",
+			  "WCSS_PWR_REQ",
+			  "NC",
+			  "FORCED_USB_BOOT",
+			  "NC";  /* GPIO_10 */
+};
+
 &pm6150_vib {
 	status = "okay";
 };
@@ -177,6 +190,21 @@
 		flash-max-microamp = <1000000>;
 		flash-max-timeout-us = <1280000>;
 	};
+};
+
+&pm6150l_gpios {
+	gpio-line-names = "NC", /* GPIO_1 */
+			  "KYPD_VOLP_N",
+			  "CAMW_LDO_EN",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "SLB",
+			  "CAMT_LDO_EN",
+			  "LCD_RESET_N",
+			  "MOTOR_STEP_CLK", /* GPIO_10 */
+			  "CAMT_VCM_2P8_EN",
+			  "NC";
 };
 
 &pm6150l_lpg {
@@ -266,6 +294,123 @@
 			sound-dai = <&tfa9874>;
 		};
 	};
+};
+
+&tlmm {
+	gpio-line-names = "NFC_ESE_SPI_MISO", /* GPIO_0 */
+			  "NFC_ESE_SPI_MOSI",
+			  "NFC_ESE_SPI_CLK",
+			  "NFC_ESE_SPI_CS_N",
+			  "NC",
+			  "NC",
+			  "TS_I2C_SDA",
+			  "TS_I2C_SCL",
+			  "TS_RESET_N",
+			  "TS_INT_N",
+			  "MDP_VSYNC_P", /* GPIO_10 */
+			  "NC",
+			  "NFC_ENABLE_SPKR_PA_RST",
+			  "CAMF_MCLK0",
+			  "CAMU_MCLK1",
+			  "CAMW_MCLK2",
+			  "CAMT_MCLK3",
+			  "CCI_I2C_SDA0",
+			  "CCI_I2C_SCL0",
+			  "CCI_I2C_SDA1",
+			  "CCI_I2C_SCL1", /* GPIO_20 */
+			  "NC",
+			  "FL_STROBE_TRIG",
+			  "CAMF_RSTN",
+			  "CAMT_RSTN",
+			  "CAMU_RSTN",
+			  "CAMW_RSTN",
+			  "CCI_I2C_SDA2",
+			  "CCI_I2C_SCL2",
+			  "CAMU_LDO_EN",
+			  "NC",  /* GPIO_30 */
+			  "NFC_LABBCLK3_EN",
+			  "ERR_INT_N",
+			  "AUDIO_SWITCH_EN",
+			  "NFC_I2C_SDA",
+			  "NFC_I2C_SCL",
+			  "NFC_DWL_REQ",
+			  "NFC_IRQ",
+			  "BT_UART_CTS",
+			  "BT_UART_RFR",
+			  "BT_UART_TX", /* GPIO_40 */
+			  "BT_UART_RX",
+			  "LCD_ID_DET1",
+			  "MOTOR_FAULT",
+			  "BLSP2_UART_TX",
+			  "BLSP2_UART_RX",
+			  "APPS_I2C_SDA",
+			  "APPS_I2C_SCL",
+			  "FORCED_USB_BOOT",
+			  "SPKR_I2S_BCK",
+			  "SPKR_I2S_WS", /* GPIO_50 */
+			  "SPKR_I2S_DOUT",
+			  "SPKR_I2S_DIN1",
+			  "SPKR_I2C_SDA",
+			  "SPKR_I2C_SCL",
+			  "MOTOR_DIR",
+			  "SPKR_INT",
+			  "CAMF_LDO_EN",
+			  "NC",
+			  "FOD_SPI_MISO",
+			  "FOD_SPI_MOSI", /* GPIO_60 */
+			  "FOD_SPI_SCLK",
+			  "FOD_SPI_CS_N",
+			  "FOD_LDO_EN",
+			  "DIGITAL_HALL1_RSTN",
+			  "FOD_RST",
+			  "MOTOR_M1",
+			  "SPKR_PA_RST_NFC_ENABLE",
+			  "TS_TA",
+			  "FOD_INT",
+			  "RFFE6_CLK", /* GPIO_70 */
+			  "RFFE6_DATA",
+			  "FM_GPIO",
+			  "WLAN_SW_CTRL",
+			  "GRFC_4",
+			  "UIM2_DATA",
+			  "UIM2_CLK",
+			  "UIM2_RESET",
+			  "UIM2_PRESENT",
+			  "UIM1_DATA",
+			  "UIM1_CLK", /* GPIO_80 */
+			  "UIM1_RESET",
+			  "UIM1_PRESENT",
+			  "GRFC_8",
+			  "GRFC_9",
+			  "WMSS_RESET_N",
+			  "ACCEL_INT",
+			  "GYRO_INT",
+			  "MOTOR_SLEEP",
+			  "ALS_INT_N",
+			  "MOTOR_EN", /* GPIO_90 */
+			  "MOTOR_M0",
+			  "RFFE4_CLK",
+			  "DIGITAL_HALL1_INT",
+			  "NC",
+			  "GRFC_3",
+			  "QLINK_REQUEST",
+			  "QLINK_ENABLE",
+			  "GRFC_2",
+			  "NC",
+			  "GRFC_1", /* GPIO_100 */
+			  "RFFE3_DATA",
+			  "RFFE3_CLK",
+			  "RFFE4_DATA",
+			  "USB_PHY_PS",
+			  "RFFE5_DATA",
+			  "RFFE5_CLK",
+			  "NC",
+			  "WLAN_COEX_UART_TXD",
+			  "WLAN_COEX_UART_RXD",
+			  "NC", /* GPIO_110 */
+			  "NC",
+			  "RFFE1_DATA",
+			  "RFFE1_CLK";
 };
 
 &venus {
