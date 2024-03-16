@@ -202,7 +202,8 @@
 			  "PWDN",
 			  "NC",
 			  "WCSS_PWR_REQ",
-			  "NC";
+			  "NC",
+			  "PL_EN"; /* GPIO_10 */
 };
 
 &pm6150l_flash {
