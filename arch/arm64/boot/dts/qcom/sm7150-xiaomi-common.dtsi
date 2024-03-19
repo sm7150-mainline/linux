@@ -597,6 +597,10 @@
 	};
 };
 
+&pm6150l_wled {
+	qcom,num-strings = <3>;
+};
+
 &qfprom {
 	vcc-supply = <&vdd_qfprom>;
 };
