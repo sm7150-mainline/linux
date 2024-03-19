@@ -154,6 +154,23 @@
 	firmware-name = "qcom/sm7150/davinci/ipa_fws.mbn";
 };
 
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA1",
+			  "SWR_TX_DATA2",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA1",
+			  "SWR_RX_DATA2",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "BT_FM_SLIMBUS_DATA",
+			  "BT_FM_SLIMBUS_CLK";
+};
+
 &panel {
 	compatible = "samsung,ams639rq08"; // or visionox,g1639fp106
 };
