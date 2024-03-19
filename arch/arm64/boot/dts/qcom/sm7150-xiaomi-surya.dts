@@ -172,6 +172,23 @@
 	firmware-name = "qcom/sm7150/surya/ipa_fws.mbn";
 };
 
+&lpass_tlmm {
+	gpio-line-names = "SWR_TX_CLK", /* GPIO_0 */
+			  "SWR_TX_DATA0",
+			  "SWR_TX_DATA1",
+			  "SWR_RX_CLK",
+			  "SWR_RX_DATA0",
+			  "SWR_RX_DATA1",
+			  "WCD9375_RST_N",
+			  "NC",
+			  "NC",
+			  "NC",
+			  "NC", /* GPIO_10 */
+			  "NC",
+			  "LPI_QCA_SB_DATA",
+			  "LPI_QCA_SB_CLK";
+};
+
 &nfc_default {
 	pins = "gpio12", "gpio31", "gpio36", "gpio94";
 };
