@@ -106,6 +106,28 @@
 		regulator-always-on;
 		vin-supply = <&vph_pwr>;
 	};
+
+	wcd9375: audio-codec {
+		compatible = "qcom,wcd9370-codec"; /* qcom,wcd9375-codec */
+
+		reset-gpios = <&lpass_tlmm 6 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&wcd9375_reset_active>;
+		pinctrl-1 = <&wcd9375_reset_sleep>;
+		pinctrl-names = "default", "sleep";
+
+		vdd-buck-supply = <&vreg_l15a_1p8>;
+		vdd-rxtx-supply = <&vreg_l10a_1p8>;
+		vdd-px-supply = <&vreg_l10a_1p8>;
+		vdd-mic-bias-supply = <&vreg_bob>;
+
+		qcom,micbias1-microvolt = <2700000>;
+		qcom,micbias2-microvolt = <2700000>;
+		qcom,micbias3-microvolt = <2700000>;
+		//qcom,rx-device = <&wcd_rx>;
+		//qcom,tx-device = <&wcd_tx>;
+
+		#sound-dai-cells = <1>;
+	};
 };
 
 &apps_rsc {
