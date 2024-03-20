@@ -245,8 +245,6 @@
 };
 
 &pm6150l_wled {
-	qcom,cabc;
-	qcom,cabc-sel = <1>;
 	qcom,current-limit-microamp = <25000>;
 
 	status = "okay";
