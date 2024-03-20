@@ -140,7 +140,6 @@
 &pm6150l_wled {
 	qcom,current-limit-microamp = <22500>;
 	qcom,ovp-millivolt = <28000>;
-	qcom,num-strings = <3>;
 
 	status = "okay";
 };
