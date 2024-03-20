@@ -598,6 +598,8 @@
 };
 
 &pm6150l_wled {
+	qcom,cabc;
+	qcom,cabc-sel = <1>;
 	qcom,num-strings = <3>;
 };
 
