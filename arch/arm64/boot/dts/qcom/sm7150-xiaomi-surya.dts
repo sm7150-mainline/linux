@@ -146,23 +146,23 @@
 		reg = <0x4c>;
 		#sound-dai-cells = <1>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
+		interrupts = <30 IRQ_TYPE_NONE>;
 		shutdown-gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		ti,imon-slot-no = <0>;
+		ti,vmon-slot-no = <2>;
 		sound-name-prefix = "Right";
-		ti,imon-slot-no = <1>;
 	};
 
 	tas2564: codec@4d { /* EAR */
 		compatible = "ti,tas2564";
 		reg = <0x4d>;
 		#sound-dai-cells = <1>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&audio_pa_reset_pin>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <58 IRQ_TYPE_EDGE_FALLING>;
+		interrupts = <58 IRQ_TYPE_NONE>;
 		shutdown-gpios = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
-		sound-name-prefix = "Left";
 		ti,imon-slot-no = <1>;
+		ti,vmon-slot-no = <3>;
+		sound-name-prefix = "Left";
 	};
 
 	/* ti,bq25968 (charger) @ 65 */
@@ -238,14 +238,6 @@
 			  "NVM_THERM", /* GPIO_10 */
 			  "GPIO11_ID",
 			  "20M_DVDD1_1P05_EN";
-
-	audio_pa_reset_pin: audio-pa-reset-state {
-		pins = "gpio8";
-		function = PMIC_GPIO_FUNC_NORMAL;
-		output-high;
-		input-disable;
-		power-source = <1>;
-	};
 };
 
 &pm6150l_lpg {
@@ -264,11 +256,6 @@
 	qi2s@20 {
 		reg = <TERTIARY_MI2S_RX>;
 		qcom,sd-lines = <0>;
-	};
-
-	qi2s@21 {
-		reg = <TERTIARY_MI2S_TX>;
-		qcom,sd-lines = <1>;
 	};
 };
 
