@@ -2737,7 +2737,7 @@
 			compatible = "qcom,sm7150-cci", "qcom,msm8996-cci";
 			reg = <0 0x0ac4a000 0 0x1000>;
 			interrupts = <GIC_SPI 460 IRQ_TYPE_EDGE_RISING>;
-			power-domains = <&camcc CAMCC_TITAN_TOP_GDSC>;
+			power-domains = <&camcc TITAN_TOP_GDSC>;
 
 			clocks = <&camcc CAMCC_CAMNOC_AXI_CLK>,
 				 <&camcc CAMCC_SLOW_AHB_CLK_SRC>,
@@ -2778,7 +2778,7 @@
 			compatible = "qcom,sm7150-cci", "qcom,msm8996-cci";
 			reg = <0 0x0ac4b000 0 0x1000>;
 			interrupts = <GIC_SPI 461 IRQ_TYPE_EDGE_RISING>;
-			power-domains = <&camcc CAMCC_TITAN_TOP_GDSC>;
+			power-domains = <&camcc TITAN_TOP_GDSC>;
 
 			clocks = <&camcc CAMCC_CAMNOC_AXI_CLK>,
 				 <&camcc CAMCC_SLOW_AHB_CLK_SRC>,
@@ -2812,9 +2812,9 @@
 			compatible = "qcom,sm7150-venus";
 			reg = <0 0x0aa00000 0 0xff000>;
 			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
-			power-domains = <&videocc VIDEOCC_VENUS_GDSC>,
-					<&videocc VIDEOCC_VCODEC0_GDSC>,
-					<&videocc VIDEOCC_VCODEC1_GDSC>,
+			power-domains = <&videocc VENUS_GDSC>,
+					<&videocc VCODEC0_GDSC>,
+					<&videocc VCODEC1_GDSC>,
 					<&rpmhpd RPMHPD_CX>;
 			power-domain-names = "venus", "vcodec0",
 					     "vcodec1", "cx";
@@ -2905,7 +2905,7 @@
 			reg = <0 0x0ae00000 0 0x1000>;
 			reg-names = "mdss";
 
-			power-domains = <&dispcc DISPCC_MDSS_GDSC>;
+			power-domains = <&dispcc MDSS_GDSC>;
 
 			clocks = <&dispcc DISPCC_MDSS_AHB_CLK>,
 				 <&gcc GCC_DISP_HF_AXI_CLK>,
