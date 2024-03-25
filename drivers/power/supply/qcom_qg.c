@@ -90,14 +90,13 @@ static int qcom_qg_get_capacity(struct qcom_qg_chip *chip, int *val)
 		return ret;
 	}
 
-	if (voltage_now <= voltage_min) {
+	if (voltage_now <= voltage_min)
 		*val = 0;
-	} else if (voltage_now >= voltage_max) {
+	else if (voltage_now >= voltage_max)
 		*val = 100;
-	} else {
+	else
 		*val = (((voltage_now - voltage_min) * 100) /
 						(voltage_max - voltage_min));
-	}
 
 	return 0;
 }
@@ -164,7 +163,7 @@ static int qcom_qg_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
 		ret = regmap_raw_read(chip->regmap, QG_SRAM_BASE +
 				QG_SDAM_LEARNED_CAPACITY_OFFSET, &val->intval, 2);
-		val->intval *= 1000; /* mah to uah */
+		if (!ret) val->intval *= 1000; /* mah to uah */
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
 		ret = qcom_qg_get_capacity(chip, &val->intval);
