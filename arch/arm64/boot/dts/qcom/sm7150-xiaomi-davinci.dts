@@ -86,6 +86,52 @@
 	charge-full-design-microamp-hours = <4000000>;
 };
 
+&camss {
+	ports {
+		port@3 {
+			csiphy3_ep: endpoint {
+				data-lanes = <0 1>;
+				remote-endpoint = <&ov8856_ep>;
+			};
+		};
+	};
+};
+
+&cci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cci0_default>,
+		    <&cci1_default>,
+		    <&mclk3_active>;
+};
+
+&cci0_i2c1 {
+	camera@36 {
+		compatible = "ovti,ov8856";
+		reg = <0x36>;
+
+		reset-gpios = <&pm6150l_gpios 8 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&tele_active &tele_ldo_active>;
+
+		clocks = <&camcc CAMCC_MCLK3_CLK>;
+		clock-names = "xvclk";
+		clock-frequency = <19200000>;
+
+		dovdd-supply = <&vreg_l16a_2p8>;
+		avdd-supply = <&vreg_l9c_3p1>;
+		dvdd-supply = <&vreg_s8c_1p35>;
+
+		port {
+			ov8856_ep: endpoint {
+				link-frequencies = /bits/ 64
+					<720000000 360000000>;
+				data-lanes = <1 2>;
+				remote-endpoint = <&csiphy3_ep>;
+			};
+		};
+	};
+};
+
 &framebuffer {
 	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
 	height = <2340>;
@@ -218,6 +264,13 @@
 			  "MOTOR_STEP_CLK", /* GPIO_10 */
 			  "CAMT_VCM_2P8_EN",
 			  "NC";
+
+	tele_ldo_active: tele-ldo-active {
+		pins = "gpio8";
+		function = "normal";
+		power-source = <0>;
+		output-low;
+	};
 };
 
 &pm6150l_lpg {
@@ -419,6 +472,20 @@
 		bias-disable;
 		bias-pull-down;
 		output-low;
+	};
+
+	mclk3_active: mclk3-active {
+		pins = "gpio16";
+		function = "cam_mclk";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	tele_active: tele-active {
+		pins = "gpio24";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
 	};
 
 	amp_int_default: amp-int-default-state {
