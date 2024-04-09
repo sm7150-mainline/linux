@@ -1,0 +1,191 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-common.dtsi"
+
+/delete-node/ &wlan_msa_mem;
+/delete-node/ &npu_mem;
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+
+&adsp_mem {
+	reg = <0x0 0x95700000 0x0 0x2600000>;
+};
+
+&tz_mem {
+	reg = <0x0 0x86200000 0x0 0x4900000>;
+};
+
+/ {
+ 	model = "Xiaomi Redmi Note 12 Pro";
+ 	compatible = "xiaomi,sweet", "qcom,sm7150"; /* sweet_k6a actually uses the sweet codename */
+
+	qcom,board-id = <46 0>;
+
+	reserved-memory {
+		wlan_msa_mem: wlan_msa@97d00000 {
+			reg = <0x0 0x97d00000 0x0 0x180000>;
+			no-map;
+		};
+
+		npu_mem: npu@97e80000 {
+			reg = <0x0 0x97e80000 0x0 0x80000>;
+			no-map;
+		};
+
+		ipa_fw_mem: ipa_fw@97f00000 {
+			reg = <0x0 0x97f00000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: ipa_gsi@97f10000 {
+			reg = <0x00 0x97f10000 0x00 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: gpu@97f15000 {
+			reg = <0x00 0x97f15000 0x00 0x2000>;
+			no-map;
+		};
+
+		rmtfs_mem: rmtfs@f2e01000 { /* recheck in twrp */
+			compatible = "qcom,rmtfs-mem";
+			reg = <0 0xf2b01000 0 0x300000>;
+			no-map;
+
+			qcom,client-id = <1>;
+			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+
+	};
+};
+
+&battery {
+	voltage-min-design-microvolt = <3500000>;
+	energy-full-design-microwatt-hours = <18500000>;
+	charge-full-design-microamp-hours = <5000000>;
+};
+
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/sm7150/sweet_k6a/a615_zap.mbn";
+	};
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	bq27z561: fuel-gauge@55 {
+		compatible = "ti,bq27z561";
+		reg = <0x55>;
+		monitored-battery = <&battery>;
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* foursemi,fs16xx (speaker amplifier) @ 34 */
+	/* foursemi,fs16xx (speaker amplifier) @ 35 */
+	/* lionsemi,ln8000 (charger-slave) @ 51 */
+	/* ti,bq25968 (charger-slave) @ 66 */
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* focaltech,fts_K6 @ 38 */
+
+	touchscreen: goodix@5d {
+		compatible = "goodix,gt9896";
+		reg = <0x5d>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 IRQ_TYPE_NONE>;
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-names = "default", "sleep";
+		vtouch-supply = <&vreg_l7c_3p0>;
+		vtouch-load = <600000>;
+		goodix,vdd-gpio = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+		goodix,avdd-name = "vtouch";
+		goodix,reset-gpio = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+		goodix,irq-gpio = <&tlmm 9 IRQ_TYPE_NONE>;
+		goodix,irq-flags = <2>; /* trigger falling;*/
+		goodix,panel-max-x = <1079>;
+		goodix,panel-max-y = <2399>;
+		goodix,panel-max-w = <256>;
+		goodix,power-on-delay-us = <100>; /* 0.1ms */
+		goodix,power-off-delay-us = <5000>; /* 50ms */
+	};
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	/* ovti,wl2866d (cam regulator) @ 28 */
+	/* lionsemi,ln8000 (charger-master) @ 51 */
+	/* awinic,awinic_haptic @ 58 */
+	/* ti,bq25968 (charger-master) @ 66 */
+};
+
+&ipa {
+	firmware-name = "qcom/sm7150/sweet_k6a/ipa_fws.mbn";
+};
+
+&nfc_default {
+	pins = "gpio31", "gpio36", "gpio66";
+};
+
+&nfc_sleep {
+	pins = "gpio31", "gpio36", "gpio66";
+};
+
+&nxp {
+	enable-gpios = <&tlmm 66 GPIO_ACTIVE_HIGH>;
+};
+
+&panel {
+	compatible = "mdss,k6-38-0e-0b-dsc";
+};
+
+&pm6150l_flash {
+	status = "okay";
+};
+
+&pm6150_qgauge {
+	/* sweet_k6a uses bq27z561 */
+	status = "disabled";
+};
+
+&remoteproc_adsp {
+	firmware-name = "qcom/sm7150/sweet_k6a/adsp.mbn";
+};
+
+&remoteproc_cdsp {
+	firmware-name = "qcom/sm7150/sweet_k6a/cdsp.mbn";
+};
+
+&remoteproc_mpss {
+	firmware-name = "qcom/sm7150/sweet_k6a/modem.mbn";
+};
+
+&sdhc_2 {
+	status = "okay";
+};
+
+&spi0 {
+	clock-frequency = <50000000>;
+	status = "okay";
+
+	/* qcom,spi-msm-ir (ir-led) @ 1 */
+};
+
+&venus {
+	firmware-name = "qcom/sm7150/sweet_k6a/venus.mbn";
+};
