@@ -1438,7 +1438,7 @@ static int s5k3l6xx_probe(struct i2c_client *c)
 	/* The sensor supports between 6MHz and 32MHz,
 	 * but I can't properly test that.
 	 */
-	if ((mclk_freq < 25000000) || (mclk_freq > 25000000)) {
+	if ((mclk_freq < 19200000) || (mclk_freq > 25000000)) {
 		dev_err(&c->dev,
 			"External clock frequency out of range: %lu.\n",
 			mclk_freq);
