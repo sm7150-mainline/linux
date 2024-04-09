@@ -30,6 +30,7 @@ obj-$(CONFIG_DRM_PANEL_JDI_LT070ME05000) += panel-jdi-lt070me05000.o
 obj-$(CONFIG_DRM_PANEL_JDI_LPM102A188A) += panel-jdi-lpm102a188a.o
 obj-$(CONFIG_DRM_PANEL_JDI_R63452) += panel-jdi-fhd-r63452.o
 obj-$(CONFIG_DRM_PANEL_K6_38_0C_0A) += panel-k6-38-0c-0a-dsc.o
+obj-$(CONFIG_DRM_PANEL_K6_38_0E_0B) += panel-k6-38-0e-0b-dsc.o
 obj-$(CONFIG_DRM_PANEL_K9A_36_02_0A) += panel-k9a-36-02-0a-mp-dsc.o
 obj-$(CONFIG_DRM_PANEL_KHADAS_TS050) += panel-khadas-ts050.o
 obj-$(CONFIG_DRM_PANEL_KINGDISPLAY_KD097D04) += panel-kingdisplay-kd097d04.o
