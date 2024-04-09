@@ -88,6 +88,13 @@
 
 &camss {
 	ports {
+		port@2 {
+			csiphy2_ep: endpoint  {
+				data-lanes = <0 1>;
+				remote-endpoint = <&s5k3l6xx_ep>;
+			};
+		};
+
 		port@3 {
 			csiphy3_ep: endpoint {
 				data-lanes = <0 1>;
@@ -127,6 +134,38 @@
 					<720000000 360000000>;
 				data-lanes = <1 2>;
 				remote-endpoint = <&csiphy3_ep>;
+			};
+		};
+	};
+};
+
+&cci1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cci2_default>,
+		    <&mclk1_active>;
+};
+
+&cci1_i2c0 {
+	camera@10 {
+		compatible = "samsung,s5k3l6xx";
+		reg = <0x10>;
+
+		rstn-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ultra_ldo_active &ultra_active>;
+
+		clocks = <&camcc CAMCC_MCLK1_CLK>;
+		clock-names = "mclk";
+		clock-frequency  = <19200000>;
+
+		vdda-supply = <&vreg_l9c_3p1>;
+		vddd-supply = <&vreg_s8c_1p35>;
+		vddio-supply = <&vreg_l16a_2p8>;
+
+		port {
+			s5k3l6xx_ep: endpoint {
+				data-lanes = <1 2>;
+				remote-endpoint = <&csiphy2_ep>;
 			};
 		};
 	};
@@ -474,6 +513,13 @@
 		output-low;
 	};
 
+	mclk1_active: mclk1-active {
+		pins = "gpio14";
+		function = "cam_mclk";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
 	mclk3_active: mclk3-active {
 		pins = "gpio16";
 		function = "cam_mclk";
@@ -486,6 +532,20 @@
 		function = "gpio";
 		drive-strength = <2>;
 		bias-pull-up;
+	};
+
+	ultra_active: ultra-active {
+		pins = "gpio25";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	ultra_ldo_active: ultra-ldo-active {
+		pins = "gpio29";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
 	};
 
 	amp_int_default: amp-int-default-state {
