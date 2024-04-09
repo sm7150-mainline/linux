@@ -305,6 +305,16 @@ config DRM_PANEL_K6_38_0C_0A
 	  Say Y or M here if you want to enable support for the K6_38_0C_0A
 	  (2400x1080@120Hz) DSC video mode panel.
 
+config DRM_PANEL_K6_38_0E_0B
+	tristate "K6 38 0E 0B DSC video mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select VIDEOMODE_HELPERS
+	help
+	  Say Y or M here if you want to enable support for the K6_38_0E_0B
+	  (2400x1080@120Hz) DSC video mode panel.
+
 config DRM_PANEL_K9A_36_02_0A
 	tristate "K9A 36 02 0A DSC cmd mode panel"
 	depends on OF
