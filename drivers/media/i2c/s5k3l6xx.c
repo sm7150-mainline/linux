@@ -758,12 +758,12 @@ static int s5k3l6xx_try_cis_format(struct v4l2_mbus_framefmt *mf)
 	return pixfmt;
 }
 
-static int s5k3l6xx_init_cfg(struct v4l2_subdev *sd,
+static int s5k3l6xx_init_state(struct v4l2_subdev *sd,
 			     struct v4l2_subdev_state *sd_state)
 {
 	struct v4l2_mbus_framefmt *mf;
 
-	mf = v4l2_subdev_get_try_format(sd, sd_state, PAD_CIS);
+	mf = v4l2_subdev_state_get_format(sd_state, PAD_CIS);
 	s5k3l6xx_try_cis_format(mf);
 	return 0;
 }
@@ -850,7 +850,7 @@ static int s5k3l6xx_get_fmt(struct v4l2_subdev *sd,
 	struct v4l2_mbus_framefmt *mf;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-		mf = v4l2_subdev_get_try_format(sd, sd_state, fmt->pad);
+		mf = v4l2_subdev_state_get_format(sd_state, fmt->pad);
 		fmt->format = *mf;
 		dev_dbg(sd->dev, "try mf %dx%d", mf->width, mf->height);
 		return 0;
@@ -912,7 +912,7 @@ static int s5k3l6xx_set_fmt(struct v4l2_subdev *sd,
 	mf->field = V4L2_FIELD_NONE;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-		*v4l2_subdev_get_try_format(sd, sd_state, fmt->pad) = *mf;
+		*v4l2_subdev_state_get_format(sd_state, fmt->pad) = *mf;
 		return 0;
 	}
 
@@ -993,7 +993,7 @@ static int s5k3l6xx_get_selection(struct v4l2_subdev *sd,
 		mutex_lock(&state->lock);
 		switch (sel->which) {
 		case V4L2_SUBDEV_FORMAT_TRY:
-			v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
+			v4l2_subdev_state_get_crop(sd_state, sel->pad);
 			break;
 		case V4L2_SUBDEV_FORMAT_ACTIVE:
 			sel->r = get_crop(state->frame_fmt);
@@ -1015,7 +1015,6 @@ static int s5k3l6xx_get_selection(struct v4l2_subdev *sd,
 }
 
 static const struct v4l2_subdev_pad_ops s5k3l6xx_pad_ops = {
-	.init_cfg		= s5k3l6xx_init_cfg,
 	.enum_mbus_code		= s5k3l6xx_enum_mbus_code,
 	.enum_frame_size	= s5k3l6xx_enum_frame_size,
 //	.enum_frame_interval	= s5k5baf_enum_frame_interval,
@@ -1219,6 +1218,10 @@ static const struct v4l2_subdev_ops s5k3l6xx_subdev_ops = {
 	.video = &s5k3l6xx_video_ops,
 };
 
+static const struct v4l2_subdev_internal_ops s5k3l6xx_subdev_internal_ops = {
+    .init_state = s5k3l6xx_init_state,
+};
+
 static int __maybe_unused s5k3l6xx_suspend(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
@@ -1338,6 +1341,7 @@ static int s5k3l6xx_configure_subdevs(struct s5k3l6xx *state,
 	v4l2_i2c_subdev_init(sd, c, &s5k3l6xx_subdev_ops);
 	v4l2_info(sd, "probe i2c %px", (void*)c);
 
+	sd->internal_ops = &s5k3l6xx_subdev_internal_ops;
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 
 	state->cis_pad.flags = MEDIA_PAD_FL_SOURCE;
