@@ -639,6 +639,10 @@ static void csiphy_gen2_config_lanes(struct csiphy_device *csiphy,
 		r = &lane_regs_sdm845[0][0];
 		array_size = ARRAY_SIZE(lane_regs_sdm845[0]);
 		break;
+	case CAMSS_7150:
+		r = &lane_regs_sm7150[0][0];
+		array_size = ARRAY_SIZE(lane_regs_sm7150[0]);
+		break;
 	case CAMSS_8250:
 		r = &lane_regs_sm8250[0][0];
 		array_size = ARRAY_SIZE(lane_regs_sm8250[0]);
@@ -688,6 +692,7 @@ static bool csiphy_is_gen2(u32 version)
 
 	switch (version) {
 	case CAMSS_845:
+	case CAMSS_7150:
 	case CAMSS_8250:
 	case CAMSS_8280XP:
 		ret = true;
