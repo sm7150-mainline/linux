@@ -577,6 +577,7 @@ int msm_csiphy_subdev_init(struct camss *camss,
 		csiphy->nformats = ARRAY_SIZE(csiphy_formats_8x96);
 		break;
 	case CAMSS_845:
+	case CAMSS_7150:
 	case CAMSS_8250:
 	case CAMSS_8280XP:
 		csiphy->formats = csiphy_formats_sdm845;
