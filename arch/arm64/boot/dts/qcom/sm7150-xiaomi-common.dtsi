@@ -75,7 +75,7 @@
 	};
 
 	reserved-memory {
-		cont_splash_mem: framebuffer@9c000000 {
+		cont_splash_mem: splash_region@9c000000 {
 			reg = <0x0 0x9c000000 0x0 (1080 * 2400 * 4)>;
 			no-map;
 		};
