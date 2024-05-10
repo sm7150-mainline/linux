@@ -25,37 +25,37 @@
 	qcom,board-id = <43 0>;
 
 	reserved-memory {
-		adsp_mem: memory@95700000 {
+		adsp_mem: adsp@95700000 {
 			reg = <0x0 0x95700000 0x0 0x2600000>;
 			no-map;
 		};
 
-		wlan_msa_mem: memory@97d00000 {
+		wlan_msa_mem: wlan_msa@97d00000 {
 			reg = <0x0 0x97d00000 0x0 0x180000>;
 			no-map;
 		};
 
-		npu_mem: memory@97e80000 {
+		npu_mem: npu@97e80000 {
 			reg = <0x0 0x97e80000 0x0 0x80000>;
 			no-map;
 		};
 
-		ipa_fw_mem: memory@97f00000 {
+		ipa_fw_mem: ipa_fw@97f00000 {
 			reg = <0x0 0x97f00000 0x0 0x10000>;
 			no-map;
 		};
 
-		ipa_gsi_mem: memory@97f10000 {
+		ipa_gsi_mem: ipa_gsi@97f10000 {
 			reg = <0x0 0x97f10000 0x0 0x5000>;
 			no-map;
 		};
 
-		gpu_mem: memory@97f15000 {
+		gpu_mem: gpu@97f15000 {
 			reg = <0x0 0x97f15000 0x0 0x2000>;
 			no-map;
 		};
 
-		rmtfs_mem: memory@f2e01000 {
+		rmtfs_mem: rmtfs@f2e01000 {
 			compatible = "qcom,rmtfs-mem";
 			reg = <0 0xf2e01000 0 0x200000>;
 			no-map;
