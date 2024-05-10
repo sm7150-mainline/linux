@@ -3691,7 +3691,7 @@
 			status = "disabled";
 		};
 
-		lpass_tlmm: pinctrl@62b40000 {
+		lpass_tlmm: pinctrl@62b52000 {
 			compatible = "qcom,sm7150-lpass-lpi-pinctrl";
 			reg = <0 0x62b52000 0 0xe000>;
 			gpio-controller;
