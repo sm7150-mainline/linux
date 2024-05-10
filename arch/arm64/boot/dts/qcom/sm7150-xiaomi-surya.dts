@@ -71,7 +71,7 @@
 	};
 
 	reserved-memory {
-		rmtfs_mem: memory@fde01000 {
+		rmtfs_mem: rmtfs@fde01000 {
 			compatible = "qcom,rmtfs-mem";
 			reg = <0 0xfde01000 0 0x200000>;
 			no-map;
