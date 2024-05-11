@@ -18,11 +18,10 @@
 #include <drm/drm_probe_helper.h>
 
 /* Manufacturer Command Set */
-#define MCS_ACCESS_PROT_OFF	0xb0 // MCS_MANPWR?
+#define MCS_ACCESS_PROT_OFF	0xb0
 #define MCS_UNKNOWN_B7		0xb7
 #define MCS_BIAS_CURRENT_CTRL	0xd1
 #define MCS_PASSWD1		0xf0	/* Password Command for Level 2 Control */
-//#define MCS_PASSWD2		0xf1	/* Password Command for MTP Control*/ UNUSED
 #define MCS_PASSWD3		0xfc
 
 struct ams639rq08 {
@@ -51,19 +50,15 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 	struct device *dev = &dsi->dev;
 	int ret;
 
-	/*
-	 * Looks useless and needs testing.
-	 * Davinci doesnt have these cmds:
-	 *
-	 * mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xfc, 0x5a, 0x5a);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x0c);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xff, 0x10);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x2f);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xd1, 0x01);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
-	 * mipi_dsi_dcs_write_seq(dsi, 0xfc, 0xa5, 0xa5);
-	 */
+	/* Delay 2ms for VCI1 power */
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
+	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0x5a, 0x5a);
+	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x0c);
+	mipi_dsi_dcs_write_seq(dsi, 0xff, 0x10);
+	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x2f);
+	mipi_dsi_dcs_write_seq(dsi, 0xd1, 0x01);
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
+	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0xa5, 0xa5);
 
 	/* Sleep Out */
 	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
@@ -73,8 +68,8 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 	}
 	usleep_range(10000, 11000);
 
-	/* TE OUT(Vsync On) */
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a); // enable level2 control
+	/* TE OUT (Vsync On) */
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
 
 	ret = mipi_dsi_dcs_set_tear_on(dsi, MIPI_DSI_DCS_TEAR_MODE_VBLANK);
 	if (ret < 0) {
@@ -82,12 +77,13 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 		return ret;
 	}
 
+	/* DBV Smooth Transition */
 	mipi_dsi_dcs_write_seq(dsi, 0xb7, 0x01, 0x4b);
-	/* Dimming Speed Setting */
+
+	/* Edge Dimming Speed Setting */
 	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x06);
 	mipi_dsi_dcs_write_seq(dsi, 0xb7, 0x10);
-
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5); // disable level2 control
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
 
 	/* Page Address Set */
 	ret = mipi_dsi_dcs_set_page_address(dsi, 0x0000, 0x0923);
@@ -96,16 +92,19 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 		return ret;
 	}
 
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a); // enable level2 control
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
 	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0x5a, 0x5a);
+
 	/* Set DDIC internal HFP */
 	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x23);
 	mipi_dsi_dcs_write_seq(dsi, 0xd1, 0x11);
-	/* OFC Setting X? Mhz */
+
+	/* OFC Setting 84.1 Mhz */
 	mipi_dsi_dcs_write_seq(dsi, 0xe9, 0x11, 0x55,
 				    0xa6, 0x75, 0xa3,
 				    0xb9, 0xa1, 0x4a,
 				    0x00, 0x1a, 0xb8);
+
 	/* Err_FG Setting */
 	mipi_dsi_dcs_write_seq(dsi, 0xe1,
 				    0x00, 0x00, 0x02,
@@ -115,7 +114,7 @@ static int ams639rq08_on(struct ams639rq08 *ctx)
 				    0x00, 0x00, 0x00);
 	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x0c);
 	mipi_dsi_dcs_write_seq(dsi, 0xe1, 0x19);
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5); // disable level2 control
+	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
 	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0xa5, 0xa5);
 	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20);
 
@@ -210,27 +209,12 @@ static const struct drm_display_mode ams639rq08_mode = {
 	.htotal = 1080 + 64 + 20 + 64,
 	.vdisplay = 2340,
 	.vsync_start = 2340 + 64,
-	.vsync_end = 2340 + 64 + 20,	// davinci
-	.vtotal = 2340 + 64 + 20 + 64,	// davinci
+	.vsync_end = 2340 + 64 + 20,
+	.vtotal = 2340 + 64 + 20 + 64,
 	.width_mm = 68,
 	.height_mm = 147,
 	.type = DRM_MODE_TYPE_DRIVER,
 };
-
-/*static const struct drm_display_mode ss_ea8076_global_mode = {
-	.clock = (1080 + 64 + 20 + 64) * (2340 + 64 + 27 + 64) * 60 / 1000,
-	.hdisplay = 1080,
-	.hsync_start = 1080 + 64,
-	.hsync_end = 1080 + 64 + 20,
-	.htotal = 1080 + 64 + 20 + 64,
-	.vdisplay = 2340,
-	.vsync_start = 2340 + 64,
-	.vsync_end = 2340 + 64 + 27,	// raphael
-	.vtotal = 2340 + 64 + 27 + 64,	// raphael
-	.width_mm = 68,
-	.height_mm = 147,
-	.type = DRM_MODE_TYPE_DRIVER,
-};*/
 
 static int ams639rq08_get_modes(struct drm_panel *panel,
 					struct drm_connector *connector)
