@@ -274,7 +274,7 @@ ams639rq08_create_backlight(struct mipi_dsi_device *dsi)
 	struct device *dev = &dsi->dev;
 	const struct backlight_properties props = {
 		.type = BACKLIGHT_RAW,
-		.brightness = 2047,
+		.brightness = 1023,
 		.max_brightness = 2047,
 	};
 
