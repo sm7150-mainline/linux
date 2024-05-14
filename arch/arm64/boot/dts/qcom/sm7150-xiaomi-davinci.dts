@@ -45,6 +45,20 @@
 
 	qcom,board-id = <40 0>;
 
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+		regulator-name = "ibb";
+		regulator-min-microvolt = <4000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+		regulator-name = "lab";
+		regulator-min-microvolt = <4000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
 	reserved-memory {
 		wlan_msa_mem: wlan_msa@97d00000 {
 			reg = <0x0 0x97d00000 0x0 0x180000>;
@@ -258,6 +272,8 @@
 
 &panel {
 	compatible = "samsung,ams639rq08"; // or visionox,g1639fp106
+	vsn-supply = <&vreg_ibb>;
+	vsp-supply = <&vreg_lab>;
 };
 
 &pm6150_gpios {
