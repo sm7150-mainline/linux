@@ -9,13 +9,6 @@
 #include "sm7150-xiaomi-common.dtsi"
 
 / {
-	/*
-	 * Xiaomi POCO X3 (karna)
-	 * Xiaomi POCO X3 NFC (surya)
-	 */
-	model = "Xiaomi POCO X3 NFC";
-	compatible = "xiaomi,surya", "qcom,sm7150";
-
 	qcom,board-id = <34 0>;
 
 	vreg_wide_ldo_avdd2: regulator-wide-ldo-avdd2 {
@@ -198,8 +191,6 @@
 };
 
 &panel {
-	compatible = "huaxing,nt36672c";
-
 	vddio-supply = <&vreg_l18a_2p8>;
 	/delete-property/ vdd3p3-supply;
 
@@ -312,7 +303,7 @@
 	clock-frequency = <8000000>;
 	status = "okay";
 
-	touchscreen@0 {
+	nt36xxx: touchscreen@0 {
 		compatible = "novatek,nt36xxx-spi";
 		reg = <0>;
 
@@ -328,9 +319,6 @@
 		vio-supply = <&vreg_l18a_2p8>;
 
 		panel = <&panel>;
-
-		firmware-name =
-			"qcom/sm7150/surya/novatek_ts_huaxing_fw.bin";
 	};
 };
 
