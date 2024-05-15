@@ -195,6 +195,16 @@ config DRM_PANEL_HUAXING_NT36672C
 	  Say Y or M here if you want to enable support for the Huaxing FHD
 	  (2400x1080@120Hz) video mode panel.
 
+config DRM_PANEL_TIANMA_NT36672C
+	tristate "Tianma FHD panel with NT36672C controller"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select VIDEOMODE_HELPERS
+	help
+	  Say Y or M here if you want to enable support for the Tianma FHD
+	  (2400x1080@120Hz) video mode panel.
+
 config DRM_PANEL_ILITEK_IL9322
 	tristate "Ilitek ILI9322 320x240 QVGA panels"
 	depends on OF && SPI
