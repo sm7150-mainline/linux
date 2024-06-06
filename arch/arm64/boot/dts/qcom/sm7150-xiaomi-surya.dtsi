@@ -144,6 +144,8 @@
 		ti,imon-slot-no = <0>;
 		ti,vmon-slot-no = <2>;
 		sound-name-prefix = "Right";
+
+		status = "disabled";
 	};
 
 	tas2564: codec@4d { /* EAR */
@@ -156,6 +158,8 @@
 		ti,imon-slot-no = <1>;
 		ti,vmon-slot-no = <3>;
 		sound-name-prefix = "Left";
+
+		status = "disabled";
 	};
 
 	/* ti,bq25968 (charger) @ 65 */
@@ -275,6 +279,8 @@
 	pinctrl-0 = <&ter_mi2s_active>;
 	pinctrl-names = "default";
 	model = "POCO X3";
+
+	status = "disabled";
 
 	mm1-dai-link {
 		link-name = "MultiMedia1";
