@@ -19,6 +19,7 @@
 #include <linux/i2c.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
+#include <linux/regulator/consumer.h>
 #include <asm/unaligned.h>
 
 /*
@@ -313,6 +314,7 @@ struct pac1934_chip_info {
 	char			*labels[PAC1934_MAX_NUM_CHANNELS];
 	struct iio_info		iio_info;
 	unsigned long		tstamp;
+	struct regulator	*avdd_reg;
 };
 
 #define TO_PAC1934_CHIP_INFO(d) container_of(d, struct pac1934_chip_info, work_chip_rfsh)
@@ -1055,6 +1057,21 @@ static int pac1934_chip_identify(struct pac1934_chip_info *info)
 	struct device *dev = &info->client->dev;
 	int ret = 0;
 
+	/* Get the avdd-supply regulator */
+	info->avdd_reg = devm_regulator_get(dev, "avdd");
+	if (IS_ERR(info->avdd_reg)) {
+		dev_err(dev, "Failed to get avdd-supply regulator\n");
+		return PTR_ERR(info->avdd_reg);
+	}
+
+	ret = regulator_enable(info->avdd_reg);
+	if (ret) {
+		dev_err(dev, "Failed to enable avdd-supply regulator\n");
+		return ret;
+	}
+
+	msleep(20);
+
 	ret = pac1934_read_revision(info, (u8 *)rev_info);
 	if (ret)
 		return ret;
@@ -1502,6 +1519,7 @@ static int pac1934_probe(struct i2c_client *client)
 
 		info->phys_channels = chip->phys_channels;
 		indio_dev->name = chip->name;
+		regulator_disable(info->avdd_reg);
 	} else {
 		info->phys_channels = pac1934_chip_config[ret].phys_channels;
 		indio_dev->name = pac1934_chip_config[ret].name;
@@ -1566,6 +1584,13 @@ static int pac1934_probe(struct i2c_client *client)
 	return 0;
 }
 
+static void pac1934_remove(struct i2c_client *client)
+{
+	struct pac1934_chip_info *info = i2c_get_clientdata(client);
+
+	regulator_disable(info->avdd_reg);
+}
+
 static const struct i2c_device_id pac1934_id[] = {
 	{ .name = "pac1931", .driver_data = (kernel_ulong_t)&pac1934_chip_config[PAC1931] },
 	{ .name = "pac1932", .driver_data = (kernel_ulong_t)&pac1934_chip_config[PAC1932] },
@@ -1613,6 +1638,7 @@ static struct i2c_driver pac1934_driver = {
 		.acpi_match_table = pac1934_acpi_match
 	},
 	.probe = pac1934_probe,
+	.remove = pac1934_remove,
 	.id_table = pac1934_id,
 };
 
