@@ -1,0 +1,12 @@
+config TOUCHSCREEN_ST_FTS_V521
+	tristate "STMicroelectronics FTS V521 touchscreen"
+	depends on I2C
+	depends on OF
+	default n
+	help
+	  Say Y here if you have STMicroelectronics FingerTipS series touchscreen.
+
+	  If unsure, say N.
+	  
+	  To compile this driver as a module, choose M here: the
+	  module will be called fts521.
