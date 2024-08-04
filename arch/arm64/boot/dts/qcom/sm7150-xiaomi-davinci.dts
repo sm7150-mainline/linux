@@ -15,6 +15,7 @@
 /delete-node/ &ipa_fw_mem;
 /delete-node/ &ipa_gsi_mem;
 /delete-node/ &gpu_mem;
+/delete-node/ &tz_mem;
 /* The NFC reset-gpio is shared with the pinctrl of the amplifier. Disable NFC so that audio works. */
 /delete-node/ &nxp;
 
@@ -92,6 +93,11 @@
 
 			qcom,client-id = <1>;
 			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
+		};
+
+		tz_mem: trust-zone@86200000 {
+			reg = <0x0 0x86200000 0x0 0x4900000>;
+			no-map;
 		};
 	};
 };
