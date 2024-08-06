@@ -164,6 +164,14 @@ static void dpu_hw_intf_setup_timing_engine(struct dpu_hw_intf *intf,
 	hsync_ctl = (hsync_period << 16) | p->hsync_pulse_width;
 	display_hctl = (hsync_end_x << 16) | hsync_start_x;
 
+	/*
+	 * DATA_HCTL_EN controls data timing which can be different from
+	 * video timing. It is recommended to enable it for all cases, except
+	 * if compression is enabled in 1 pixel per clock mode
+	 */
+	if (!p->compression_en || p->wide_bus_en)
+		intf_cfg2 |= INTF_CFG2_DATA_HCTL_EN;
+
 	if (p->wide_bus_en)
 		intf_cfg2 |= INTF_CFG2_DATABUS_WIDEN;
 
@@ -179,8 +187,7 @@ static void dpu_hw_intf_setup_timing_engine(struct dpu_hw_intf *intf,
 		data_width = p->width >> 1;
 
 	/* TODO: handle DSC+DP case, we only handle DSC+DSI case so far */
-	if (p->compression_en && !dp_intf &&
-	    mdss_ver->core_major_ver >= 7)
+	if (p->compression_en)
 		intf_cfg2 |= INTF_CFG2_DCE_DATA_COMPRESS;
 
 	hsync_data_start_x = hsync_start_x;
