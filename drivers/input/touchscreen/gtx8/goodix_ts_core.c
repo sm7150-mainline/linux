@@ -40,7 +40,7 @@
 #define PINCTRL_STATE_ACTIVE "default"
 #define PINCTRL_STATE_SUSPEND "sleep"
 
-static int goodix_ts_remove(struct platform_device *pdev);
+static void goodix_ts_remove(struct platform_device *pdev);
 void goodix_ts_dev_release(void);
 
 struct goodix_module goodix_modules;
@@ -1669,7 +1669,7 @@ out:
 	return r;
 }
 
-static int goodix_ts_remove(struct platform_device *pdev)
+static void goodix_ts_remove(struct platform_device *pdev)
 {
 	struct goodix_ts_core *core_data = platform_get_drvdata(pdev);
 
@@ -1682,7 +1682,6 @@ static int goodix_ts_remove(struct platform_device *pdev)
 	goodix_debugfs_exit();
 	goodix_ts_sysfs_exit(core_data);
 	kfree(core_data);
-	return 0;
 }
 
 #ifdef CONFIG_PM
