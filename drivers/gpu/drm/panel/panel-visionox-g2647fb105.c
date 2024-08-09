@@ -13,7 +13,7 @@
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
 
-struct xiaomi_f4_41_06_0a {
+struct visionox_g2647fb105 {
 	struct drm_panel panel;
 	struct mipi_dsi_device *dsi;
 	struct gpio_desc *reset_gpio;
@@ -21,12 +21,12 @@ struct xiaomi_f4_41_06_0a {
 };
 
 static inline
-struct xiaomi_f4_41_06_0a *to_xiaomi_f4_41_06_0a(struct drm_panel *panel)
+struct visionox_g2647fb105 *to_visionox_g2647fb105(struct drm_panel *panel)
 {
-	return container_of(panel, struct xiaomi_f4_41_06_0a, panel);
+	return container_of(panel, struct visionox_g2647fb105, panel);
 }
 
-static void xiaomi_f4_41_06_0a_reset(struct xiaomi_f4_41_06_0a *ctx)
+static void visionox_g2647fb105_reset(struct visionox_g2647fb105 *ctx)
 {
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
 	usleep_range(1000, 2000);
@@ -34,7 +34,7 @@ static void xiaomi_f4_41_06_0a_reset(struct xiaomi_f4_41_06_0a *ctx)
 	usleep_range(10000, 11000);
 }
 
-static int xiaomi_f4_41_06_0a_on(struct xiaomi_f4_41_06_0a *ctx)
+static int visionox_g2647fb105_on(struct visionox_g2647fb105 *ctx)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
 	struct device *dev = &dsi->dev;
@@ -83,7 +83,7 @@ static int xiaomi_f4_41_06_0a_on(struct xiaomi_f4_41_06_0a *ctx)
 	return 0;
 }
 
-static int xiaomi_f4_41_06_0a_off(struct xiaomi_f4_41_06_0a *ctx)
+static int visionox_g2647fb105_off(struct visionox_g2647fb105 *ctx)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
 	struct device *dev = &dsi->dev;
@@ -106,18 +106,18 @@ static int xiaomi_f4_41_06_0a_off(struct xiaomi_f4_41_06_0a *ctx)
 	return 0;
 }
 
-static int xiaomi_f4_41_06_0a_prepare(struct drm_panel *panel)
+static int visionox_g2647fb105_prepare(struct drm_panel *panel)
 {
-	struct xiaomi_f4_41_06_0a *ctx = to_xiaomi_f4_41_06_0a(panel);
+	struct visionox_g2647fb105 *ctx = to_visionox_g2647fb105(panel);
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
 	if (ctx->prepared)
 		return 0;
 
-	xiaomi_f4_41_06_0a_reset(ctx);
+	visionox_g2647fb105_reset(ctx);
 
-	ret = xiaomi_f4_41_06_0a_on(ctx);
+	ret = visionox_g2647fb105_on(ctx);
 	if (ret < 0) {
 		dev_err(dev, "Failed to initialize panel: %d\n", ret);
 		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
@@ -128,16 +128,16 @@ static int xiaomi_f4_41_06_0a_prepare(struct drm_panel *panel)
 	return 0;
 }
 
-static int xiaomi_f4_41_06_0a_unprepare(struct drm_panel *panel)
+static int visionox_g2647fb105_unprepare(struct drm_panel *panel)
 {
-	struct xiaomi_f4_41_06_0a *ctx = to_xiaomi_f4_41_06_0a(panel);
+	struct visionox_g2647fb105 *ctx = to_visionox_g2647fb105(panel);
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
 	if (!ctx->prepared)
 		return 0;
 
-	ret = xiaomi_f4_41_06_0a_off(ctx);
+	ret = visionox_g2647fb105_off(ctx);
 	if (ret < 0)
 		dev_err(dev, "Failed to un-initialize panel: %d\n", ret);
 
@@ -147,7 +147,7 @@ static int xiaomi_f4_41_06_0a_unprepare(struct drm_panel *panel)
 	return 0;
 }
 
-static const struct drm_display_mode xiaomi_f4_41_06_0a_mode = {
+static const struct drm_display_mode visionox_g2647fb105_mode = {
 	.clock = (1080 + 28 + 4 + 36) * (2340 + 8 + 4 + 4) * 60 / 1000,
 	.hdisplay = 1080,
 	.hsync_start = 1080 + 28,
@@ -161,12 +161,12 @@ static const struct drm_display_mode xiaomi_f4_41_06_0a_mode = {
 	.height_mm = 149,
 };
 
-static int xiaomi_f4_41_06_0a_get_modes(struct drm_panel *panel,
+static int visionox_g2647fb105_get_modes(struct drm_panel *panel,
 					struct drm_connector *connector)
 {
 	struct drm_display_mode *mode;
 
-	mode = drm_mode_duplicate(connector->dev, &xiaomi_f4_41_06_0a_mode);
+	mode = drm_mode_duplicate(connector->dev, &visionox_g2647fb105_mode);
 	if (!mode)
 		return -ENOMEM;
 
@@ -180,13 +180,13 @@ static int xiaomi_f4_41_06_0a_get_modes(struct drm_panel *panel,
 	return 1;
 }
 
-static const struct drm_panel_funcs xiaomi_f4_41_06_0a_panel_funcs = {
-	.prepare = xiaomi_f4_41_06_0a_prepare,
-	.unprepare = xiaomi_f4_41_06_0a_unprepare,
-	.get_modes = xiaomi_f4_41_06_0a_get_modes,
+static const struct drm_panel_funcs visionox_g2647fb105_panel_funcs = {
+	.prepare = visionox_g2647fb105_prepare,
+	.unprepare = visionox_g2647fb105_unprepare,
+	.get_modes = visionox_g2647fb105_get_modes,
 };
 
-static int xiaomi_f4_41_06_0a_bl_update_status(struct backlight_device *bl)
+static int visionox_g2647fb105_bl_update_status(struct backlight_device *bl)
 {
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	u16 brightness = backlight_get_brightness(bl);
@@ -205,7 +205,7 @@ static int xiaomi_f4_41_06_0a_bl_update_status(struct backlight_device *bl)
 
 // TODO: Check if /sys/class/backlight/.../actual_brightness actually returns
 // correct values. If not, remove this function.
-static int xiaomi_f4_41_06_0a_bl_get_brightness(struct backlight_device *bl)
+static int visionox_g2647fb105_bl_get_brightness(struct backlight_device *bl)
 {
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	u16 brightness;
@@ -222,13 +222,13 @@ static int xiaomi_f4_41_06_0a_bl_get_brightness(struct backlight_device *bl)
 	return brightness;
 }
 
-static const struct backlight_ops xiaomi_f4_41_06_0a_bl_ops = {
-	.update_status = xiaomi_f4_41_06_0a_bl_update_status,
-	.get_brightness = xiaomi_f4_41_06_0a_bl_get_brightness,
+static const struct backlight_ops visionox_g2647fb105_bl_ops = {
+	.update_status = visionox_g2647fb105_bl_update_status,
+	.get_brightness = visionox_g2647fb105_bl_get_brightness,
 };
 
 static struct backlight_device *
-xiaomi_f4_41_06_0a_create_backlight(struct mipi_dsi_device *dsi)
+visionox_g2647fb105_create_backlight(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
 	const struct backlight_properties props = {
@@ -238,13 +238,13 @@ xiaomi_f4_41_06_0a_create_backlight(struct mipi_dsi_device *dsi)
 	};
 
 	return devm_backlight_device_register(dev, dev_name(dev), dev, dsi,
-					      &xiaomi_f4_41_06_0a_bl_ops, &props);
+					      &visionox_g2647fb105_bl_ops, &props);
 }
 
-static int xiaomi_f4_41_06_0a_probe(struct mipi_dsi_device *dsi)
+static int visionox_g2647fb105_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
-	struct xiaomi_f4_41_06_0a *ctx;
+	struct visionox_g2647fb105 *ctx;
 	int ret;
 
 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
@@ -266,11 +266,11 @@ static int xiaomi_f4_41_06_0a_probe(struct mipi_dsi_device *dsi)
 
 	ctx->panel.prepare_prev_first = true;
 
-	drm_panel_init(&ctx->panel, dev, &xiaomi_f4_41_06_0a_panel_funcs,
+	drm_panel_init(&ctx->panel, dev, &visionox_g2647fb105_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 	ctx->panel.prepare_prev_first = true;
 
-	ctx->panel.backlight = xiaomi_f4_41_06_0a_create_backlight(dsi);
+	ctx->panel.backlight = visionox_g2647fb105_create_backlight(dsi);
 	if (IS_ERR(ctx->panel.backlight))
 		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
 				     "Failed to create backlight\n");
@@ -287,9 +287,9 @@ static int xiaomi_f4_41_06_0a_probe(struct mipi_dsi_device *dsi)
 	return 0;
 }
 
-static void xiaomi_f4_41_06_0a_remove(struct mipi_dsi_device *dsi)
+static void visionox_g2647fb105_remove(struct mipi_dsi_device *dsi)
 {
-	struct xiaomi_f4_41_06_0a *ctx = mipi_dsi_get_drvdata(dsi);
+	struct visionox_g2647fb105 *ctx = mipi_dsi_get_drvdata(dsi);
 	int ret;
 
 	ret = mipi_dsi_detach(dsi);
@@ -299,22 +299,22 @@ static void xiaomi_f4_41_06_0a_remove(struct mipi_dsi_device *dsi)
 	drm_panel_remove(&ctx->panel);
 }
 
-static const struct of_device_id xiaomi_f4_41_06_0a_of_match[] = {
-	{ .compatible = "xiaomi,f4-41-06-0a" }, // FIXME
+static const struct of_device_id visionox_g2647fb105_of_match[] = {
+	{ .compatible = "visionox,g2647fb105" },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, xiaomi_f4_41_06_0a_of_match);
+MODULE_DEVICE_TABLE(of, visionox_g2647fb105_of_match);
 
-static struct mipi_dsi_driver xiaomi_f4_41_06_0a_driver = {
-	.probe = xiaomi_f4_41_06_0a_probe,
-	.remove = xiaomi_f4_41_06_0a_remove,
+static struct mipi_dsi_driver visionox_g2647fb105_driver = {
+	.probe = visionox_g2647fb105_probe,
+	.remove = visionox_g2647fb105_remove,
 	.driver = {
-		.name = "panel-xiaomi-f4-41-06-0a",
-		.of_match_table = xiaomi_f4_41_06_0a_of_match,
+		.name = "panel-visionox-g2647fb105",
+		.of_match_table = visionox_g2647fb105_of_match,
 	},
 };
-module_mipi_dsi_driver(xiaomi_f4_41_06_0a_driver);
+module_mipi_dsi_driver(visionox_g2647fb105_driver);
 
 MODULE_AUTHOR("linux-mdss-dsi-panel-driver-generator <fix@me>"); // FIXME
-MODULE_DESCRIPTION("DRM driver for xiaomi f4 41 06 0a fhd cmd dsi panel");
+MODULE_DESCRIPTION("DRM driver for Visionox G2647FB105 AMOLED DSI panel");
 MODULE_LICENSE("GPL");
