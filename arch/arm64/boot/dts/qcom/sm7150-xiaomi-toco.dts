@@ -73,6 +73,20 @@
 			qcom,vmid = <QCOM_SCM_VMID_MSS_MSA>;
 		};
 	};
+
+	vreg_ibb: regulator-ibb {
+		compatible = "regulator-fixed";
+		regulator-name = "ibb";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
+
+	vreg_lab: regulator-lab {
+		compatible = "regulator-fixed";
+		regulator-name = "lab";
+		regulator-min-microvolt = <6000000>;
+		regulator-max-microvolt = <6000000>;
+	};
 };
 
 &framebuffer {
@@ -147,7 +161,10 @@
 };
 
 &panel {
-	compatible = "xiaomi,f4-41-06-0a";
+	compatible = "visionox,g2647fb105";
+
+	vsn-supply = <&vreg_ibb>;
+	vsp-supply = <&vreg_lab>;
 };
 
 &remoteproc_adsp {
