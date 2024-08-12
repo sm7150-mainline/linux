@@ -527,7 +527,18 @@
 };
 
 &pm6150_rtc {
+	nvmem-cells = <&rtc_offset>;
+	nvmem-cell-names = "offset";
+
 	status = "okay";
+};
+
+&pm6150_sdam {
+	status = "okay";
+
+	rtc_offset: rtc-offset@bc {
+		reg = <0xbc 0x4>;
+	};
 };
 
 &pm6150_typec {
