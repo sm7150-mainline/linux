@@ -2187,9 +2187,10 @@ static int ov8856_get_format(struct v4l2_subdev *sd,
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
 		fmt->format = *v4l2_subdev_state_get_format(sd_state,
 							    fmt->pad);
-	else
+	else {
+		fmt->format.code = ov8856_mbus_codes[ov8856->cur_mbus_index];
 		ov8856_update_pad_format(ov8856, ov8856->cur_mode, &fmt->format);
-
+	}
 	mutex_unlock(&ov8856->mutex);
 
 	return 0;
