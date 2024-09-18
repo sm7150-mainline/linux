@@ -20,7 +20,7 @@
 
 / {
  	model = "Xiaomi Redmi Note 12 Pro";
- 	compatible = "xiaomi,sweet", "qcom,sm7150"; /* sweet_k6a actually uses the sweet codename */
+	compatible = "xiaomi,sweet_k6a", "qcom,sm7150";
 
 	qcom,board-id = <46 0>;
 
