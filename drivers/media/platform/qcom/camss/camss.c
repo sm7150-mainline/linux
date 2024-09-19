@@ -846,7 +846,10 @@ static const struct camss_subdev_resources csiphy_res_7150[] = {
 				{ 300000000 } },
 		.reg = { "csiphy0" },
 		.interrupt = { "csiphy0" },
-		.ops = &csiphy_ops_3ph_1_0
+		.csiphy = {
+			.hw_ops = &csiphy_ops_3ph_1_0,
+			.formats = &csiphy_formats_sdm845
+		}
 	},
 	/* CSIPHY1 */
 	{
@@ -859,7 +862,10 @@ static const struct camss_subdev_resources csiphy_res_7150[] = {
 				{ 300000000 } },
 		.reg = { "csiphy1" },
 		.interrupt = { "csiphy1" },
-		.ops = &csiphy_ops_3ph_1_0
+		.csiphy = {
+			.hw_ops = &csiphy_ops_3ph_1_0,
+			.formats = &csiphy_formats_sdm845
+		}
 	},
 	/* CSIPHY2 */
 	{
@@ -872,7 +878,10 @@ static const struct camss_subdev_resources csiphy_res_7150[] = {
 				{ 300000000 } },
 		.reg = { "csiphy2" },
 		.interrupt = { "csiphy2" },
-		.ops = &csiphy_ops_3ph_1_0
+		.csiphy = {
+			.hw_ops = &csiphy_ops_3ph_1_0,
+			.formats = &csiphy_formats_sdm845
+		}
 	},
 	/* CSIPHY3 */
 	{
@@ -885,7 +894,10 @@ static const struct camss_subdev_resources csiphy_res_7150[] = {
 				{ 300000000 } },
 		.reg = { "csiphy3" },
 		.interrupt = { "csiphy3" },
-		.ops = &csiphy_ops_3ph_1_0
+		.csiphy = {
+			.hw_ops = &csiphy_ops_3ph_1_0,
+			.formats = &csiphy_formats_sdm845
+		}
 	}
 };
 
@@ -904,7 +916,11 @@ static const struct camss_subdev_resources csid_res_7150[] = {
 				{ /*19200000,*/ 75000000, 300000000, 384000000, 400000000 } },	/* ftbl_cam_cc_ife_0_csid_clk_src */
 		.reg = { "csid0" },
 		.interrupt = { "csid0" },
-		.ops = &csid_ops_gen2
+		.csid = {
+			.hw_ops = &csid_ops_gen2,
+			.parent_dev_ops = &vfe_parent_dev_ops,
+			.formats = &csid_formats_gen2
+		}
 	},
 	/* CSID1 */
 	{
@@ -920,7 +936,11 @@ static const struct camss_subdev_resources csid_res_7150[] = {
 				{ /*19200000,*/ 75000000, 300000000, 384000000, 400000000 } },	/* ftbl_cam_cc_ife_0_csid_clk_src */
 		.reg = { "csid1" },
 		.interrupt = { "csid1" },
-		.ops = &csid_ops_gen2
+		.csid = {
+			.hw_ops = &csid_ops_gen2,
+			.parent_dev_ops = &vfe_parent_dev_ops,
+			.formats = &csid_formats_gen2
+		}
 	}
 };
 
@@ -934,10 +954,14 @@ static const struct camss_subdev_resources vfe_res_7150[] = {
 				{ 0 } },							 /* on/off only */
 		.reg = { "vfe0" },
 		.interrupt = { "vfe0" },
-		.pd_name = "ife0",
-		.line_num = 4,
-		.has_pd = true,
-		.ops = &vfe_ops_170 /* 175 */
+		.vfe = {
+			.line_num = 4,
+			.has_pd = true,
+			.pd_name = "ife0",
+			.hw_ops = &vfe_ops_170, /* 175 */
+			.formats_rdi = &vfe_formats_rdi_845,
+			.formats_pix = &vfe_formats_pix_845
+		}
 	},
 	/* VFE1 */
 	{
@@ -948,10 +972,14 @@ static const struct camss_subdev_resources vfe_res_7150[] = {
 				{ 0 } },
 		.reg = { "vfe1" },
 		.interrupt = { "vfe1" },
-		.pd_name = "ife1",
-		.line_num = 4,
-		.has_pd = true,
-		.ops = &vfe_ops_170 /* 175 */
+		.vfe = {
+			.line_num = 4,
+			.has_pd = true,
+			.pd_name = "ife1",
+			.hw_ops = &vfe_ops_170, /* 175 */
+			.formats_rdi = &vfe_formats_rdi_845,
+			.formats_pix = &vfe_formats_pix_845
+		}
 	},
 	/* VFE2 (lite) */
 	{
@@ -961,9 +989,13 @@ static const struct camss_subdev_resources vfe_res_7150[] = {
 				{ /*19200000,*/ 320000000, 400000000, 480000000, 600000000 }, },
 		.reg = { "vfe_lite" },
 		.interrupt = { "vfe_lite" },
-		.is_lite = true,
-		.line_num = 4,
-		.ops = &vfe_ops_170 /* 175 */
+		.vfe = {
+			.is_lite = true,
+			.line_num = 4,
+			.hw_ops = &vfe_ops_170, /* 175 */
+			.formats_rdi = &vfe_formats_rdi_845,
+			.formats_pix = &vfe_formats_pix_845
+		}
 	},
 };
 
@@ -2582,6 +2614,7 @@ static const struct camss_resources sm7150_resources = {
 	.csiphy_num = ARRAY_SIZE(csiphy_res_7150),
 	.csid_num = ARRAY_SIZE(csid_res_7150),
 	.vfe_num = ARRAY_SIZE(vfe_res_7150),
+	.link_entities = camss_link_entities
 };
 
 static const struct camss_resources sm8250_resources = {
