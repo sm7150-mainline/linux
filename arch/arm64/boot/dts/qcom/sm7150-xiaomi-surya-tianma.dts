@@ -16,5 +16,10 @@
 	compatible = "xiaomi,surya", "qcom,sm7150";
 };
 
-&nt36xxx { firmware-name = "novatek_ts_tianma_fw.bin"; };
-&panel { compatible = "tianma,nt36672c"; };
+&nt36xxx {
+	firmware-name = "novatek_ts_tianma_fw.bin";
+};
+
+&panel {
+	compatible = "tianma,nt36672c";
+};
