@@ -27,15 +27,6 @@
 	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
 };
 
-/*
- * Davinci uses the SM7150-AA SoC.
- * Limit CPU clock to 2.2 GHz
- */
-
-&cpu6_opp14 {
-	status = "disabled";
-};
-
 / {
 	/*
 	 * Xiaomi Mi 9T
