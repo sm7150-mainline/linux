@@ -18,15 +18,6 @@
 	reg = <0x0 0x9c000000 0x0 (1080 * 2340 * 4)>;
 };
 
-/*
- * Toco uses the SM7150-AB SoC.
- * Limit CPU clock to 2.2 GHz
- */
-
-&cpu6_opp14 {
-	status = "disabled";
-};
-
 / {
 	model = "Xiaomi Mi Note 10 Lite";
 	compatible = "xiaomi,toco", "qcom,sm7150";
