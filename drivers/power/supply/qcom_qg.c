@@ -73,30 +73,23 @@ static int qcom_qg_get_voltage(struct qcom_qg_chip *chip, u8 offset, int *val)
 	return 0;
 }
 
-/*
- * Yes, this function simply calculates the capacity based on
- * the current voltage. This will be rewritten in the future.
- */
 static int qcom_qg_get_capacity(struct qcom_qg_chip *chip, int *val)
 {
-	int ret, voltage_now;
-	int voltage_min = chip->batt_info->voltage_min_design_uv;
-	int voltage_max = chip->batt_info->voltage_max_design_uv;
+	int ret, temp, ocv;
 
-	ret = qcom_qg_get_voltage(chip,
-				QG_S2_NORMAL_AVG_V_DATA0_REG, &voltage_now);
+	ret = regmap_raw_read(chip->regmap,
+			QG_SRAM_BASE + QG_SDAM_OCV_OFFSET, &ocv, 4);
 	if (ret) {
-		dev_err(chip->dev, "Failed to get current voltage: %d\n", ret);
+		dev_err(chip->dev,
+			"Failed to get open-circuit voltage: %d\n", ret);
 		return ret;
 	}
 
-	if (voltage_now <= voltage_min)
-		*val = 0;
-	else if (voltage_now >= voltage_max)
-		*val = 100;
-	else
-		*val = (((voltage_now - voltage_min) * 100) /
-						(voltage_max - voltage_min));
+	ret = iio_read_channel_processed(chip->batt_therm_chan, &temp);
+	if (ret)
+		dev_dbg(chip->dev, "Failed to get temperature: %d\n", ret);
+
+	*val = power_supply_batinfo_ocv2cap(chip->batt_info, ocv, temp /= 1000);
 
 	return 0;
 }
@@ -211,12 +204,7 @@ static int qcom_qg_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, ret,
 				     "Couldn't read base address\n");
 
-	/* ADC for Battery ID & THERM */
-	chip->batt_id_chan = devm_iio_channel_get(&pdev->dev, "batt-id");
-	if (IS_ERR(chip->batt_id_chan))
-		return dev_err_probe(chip->dev, PTR_ERR(chip->batt_id_chan),
-				     "Couldn't get batt-id IIO channel\n");
-
+	/* ADC for thermal channel */
 	chip->batt_therm_chan = devm_iio_channel_get(&pdev->dev, "batt-therm");
 	if (IS_ERR(chip->batt_therm_chan))
 		return dev_err_probe(chip->dev, PTR_ERR(chip->batt_therm_chan),
