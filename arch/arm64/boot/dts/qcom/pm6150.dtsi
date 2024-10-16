@@ -154,10 +154,8 @@
 			compatible = "qcom,pm6150-qg";
 			reg = <0x4800>;
 
-			io-channels = <&pm6150_adc ADC5_BAT_THERM_100K_PU>,
-				      <&pm6150_adc ADC5_BAT_ID_100K_PU>;
-			io-channel-names = "batt-therm",
-					   "batt-id";
+			io-channels = <&pm6150_adc ADC5_BAT_THERM_100K_PU>;
+			io-channel-names = "batt-therm";
 
 			nvmem = <&pm6150_qg_sdam>;
 
