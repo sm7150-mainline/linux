@@ -1052,7 +1052,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi0_spi>, <&qup_spi0_cs>;
+				pinctrl-0 = <&qup_spi0_spi>,
+					    <&qup_spi0_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1124,7 +1125,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi1_spi>, <&qup_spi1_cs>;
+				pinctrl-0 = <&qup_spi1_spi>,
+					    <&qup_spi1_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1232,7 +1234,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi3_spi>, <&qup_spi3_cs>;
+				pinctrl-0 = <&qup_spi3_spi>,
+					    <&qup_spi3_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1329,7 +1332,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi4_spi>, <&qup_spi4_cs>;
+				pinctrl-0 = <&qup_spi4_spi>,
+					    <&qup_spi4_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1471,7 +1475,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi6_spi>, <&qup_spi6_cs>;
+				pinctrl-0 = <&qup_spi6_spi>,
+					    <&qup_spi6_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1543,7 +1548,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi7_spi>, <&qup_spi7_cs>;
+				pinctrl-0 = <&qup_spi7_spi>,
+					    <&qup_spi7_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1615,7 +1621,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi8_spi>, <&qup_spi8_cs>;
+				pinctrl-0 = <&qup_spi8_spi>,
+					    <&qup_spi8_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1748,7 +1755,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi10_spi>, <&qup_spi10_cs>;
+				pinctrl-0 = <&qup_spi10_spi>,
+					    <&qup_spi10_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1845,7 +1853,8 @@
 				dma-names = "tx",
 					    "rx";
 
-				pinctrl-0 = <&qup_spi11_spi>, <&qup_spi11_cs>;
+				pinctrl-0 = <&qup_spi11_spi>,
+					    <&qup_spi11_cs>;
 				pinctrl-names = "default";
 
 				#address-cells = <1>;
@@ -1984,7 +1993,8 @@
 					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>,
 					<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 					 &config_noc SLAVE_UFS_MEM_CFG QCOM_ICC_TAG_ALWAYS>;
-			interconnect-names = "ufs-ddr", "cpu-ufs";
+			interconnect-names = "ufs-ddr",
+					     "cpu-ufs";
 
 			power-domains = <&gcc UFS_PHY_GDSC>;
 			required-opps = <&rpmhpd_opp_nom>;
@@ -2060,7 +2070,9 @@
 			interconnects = <&aggre2_noc MASTER_IPA 0 &mc_virt SLAVE_EBI_CH0 0>,
 					<&aggre2_noc MASTER_IPA 0 &system_noc SLAVE_OCIMEM 0>,
 					<&gem_noc MASTER_AMPSS_M0 0 &config_noc SLAVE_IPA_CFG 0>;
-			interconnect-names = "memory", "imem", "config";
+			interconnect-names = "memory",
+					     "imem",
+					     "config";
 
 			qcom,qmp = <&aoss_qmp>;
 
@@ -2589,38 +2601,51 @@
 					compute-cb@3 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <3>;
+
 						iommus = <&apps_smmu 0x1b23 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@4 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <4>;
+
 						iommus = <&apps_smmu 0x1b24 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@5 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <5>;
+
 						iommus = <&apps_smmu 0x1b25 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@6 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <6>;
+
 						iommus = <&apps_smmu 0x1b26 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@7 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <7>;
+
 						iommus = <&apps_smmu 0x1b27 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@8 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <8>;
-						iommus = <&apps_smmu 0x1b28 0x0>;
+
 						qcom,nsessions = <3>;
+
+						iommus = <&apps_smmu 0x1b28 0x0>;
+						dma-coherent;
 					};
 				};
 			};
@@ -2676,45 +2701,55 @@
 					compute-cb@1 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <1>;
+
 						iommus = <&apps_smmu 0x1421 0x0>,
 							 <&apps_smmu 0x1441 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@2 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <2>;
+
 						iommus = <&apps_smmu 0x1422 0x0>,
 							 <&apps_smmu 0x1442 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@3 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <3>;
+
 						iommus = <&apps_smmu 0x1423 0x0>,
 							 <&apps_smmu 0x1443 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@4 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <4>;
+
 						iommus = <&apps_smmu 0x1424 0x0>,
 							 <&apps_smmu 0x1444 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@5 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <5>;
+
 						iommus = <&apps_smmu 0x1425 0x0>,
 							 <&apps_smmu 0x1445 0x0>;
+						dma-coherent;
 					};
 
 					compute-cb@6 {
 						compatible = "qcom,fastrpc-compute-cb";
 						reg = <6>;
-						iommus = <&apps_smmu 0x1406 0x60>;
-					};
 
-					/* note: secure cb9 in downstream */
+						iommus = <&apps_smmu 0x1406 0x60>;
+						dma-coherent;
+					};
 				};
 			};
 		};
@@ -2730,8 +2765,12 @@
 					      <&smp2p_modem_in 2 IRQ_TYPE_EDGE_RISING>,
 					      <&smp2p_modem_in 3 IRQ_TYPE_EDGE_RISING>,
 					      <&smp2p_modem_in 7 IRQ_TYPE_EDGE_RISING>;
-			interrupt-names = "wdog", "fatal", "ready", "handover",
-					  "stop-ack", "shutdown-ack";
+			interrupt-names = "wdog",
+					  "fatal",
+					  "ready",
+					  "handover",
+					  "stop-ack",
+					  "shutdown-ack";
 
 			clocks = <&rpmhcc RPMH_CXO_CLK>;
 			clock-names = "xo";
@@ -2739,7 +2778,9 @@
 			power-domains = <&rpmhpd RPMHPD_CX>,
 					<&rpmhpd RPMHPD_MX>,
 					<&rpmhpd RPMHPD_MSS>;
-			power-domain-names = "cx", "mx", "mss";
+			power-domain-names = "cx",
+					     "mx",
+					     "mss";
 
 			memory-region = <&mpss_mem>;
 
@@ -2873,7 +2914,9 @@
 			clocks = <&gpucc GPU_CC_AHB_CLK>,
 				 <&gcc GCC_GPU_MEMNOC_GFX_CLK>,
 				 <&gcc GCC_GPU_SNOC_DVM_GFX_CLK>;
-			clock-names = "ahb", "bus", "iface";
+			clock-names = "ahb",
+				      "bus",
+				      "iface";
 
 			power-domains = <&gpucc CX_GDSC>;
 
@@ -3074,12 +3117,17 @@
 			compatible = "qcom,sm7150-qusb2-phy",
 				     "qcom,qusb2-v2-phy";
 			reg = <0 0x088e2000 0 0x400>;
-			status = "disabled";
-			#phy-cells = <0>;
+
 			clocks = <&gcc GCC_USB_PHY_CFG_AHB2PHY_CLK>,
 				 <&rpmhcc RPMH_CXO_CLK>;
-			clock-names = "cfg_ahb", "ref";
+			clock-names = "cfg_ahb",
+				      "ref";
+
 			resets = <&gcc GCC_QUSB2PHY_PRIM_BCR>;
+
+			#phy-cells = <0>;
+
+			status = "disabled";
 		};
 
 		pmu@90b6300 {
