@@ -3546,29 +3546,6 @@
 				    "vfe1",
 				    "vfe_lite";
 
-			interrupts = <GIC_SPI 477 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 478 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 479 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 607 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 464 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 466 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 465 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 467 IRQ_TYPE_LEVEL_HIGH>,
-				     <GIC_SPI 434 IRQ_TYPE_LEVEL_HIGH>;
-			interrupt-names = "csiphy0",
-					  "csiphy1",
-					  "csiphy2",
-					  "csiphy3",
-					  "csid0",
-					  "csid1",
-					  "vfe0",
-					  "vfe1",
-					  "vfe_lite";
-
-			power-domains = <&camcc IFE_0_GDSC>,
-					<&camcc IFE_1_GDSC>,
-					<&camcc TITAN_TOP_GDSC>;
-
 			clocks = <&gcc GCC_CAMERA_HF_AXI_CLK>,
 				 <&gcc GCC_CAMERA_SF_AXI_CLK>,
 				 <&camcc CAMCC_CAMNOC_AXI_CLK>,
@@ -3605,7 +3582,6 @@
 				 <&camcc CAMCC_IFE_LITE_CPHY_RX_CLK>,
 				 <&camcc CAMCC_IFE_LITE_CSID_CLK>,
 				 <&camcc CAMCC_IFE_LITE_CSID_CLK_SRC>;
-
 			clock-names = "cam_hf_axi",
 				      "cam_sf_axi",
 				      "camnoc_axi",
@@ -3643,20 +3619,43 @@
 				      "vfe_lite_csid",
 				      "vfe_lite_csid_src";
 
+			interrupts = <GIC_SPI 477 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 478 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 479 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 607 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 464 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 466 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 465 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 467 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 434 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "csiphy0",
+					  "csiphy1",
+					  "csiphy2",
+					  "csiphy3",
+					  "csid0",
+					  "csid1",
+					  "vfe0",
+					  "vfe1",
+					  "vfe_lite";
+
+			power-domains = <&camcc IFE_0_GDSC>,
+					<&camcc IFE_1_GDSC>,
+					<&camcc TITAN_TOP_GDSC>;
+
 			iommus = <&apps_smmu 0x900 0x460>,
-				 <&apps_smmu 0xD00 0x460>,
+				 <&apps_smmu 0xd00 0x460>,
 				 <&apps_smmu 0x880 0x460>,
-				 <&apps_smmu 0xC80 0x460>,
+				 <&apps_smmu 0xc80 0x460>,
 				 <&apps_smmu 0x820 0x440>,
-				 <&apps_smmu 0xC20 0x440>,
+				 <&apps_smmu 0xc20 0x440>,
 				 <&apps_smmu 0x920 0x460>,
-				 <&apps_smmu 0xD20 0x460>,
-				 <&apps_smmu 0x8A0 0x460>,
-				 <&apps_smmu 0xCA0 0x460>,
+				 <&apps_smmu 0xd20 0x460>,
+				 <&apps_smmu 0x8a0 0x460>,
+				 <&apps_smmu 0xca0 0x460>,
 				 <&apps_smmu 0x940 0x460>,
-				 <&apps_smmu 0xD40 0x460>,
-				 <&apps_smmu 0x8C0 0x460>,
-				 <&apps_smmu 0xCC0 0x460>;
+				 <&apps_smmu 0xd40 0x460>,
+				 <&apps_smmu 0x8c0 0x460>,
+				 <&apps_smmu 0xcc0 0x460>;
 
 			/*interconnects = <&gem_noc MASTER_AMPSS_M0 0 &config_noc SLAVE_CAMERA_CFG 0>,
 					<&mmss_noc MASTER_CAMNOC_HF 0 &mc_virt SLAVE_EBI_CH0 0>,
@@ -3688,14 +3687,6 @@
 				port@3 {
 					reg = <3>;
 				};
-
-				/*port@4 {
-					reg = <4>;
-				};
-
-				port@5 {
-					reg = <5>;
-				};*/
 			};
 		};
 
