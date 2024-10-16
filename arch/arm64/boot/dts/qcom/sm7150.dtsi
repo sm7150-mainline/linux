@@ -11,7 +11,6 @@
 #include <dt-bindings/clock/qcom,sm7150-dispcc.h>
 #include <dt-bindings/clock/qcom,sm7150-gcc.h>
 #include <dt-bindings/clock/qcom,sm7150-videocc.h>
-#include <dt-bindings/clock/qcom,sm8250-lpass-aoncc.h>
 #include <dt-bindings/dma/qcom-gpi.h>
 #include <dt-bindings/interconnect/qcom,icc.h>
 #include <dt-bindings/interconnect/qcom,osm-l3.h>
@@ -22,7 +21,6 @@
 #include <dt-bindings/soc/qcom,rpmh-rsc.h>
 #include <dt-bindings/soc/qcom,apr.h>
 #include <dt-bindings/sound/qcom,q6afe.h>
-#include <dt-bindings/sound/qcom,q6dsp-lpass-ports.h>
 #include <dt-bindings/thermal/thermal.h>
 
 / {
@@ -4460,157 +4458,6 @@
 			memory-region = <&wlan_msa_mem>;
 
 			status = "disabled";
-		};
-
-		slimbam: dma-controller@62e04000 {
-			compatible = "qcom,bam-v1.7.4", "qcom,bam-v1.7.0";
-			reg = <0 0x62e04000 0 0x20000>;
-			interrupts = <GIC_SPI 292 IRQ_TYPE_LEVEL_HIGH>;
-
-			num-channels = <31>;
-			#dma-cells = <1>;
-			qcom,ee = <1>;
-			qcom,num-ees = <2>;
-			qcom,controlled-remotely;
-
-			iommus = <&apps_smmu 0x1bf3 0x0>;
-		};
-
-		slim: slim-ngd@62e40000 {
-			compatible = "qcom,slim-ngd-v2.1.0";
-			reg = <0 0x62e40000 0 0x2c000>;
-			interrupts = <GIC_SPI 291 IRQ_TYPE_LEVEL_HIGH>;
-
-			dmas = <&slimbam 3>, <&slimbam 4>;
-			dma-names = "rx", "tx";
-
-			iommus = <&apps_smmu 0x1bf3 0x0>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		aoncc: clock-controller@3380000 {
-			compatible = "qcom,sm7150-lpass-aoncc",
-				     "qcom,sm8250-lpass-aoncc";
-			reg = <0 0x03380000 0 0x40000>;
-			#clock-cells = <1>;
-			clocks = <&q6afecc LPASS_HW_MACRO_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_DCODEC_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_CLK_ID_TX_CORE_NPL_MCLK LPASS_CLK_ATTRIBUTE_COUPLE_NO>;
-			clock-names = "core", "audio", "bus";
-		};
-
-		txmacro: txmacro@62ec0000 {
-			compatible = "qcom,sm7150-lpass-tx-macro",
-				     "qcom,sm8250-lpass-tx-macro";
-			reg = <0 0x62ec0000 0 0x1000>;
-
-			clocks = <&q6afecc LPASS_CLK_ID_TX_CORE_MCLK LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_CLK_ID_TX_CORE_NPL_MCLK  LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_MACRO_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_DCODEC_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&vamacro>;
-			clock-names = "mclk", "npl", "macro", "dcodec", "fsgen";
-
-			pinctrl-names = "default";
-			pinctrl-0 = <&tx_swr_active>;
-
-			#clock-cells = <0>;
-			clock-output-names = "mclk";
-			#sound-dai-cells = <1>;
-			status = "disabled";
-		};
-
-		swr2: soundwire-controller@62ed0000 {
-			reg = <0 0x62630000 0 0x2000>;
-			compatible = "qcom,soundwire-v1.5.1";
-			status = "disabled";
-			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>;
-
-			clocks = <&txmacro>;
-			clock-names = "iface";
-			label = "TX";
-
-			qcom,din-ports = <5>;
-			qcom,dout-ports = <0>;
-			qcom,ports-sinterval-low =	/bits/ 8 <0xFF 0x01 0x01 0x03 0x03>;
-			qcom,ports-offset1 =		/bits/ 8 <0xFF 0x01 0x00 0x02 0x00>;
-			qcom,ports-offset2 =		/bits/ 8 <0xFF 0x00 0x00 0x00 0x00>;
-			qcom,ports-block-pack-mode =	/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0xFF>;
-			qcom,ports-hstart =		/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0xFF>;
-			qcom,ports-hstop =		/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0xFF>;
-			qcom,ports-word-length =	/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0xFF>;
-			qcom,ports-block-group-count =	/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0xFF>;
-			qcom,ports-lane-control =	/bits/ 8 <0xFF 0x00 0x01 0x00 0x01>;
-			qcom,port-offset = <1>;
-
-			#sound-dai-cells = <1>;
-			#address-cells = <2>;
-			#size-cells = <0>;
-		};
-
-		rxmacro: rxmacro@62ee0000 {
-			compatible = "qcom,sm7150-lpass-rx-macro",
-				     "qcom,sm8250-lpass-rx-macro";
-			reg = <0 0x62ee0000 0 0x1000>;
-
-			clocks = <&q6afecc LPASS_CLK_ID_TX_CORE_MCLK LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_CLK_ID_TX_CORE_NPL_MCLK  LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_MACRO_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_DCODEC_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&vamacro>;
-			clock-names = "mclk", "npl", "macro", "dcodec", "fsgen";
-
-			pinctrl-names = "default";
-			pinctrl-0 = <&rx_swr_active>;
-
-			#clock-cells = <0>;
-			clock-output-names = "mclk";
-			#sound-dai-cells = <1>;
-		};
-
-
-		swr1: soundwire-controller@62ef0000 {
-			reg = <0 0x62610000 0 0x2000>;
-			compatible = "qcom,soundwire-v1.5.1";
-			status = "disabled";
-			interrupts = <GIC_SPI 297 IRQ_TYPE_LEVEL_HIGH>;
-
-			clocks = <&rxmacro>;
-			clock-names = "iface";
-			label = "RX";
-
-			qcom,din-ports = <0>;
-			qcom,dout-ports = <5>;
-			qcom,ports-sinterval-low =	/bits/ 8 <0x03 0x1F 0x1F 0x07 0x00>;
-			qcom,ports-offset1 =		/bits/ 8 <0x00 0x00 0x0B 0x01 0x00>;
-			qcom,ports-offset2 =		/bits/ 8 <0x00 0x00 0x0B 0x00 0x00>;
-			qcom,ports-hstart =		/bits/ 8 <0xFF 0x03 0xFF 0xFF 0xFF>;
-			qcom,ports-hstop =		/bits/ 8 <0xFF 0x06 0xFF 0xFF 0xFF>;
-			qcom,ports-word-length =	/bits/ 8 <0x01 0x07 0x04 0xFF 0xFF>;
-			qcom,ports-block-pack-mode =	/bits/ 8 <0xFF 0x00 0x01 0xFF 0xFF>;
-			qcom,ports-block-group-count =	/bits/ 8 <0xFF 0xFF 0xFF 0xFF 0x00>;
-			qcom,ports-lane-control =	/bits/ 8 <0x01 0x00 0x00 0x00 0x00>;
-
-			#sound-dai-cells = <1>;
-			#address-cells = <2>;
-			#size-cells = <0>;
-		};
-
-		vamacro: codec@62f20000 {
-			compatible = "qcom,sm7150-lpass-va-macro",
-				     "qcom,sm8250-lpass-va-macro";
-			reg = <0 0x62f20000 0 0x1000>;
-
-			clocks = <&aoncc LPASS_CDC_VA_MCLK>,
-				 <&q6afecc LPASS_HW_MACRO_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
-				 <&q6afecc LPASS_HW_DCODEC_VOTE LPASS_CLK_ATTRIBUTE_COUPLE_NO>;
-			clock-names = "mclk", "macro", "dcodec";
-
-			#clock-cells = <0>;
-			clock-output-names = "fsgen";
-			#sound-dai-cells = <1>;
 		};
 
 		lpass_tlmm: pinctrl@62b52000 {
