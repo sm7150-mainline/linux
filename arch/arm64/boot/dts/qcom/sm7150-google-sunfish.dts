@@ -30,14 +30,6 @@
 /delete-node/ &ipa_gsi_mem;
 /delete-node/ &gpu_mem;
 
-/*
- * Sunfish uses the SM7150-AB SoC.
- * Limit CPU clock to 2.2 GHz
- */
-&cpu6_opp14 {
-	status = "disabled";
-};
-
 / {
 	model = "Google Pixel 4a";
 	compatible = "google,sunfish", "qcom,sm7150";
@@ -196,6 +188,15 @@
 		regulator-max-microvolt = <800000>;
 		regulator-always-on;
 		vin-supply = <&vph_pwr>;
+	};
+
+	vreg_touch_vdd: regulator-touch-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "touch_vdd";
+		gpio = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <4000>;
+		enable-active-high;
+		regulator-boot-on;
 	};
 };
 
@@ -555,11 +556,11 @@
 };
 
 &gpi_dma0 {
-	status = "okay";
+	//status = "okay";
 };
 
 &gpi_dma1 {
-	status = "okay";
+	//status = "okay";
 };
 
 &gpu {
@@ -569,7 +570,7 @@
 };
 
 &i2c2 {
-	status = "okay";
+	//status = "okay";
 	clock-frequency = <400000>;
 
 	st21nfc: nfc@8 {
@@ -602,14 +603,38 @@
 };
 
 &i2c7 {
-	status = "okay";
-	clock-frequency = <1000000>;
+	//status = "okay";
+	clock-frequency = <100000>;
 
-	/* st,fts (touchscreen) @ 49 */
+	touchscreen: fts@49 {
+		compatible = "st,fts";
+		reg = <0x49>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-names = "default", "sleep";
+
+		vdd-supply = <&vreg_touch_vdd>;
+		avdd-supply = <&vreg_l6c_3p0>;
+		fts,regulator_dvdd = "vdd";
+		fts,regulator_avdd = "avdd";
+
+		fts,irq-gpio = <&tlmm 9 0>;
+		fts,irq-flags = <0x2008>; /* oneshot and trigger low */
+
+		fts,reset-gpio-enable;
+		fts,reset-gpio = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+
+		fts,x-max = <1080>;
+		fts,y-max = <2340>;
+	};
 };
 
 &i2c9 {
-	status= "okay";
+	//status= "okay";
 	clock-frequency = <400000>;
 
 	pac1934: power-monitor@10 {
@@ -902,7 +927,7 @@
 	vcc-supply = <&vdd_qfprom>;
 };
 
-&qup_uart3_cts {
+/*&qup_uart3_cts {
 	bias-pull-down;
 };
 
@@ -928,37 +953,16 @@
 &qup_uart8_rx {
 	drive-strength = <2>;
 	bias-pull-up;
-};
+};*/
 
 &qupv3_id_0 {
-	status = "okay";
+	//status = "okay";
 };
 
 &qupv3_id_1 {
-	status = "okay";
+	//status = "okay";
 };
 
-&q6afedai {
-	qi2s@20 {
-		reg = <TERTIARY_MI2S_RX>;
-		qcom,sd-lines = <0>;
-	};
-
-	qi2s@21 {
-		reg = <TERTIARY_MI2S_TX>;
-		qcom,sd-lines = <1>;
-	};
-};
-
-&q6asmdai {
-	dai@0 {
-		reg = <0>;
-	};
-
-	dai@1 {
-		reg = <1>;
-	};
-};
 
 &remoteproc_adsp {
 	firmware-name = "qcom/sm7150/sunfish/adsp.mbn";
@@ -975,38 +979,9 @@
 	status = "okay";
 };
 
-&sound {
-	compatible = "qcom,sm8250-sndcard";
-	pinctrl-0 = <&ter_mi2s_active>;
-	pinctrl-names = "default";
-	model = "Google Pixel 4a";
-
-	mm1-dai-link {
-		link-name = "MultiMedia1";
-		cpu {
-			sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
-		};
-	};
-
-	i2s-dai-link {
-		link-name = "Speakers Playback";
-		cpu {
-			sound-dai = <&q6afedai TERTIARY_MI2S_RX>;
-		};
-
-		platform {
-			sound-dai = <&q6routing>;
-		};
-
-		codec {
-			sound-dai = <&cs35l41_l 0>, <&cs35l41_r 1>;
-		};
-	};
-};
-
 &spi0 {
 	clock-frequency = <20000000>;
-	status = "okay";
+	//status = "okay";
 
 	rt5514_spi: codec@0 {
 		compatible = "realtek,rt5514";
@@ -1022,7 +997,7 @@
 
 &spi1 {
 	clock-frequency = <8000000>;
-	status = "okay";
+	//status = "okay";
 
 	/* google,citadel @ 0 */
 	/* st,st54j_se @ 1 */
@@ -1030,6 +1005,36 @@
 
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
+
+	ts_reset_active: ts-reset-active-state {
+		pins = "gpio8";
+		function = "gpio";
+		drive-strength = <16>;
+		bias-pull-up;
+	};
+
+	ts_reset_suspend: ts-reset-suspend-state {
+		pins = "gpio8";
+		function = "gpio";
+		drive-strength = <16>;
+		bias-disable;
+		output-high;
+	};
+
+	ts_int_active: ts-int-active-state {
+		pins = "gpio9";
+		function = "gpio";
+		drive-strength = <16>;
+		bias-pull-up;
+	};
+
+	ts_int_suspend: ts-int-suspend-state {
+		pins = "gpio9";
+		function = "gpio";
+		drive-strength = <16>;
+		input-enable;
+		bias-disable;
+	};
 
 	panel_te_pin: panel-te-state {
 		pins = "gpio10";
