@@ -139,22 +139,32 @@ static int qcom_qg_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
 		ret = qcom_qg_get_voltage(chip,
 				QG_LAST_ADC_V_DATA0_REG, &val->intval);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_AVG:
 		ret = qcom_qg_get_voltage(chip,
 				QG_S2_NORMAL_AVG_V_DATA0_REG, &val->intval);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		ret = regmap_raw_read(chip->regmap,
 			QG_SRAM_BASE + QG_SDAM_OCV_OFFSET, &val->intval, 4);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 		ret = qcom_qg_get_current(chip,
 				QG_LAST_ADC_I_DATA0_REG, &val->intval);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
 		ret = qcom_qg_get_current(chip,
 				QG_S2_NORMAL_AVG_I_DATA0_REG, &val->intval);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
 		val->intval = chip->batt_info->charge_full_design_uah;
@@ -162,14 +172,20 @@ static int qcom_qg_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
 		ret = regmap_raw_read(chip->regmap, QG_SRAM_BASE +
 				QG_SDAM_LEARNED_CAPACITY_OFFSET, &val->intval, 2);
-		if (!ret) val->intval *= 1000; /* mah to uah */
+		if (ret)
+			return ret;
+		val->intval *= 1000; /* mAh to uAh */
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
 		ret = qcom_qg_get_capacity(chip, &val->intval);
+		if (ret)
+			return ret;
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
 		ret = iio_read_channel_processed
 					(chip->batt_therm_chan, &val->intval);
+		if (ret < 0)
+			return ret;
 		break;
 	default:
 		dev_err(chip->dev, "invalid property: %d\n", psp);
