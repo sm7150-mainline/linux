@@ -3,14 +3,14 @@
  * Copyright (c) 2024, Danila Tikhonov <danila@jiaxyga.com>
  */
 
-#include <linux/module.h>
-#include <linux/kernel.h>
+#include <linux/iio/consumer.h>
 #include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
-#include <linux/of.h>
 #include <linux/power_supply.h>
-#include <linux/iio/consumer.h>
 #include <linux/regmap.h>
 
 /* SRAM */
