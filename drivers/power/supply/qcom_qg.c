@@ -186,6 +186,7 @@ static int qcom_qg_get_property(struct power_supply *psy,
 					(chip->batt_therm_chan, &val->intval);
 		if (ret < 0)
 			return ret;
+		val->intval /= 100; /* 1/1000 °C (millidegC) to 1/10 °C */
 		break;
 	default:
 		dev_err(chip->dev, "invalid property: %d\n", psp);
