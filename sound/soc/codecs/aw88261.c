@@ -1216,8 +1216,8 @@ static int aw88261_init(struct aw88261 *aw88261, struct i2c_client *i2c, struct 
 		dev_err(&i2c->dev, "%s read chipid error. ret = %d", __func__, ret);
 		return ret;
 	}
-	if (chip_id != AW88261_CHIP_ID) {
-		dev_err(&i2c->dev, "unsupported device");
+	if (chip_id != AW88261_CHIP_ID && chip_id != AW88263S_CHIP_ID) {
+		dev_err(&i2c->dev, "unsupported device: %d", chip_id);
 		return -ENXIO;
 	}
 
@@ -1231,7 +1231,7 @@ static int aw88261_init(struct aw88261 *aw88261, struct i2c_client *i2c, struct 
 	aw_dev->i2c = i2c;
 	aw_dev->regmap = regmap;
 	aw_dev->dev = &i2c->dev;
-	aw_dev->chip_id = AW88261_CHIP_ID;
+	aw_dev->chip_id = chip_id;
 	aw_dev->acf = NULL;
 	aw_dev->prof_info.prof_desc = NULL;
 	aw_dev->prof_info.count = 0;
