@@ -24,6 +24,7 @@ properties:
               - qcom,sdm670-osm-l3
               - qcom,sdm845-osm-l3
               - qcom,sm6350-osm-l3
+              - qcom,sm7150-osm-l3
               - qcom,sm8150-osm-l3
           - const: qcom,osm-l3
       - items:
