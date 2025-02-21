@@ -4,14 +4,14 @@
 $id: http://devicetree.org/schemas/remoteproc/qcom,sc7180-pas.yaml#
 $schema: http://devicetree.org/meta-schemas/core.yaml#
 
-title: Qualcomm SC7180/SC7280 Peripheral Authentication Service
+title: Qualcomm SC7180/SC7280/SM7150 Peripheral Authentication Service
 
 maintainers:
   - Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
 description:
-  Qualcomm SC7180/SC7280 SoC Peripheral Authentication Service loads and boots
-  firmware on the Qualcomm DSP Hexagon cores.
+  Qualcomm SC7180/SC7280/SM7150 SoC Peripheral Authentication Service loads and
+  boots firmware on the Qualcomm DSP Hexagon cores.
 
 properties:
   compatible:
@@ -22,6 +22,9 @@ properties:
       - qcom,sc7280-cdsp-pas
       - qcom,sc7280-mpss-pas
       - qcom,sc7280-wpss-pas
+      - qcom,sm7150-adsp-pas
+      - qcom,sm7150-cdsp-pas
+      - qcom,sm7150-mpss-pas
 
   reg:
     maxItems: 1
@@ -60,6 +63,8 @@ allOf:
         compatible:
           enum:
             - qcom,sc7180-adsp-pas
+            - qcom,sm7150-adsp-pas
+            - qcom,sm7150-cdsp-pas
     then:
       properties:
         interrupts:
@@ -79,6 +84,7 @@ allOf:
           enum:
             - qcom,sc7180-adsp-pas
             - qcom,sc7280-adsp-pas
+            - qcom,sm7150-adsp-pas
     then:
       properties:
         power-domains:
@@ -95,6 +101,7 @@ allOf:
         compatible:
           enum:
             - qcom,sc7180-mpss-pas
+            - qcom,sm7150-mpss-pas
     then:
       properties:
         power-domains:
@@ -130,6 +137,7 @@ allOf:
           enum:
             - qcom,sc7280-cdsp-pas
             - qcom,sc7280-wpss-pas
+            - qcom,sm7150-cdsp-pas
     then:
       properties:
         power-domains:
