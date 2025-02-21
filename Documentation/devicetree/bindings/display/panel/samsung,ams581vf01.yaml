@@ -17,7 +17,13 @@ allOf:
 
 properties:
   compatible:
-    const: samsung,ams581vf01
+    oneOf:
+      - enum:
+          - samsung,ams581vf01
+      - items:
+          - enum:
+              - google,ams581vf01-sunfish
+          - const: samsung,ams581vf01
 
   reg:
     maxItems: 1
