@@ -1476,7 +1476,7 @@ static const struct ov8856_lane_cfg lane_cfg_2 = {
 			.regs = mipi_data_rate_lane_2.regs_1,
 		}
 	}},
-	{{
+	{/*{
 		.width = 3280,
 		.height = 2464,
 		.hts = 1928,
@@ -1490,7 +1490,7 @@ static const struct ov8856_lane_cfg lane_cfg_2 = {
 		.link_freq_index = 0,
 		.data_lanes = 2,
 		.default_mbus_index = OV8856_MEDIA_BUS_FMT_SGRBG10_1X10,
-	},
+	},*/
 	{
 		.width = 1640,
 		.height = 1232,
