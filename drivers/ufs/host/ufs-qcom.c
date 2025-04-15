@@ -2504,7 +2504,9 @@ static u32 ufs_qcom_freq_to_gear_speed(struct ufs_hba *hba, unsigned long freq)
 	case 300000000:
 		gear = UFS_HS_G4;
 		break;
+	case 240000000:
 	case 201500000:
+	case 200000000:
 		gear = UFS_HS_G3;
 		break;
 	case 150000000:
@@ -2512,6 +2514,7 @@ static u32 ufs_qcom_freq_to_gear_speed(struct ufs_hba *hba, unsigned long freq)
 		gear = UFS_HS_G2;
 		break;
 	case 75000000:
+	case 50000000:
 	case 37500000:
 		gear = UFS_HS_G1;
 		break;
