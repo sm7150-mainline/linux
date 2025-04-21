@@ -28,18 +28,23 @@ description: |
 
 properties:
   compatible:
-    enum:
-      - qcom,qcs8300-gpucc
-      - qcom,sdm845-gpucc
-      - qcom,sa8775p-gpucc
-      - qcom,sc7180-gpucc
-      - qcom,sc7280-gpucc
-      - qcom,sc8180x-gpucc
-      - qcom,sc8280xp-gpucc
-      - qcom,sm6350-gpucc
-      - qcom,sm8150-gpucc
-      - qcom,sm8250-gpucc
-      - qcom,sm8350-gpucc
+    oneOf:
+      - enum:
+          - qcom,qcs8300-gpucc
+          - qcom,sdm845-gpucc
+          - qcom,sa8775p-gpucc
+          - qcom,sc7180-gpucc
+          - qcom,sc7280-gpucc
+          - qcom,sc8180x-gpucc
+          - qcom,sc8280xp-gpucc
+          - qcom,sm6350-gpucc
+          - qcom,sm8150-gpucc
+          - qcom,sm8250-gpucc
+          - qcom,sm8350-gpucc
+      - items:
+          - enum:
+              - qcom,sm7150-gpucc
+          - const: qcom,sc7180-gpucc
 
   clocks:
     items:
