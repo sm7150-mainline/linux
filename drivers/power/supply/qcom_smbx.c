@@ -584,7 +584,7 @@ static void smb_status_change_work(struct work_struct *work)
 		current_ua = CDP_CURRENT_UA;
 		break;
 	case POWER_SUPPLY_USB_TYPE_DCP:
-		current_ua = DCP_CURRENT_UA;
+		current_ua = chip->batt_info->constant_charge_current_max_ua;
 		break;
 	case POWER_SUPPLY_USB_TYPE_SDP:
 	default:
@@ -990,6 +990,8 @@ static int smb_probe(struct platform_device *pdev)
 	if (rc)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to get battery info\n");
+	if (chip->batt_info->constant_charge_current_max_ua == -EINVAL)
+		chip->batt_info->constant_charge_current_max_ua = DCP_CURRENT_UA;
 
 	rc = devm_delayed_work_autocancel(chip->dev, &chip->status_change_work,
 					  smb_status_change_work);
