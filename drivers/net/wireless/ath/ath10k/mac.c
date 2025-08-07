@@ -324,9 +324,11 @@ static int ath10k_install_key(struct ath10k_vif *arvif,
 	if (ret)
 		return ret;
 
-	time_left = wait_for_completion_timeout(&ar->install_key_done, 3 * HZ);
-	if (time_left == 0)
-		return -ETIMEDOUT;
+	if (cmd != DISABLE_KEY) {
+		time_left = wait_for_completion_timeout(&ar->install_key_done, 3 * HZ);
+		if (time_left == 0)
+			return -ETIMEDOUT;
+	}
 
 	return 0;
 }
