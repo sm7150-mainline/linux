@@ -669,7 +669,7 @@
 };
 
 &sdhc_2 {
-	cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+	cd-gpios = <&tlmm 69 GPIO_ACTIVE_LOW>;
 
 	vmmc-supply = <&vreg_l9c_3p1>;
 	vqmmc-supply = <&vreg_l6c_3p0>;
