@@ -429,6 +429,21 @@ config TOUCHSCREEN_GOODIX_BERLIN_SPI
 	  To compile this driver as a module, choose M here: the
 	  module will be called goodix_berlin_spi.
 
+config TOUCHSCREEN_GOODIX_GTX8
+	tristate "Goodix GTX8 touchscreen"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Say Y here if you have a Goodix GTX8 IC connected to
+	  your system via I2C. This driver supports Normandy and
+	  Yellowstone ICs like the GT9886 and GT9896.
+	  They are commonly found in mobile phones.
+
+	  if unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called goodix_gtx8.
+
 config TOUCHSCREEN_HIDEEP
 	tristate "HiDeep Touch IC"
 	depends on I2C
