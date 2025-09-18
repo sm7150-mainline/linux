@@ -369,14 +369,16 @@
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
+		/*
+		 * Downstream specifies a range of 1648-3100mV.
+		 * Tighten the range to 3000-3100mV for reliable touchscreen
+		 * initialization.
+		 */
 		vddpx_2:
 		vreg_l6c_3p0: ldo6 {
-			regulator-min-microvolt = <1648000>;
+			regulator-min-microvolt = <3000000>;
 			regulator-max-microvolt = <3100000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-			regulator-allow-set-load;
-			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
-						   RPMH_REGULATOR_MODE_HPM>;
 		};
 
 		vreg_l7c_3p0: ldo7 {
