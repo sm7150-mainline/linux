@@ -245,7 +245,7 @@ static int qcom_qg_probe(struct platform_device *pdev)
 				     "Couldn't get SDAM nvmem device\n");
 
 	psy_cfg.drv_data = chip;
-	psy_cfg.of_node = chip->dev->of_node;
+	psy_cfg.fwnode = dev_fwnode(chip->dev);
 
 	/* Power supply */
 	chip->batt_psy =
