@@ -24,6 +24,7 @@ properties:
               - qcom,sc7180-refgen-regulator
               - qcom,sc8180x-refgen-regulator
               - qcom,sdm670-refgen-regulator
+              - qcom,sm7150-refgen-regulator
               - qcom,sm8150-refgen-regulator
           - const: qcom,sdm845-refgen-regulator
 
