@@ -1889,6 +1889,12 @@
 			};
 		};
 
+		refgen: regulator@ff1000 {
+			compatible = "qcom,sm7150-refgen-regulator",
+				     "qcom,sdm845-refgen-regulator";
+			reg = <0x0 0x00ff1000 0x0 0x60>;
+		};
+
 		mc_virt: interconnect@1380000 {
 			compatible = "qcom,sm7150-mc-virt";
 			reg = <0x0 0x01380000 0x0 0x40000>;
@@ -3942,6 +3948,8 @@
 				phys = <&mdss_dsi0_phy>;
 				phy-names = "dsi";
 
+				refgen-supply = <&refgen>;
+
 				#address-cells = <1>;
 				#size-cells = <0>;
 
@@ -4018,6 +4026,8 @@
 
 				phys = <&mdss_dsi1_phy>;
 				phy-names = "dsi";
+
+				refgen-supply = <&refgen>;
 
 				#address-cells = <1>;
 				#size-cells = <0>;
