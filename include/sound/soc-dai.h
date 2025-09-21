@@ -559,7 +559,7 @@ static inline void *snd_soc_dai_get_drvdata(struct snd_soc_dai *dai)
 static inline int snd_soc_dai_set_stream(struct snd_soc_dai *dai,
 					 void *stream, int direction)
 {
-	if (dai->driver->ops->set_stream)
+	if (dai->driver->ops && dai->driver->ops->set_stream)
 		return dai->driver->ops->set_stream(dai, stream, direction);
 	else
 		return -ENOTSUPP;
