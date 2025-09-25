@@ -7,6 +7,7 @@
  * Copyright (c) 2011-2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2015-2018 Linaro Ltd.
  */
+#define DEBUG
 #include <linux/clk.h>
 #include <linux/completion.h>
 #include <linux/interrupt.h>
@@ -27,7 +28,7 @@
 #include "camss.h"
 
 /* offset of CSID registers in VFE region for VFE 480 */
-#define VFE_480_CSID_OFFSET 0x1200
+#define VFE_480_CSID_OFFSET 0x4000
 #define VFE_480_LITE_CSID_OFFSET 0x200
 
 #define CSID_HW_VERSION		0x0
@@ -1049,8 +1050,10 @@ static int csid_set_test_pattern(struct csid_device *csid, s32 value)
 	struct csid_testgen_config *tg = &csid->testgen;
 
 	/* If CSID is linked to CSIPHY, do not allow to enable test generator */
-	if (value && media_pad_remote_pad_first(&csid->pads[MSM_CSID_PAD_SINK]))
+	if (value && media_pad_remote_pad_first(&csid->pads[MSM_CSID_PAD_SINK])) {
+		printk("csid_set_test_pattern\n");
 		return -EBUSY;
+	}
 
 	tg->enabled = !!value;
 
@@ -1245,8 +1248,10 @@ static int csid_link_setup(struct media_entity *entity,
 			   const struct media_pad *remote, u32 flags)
 {
 	if (flags & MEDIA_LNK_FL_ENABLED)
-		if (media_pad_remote_pad_first(local))
+		if (media_pad_remote_pad_first(local)) {
+			printk("csid_link_setup media_pad_remote_pad_first\n");
 			return -EBUSY;
+		}
 
 	if ((local->flags & MEDIA_PAD_FL_SINK) &&
 	    (flags & MEDIA_LNK_FL_ENABLED)) {
@@ -1261,8 +1266,10 @@ static int csid_link_setup(struct media_entity *entity,
 		/* If test generator is enabled */
 		/* do not allow a link from CSIPHY to CSID */
 		if (csid->testgen.nmodes != CSID_PAYLOAD_MODE_DISABLED &&
-		    csid->testgen_mode->cur.val != 0)
+		    csid->testgen_mode->cur.val != 0) {
+			printk("csid_link_setup test generator\n");
 			return -EBUSY;
+		}
 
 		sd = media_entity_to_v4l2_subdev(remote->entity);
 		csiphy = v4l2_get_subdevdata(sd);
