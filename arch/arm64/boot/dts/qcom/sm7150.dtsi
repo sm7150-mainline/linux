@@ -3715,21 +3715,23 @@
 				      "vfe_lite_csid",
 				      "vfe_lite_csid_src";
 
-			interrupts = <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 607 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 434 IRQ_TYPE_EDGE_RISING>;
+			interrupts = <GIC_SPI 477 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 478 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 479 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 607 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 464 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 466 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 438 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 465 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 467 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 434 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "csiphy0",
 					  "csiphy1",
 					  "csiphy2",
 					  "csiphy3",
 					  "csid0",
 					  "csid1",
+					  "csid_lite",
 					  "vfe0",
 					  "vfe1",
 					  "vfe_lite";
@@ -3737,6 +3739,9 @@
 			power-domains = <&camcc IFE_0_GDSC>,
 					<&camcc IFE_1_GDSC>,
 					<&camcc TITAN_TOP_GDSC>;
+			power-domain-names = "ife0",
+					     "ife1",
+					     "top";
 
 			iommus = <&apps_smmu 0x900 0x460>,
 				 <&apps_smmu 0xd00 0x460>,
@@ -3753,14 +3758,18 @@
 				 <&apps_smmu 0x8c0 0x460>,
 				 <&apps_smmu 0xcc0 0x460>;
 
-			/*interconnects = <&gem_noc MASTER_AMPSS_M0 0 &config_noc SLAVE_CAMERA_CFG 0>,
-					<&mmss_noc MASTER_CAMNOC_HF 0 &mc_virt SLAVE_EBI_CH0 0>,
-					<&mmss_noc MASTER_CAMNOC_SF 0 &mc_virt SLAVE_EBI_CH0 0>,
-					<&mmss_noc MASTER_CAMNOC_ICP 0 &mc_virt SLAVE_EBI_CH0 0>;
+			interconnects = <&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ACTIVE_ONLY
+					 &config_noc SLAVE_CAMERA_CFG QCOM_ICC_TAG_ACTIVE_ONLY>,
+					<&mmss_noc MASTER_CAMNOC_HF0 QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>,
+					<&mmss_noc MASTER_CAMNOC_SF QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>,
+					<&mmss_noc MASTER_CAMNOC_RT QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 			interconnect-names = "cam_ahb",
 					     "cam_hf_0_mnoc",
 					     "cam_sf_0_mnoc",
-					     "cam_sf_icp_mnoc";*/
+					     "cam_sf_icp_mnoc";
 
 			status = "disabled";
 
