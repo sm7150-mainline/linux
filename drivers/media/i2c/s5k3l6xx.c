@@ -1118,7 +1118,7 @@ static const char * const s5k3l6xx_test_pattern_menu[] = {
 	"Fade", // Bars fading towards 50% at the bottom. 512px high. Subdivided into left smooth and right quantized halves.
 	"PN9", // pseudo-random noise
 	"White",
-	"LFSR32"
+	"LFSR32",
 	"Address",
 };
 
