@@ -1636,7 +1636,7 @@ static int wled_configure_ovp_irq(struct wled *wled,
 	}
 
 	rc = devm_request_threaded_irq(wled->dev, wled->ovp_irq, NULL,
-				       wled_ovp_irq_handler, IRQF_ONESHOT,
+				       wled_ovp_irq_handler, IRQF_ONESHOT | IRQF_NO_AUTOEN,
 				       "wled_ovp_irq", wled);
 	if (rc < 0) {
 		dev_err(wled->dev, "Unable to request ovp_irq (err:%d)\n",
