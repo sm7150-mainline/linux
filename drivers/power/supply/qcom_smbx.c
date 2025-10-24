@@ -149,6 +149,12 @@ enum smb_generation {
 #define P_PATH_VALID_INPUT_POWER_SOURCE_STS_BIT		BIT(0)
 
 /* 0x5xx region is PM8150b only Type-C registers */
+#define SMB5_TYPE_C_SRC_STATUS_REG			0x508
+#define SMB5_DETECTED_SNK_TYPE_MASK			GENMASK(4, 0)
+#define SMB5_SRC_DEBUG_ACCESS_BIT			BIT(4)
+#define SMB5_SRC_RD_OPEN_BIT				BIT(3)
+#define SMB5_SRC_RD_RA_VCONN_BIT			BIT(2)
+#define SMB5_AUDIO_ACCESS_RA_RA_BIT			BIT(0)
 
 /* Bits 2:0 match PMI8998 TYPE_C_INTRPT_ENB_SOFTWARE_CTRL */
 #define SMB5_TYPE_C_MODE_CFG				0x544
@@ -272,6 +278,16 @@ static enum power_supply_property smb_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 	POWER_SUPPLY_PROP_USB_TYPE,
 };
+
+static bool smb_is_charging(struct smb_chip *chip)
+{
+	int rc;
+	union power_supply_propval status;
+
+	rc = power_supply_get_property(chip->chg_psy, POWER_SUPPLY_PROP_STATUS,
+				       &status);
+	return !(rc < 0 || status.intval != POWER_SUPPLY_STATUS_CHARGING);
+}
 
 static int smb_get_prop_usb_online(struct smb_chip *chip, int *val)
 {
@@ -422,6 +438,58 @@ static inline int smb_get_current_limit(struct smb_chip *chip,
 	return rc;
 }
 
+static inline int smb_get_current_now(struct smb_chip *chip,
+					unsigned int *val)
+{
+	unsigned int stat;
+	bool sink_connected;
+	int rc = iio_read_channel_processed(chip->usb_in_i_chan, val);
+	if (rc < 0 || chip->gen == SMB2)
+		return rc;
+
+	rc = regmap_read(chip->regmap, chip->base + SMB5_TYPE_C_SRC_STATUS_REG, &stat);
+	if (rc < 0) {
+		dev_err(chip->dev, "Couldn't read type-C status rc=%d\n", rc);
+		return rc;
+	}
+
+	switch (stat & SMB5_DETECTED_SNK_TYPE_MASK) {
+	case SMB5_AUDIO_ACCESS_RA_RA_BIT:
+	case SMB5_SRC_DEBUG_ACCESS_BIT:
+	case SMB5_SRC_RD_RA_VCONN_BIT:
+	case SMB5_SRC_RD_OPEN_BIT:
+		sink_connected = true;
+		break;
+	default:
+		sink_connected = false;
+		break;
+	}
+
+	/*
+	 * For PM8150B, scaling factor = reciprocal of
+	 * 0.2V/A in Buck mode, 0.4V/A in Boost mode.
+	 * For PMI632, scaling factor = reciprocal of
+	 * 0.4V/A in Buck mode, 0.8V/A in Boost mode.
+	 */
+	// TODO: Make member in match data
+	int buck_scale = 20;
+	int boost_scale = 40;
+
+	if (sink_connected) {
+		*val = DIV_ROUND_CLOSEST(*val * 100, boost_scale);
+		return rc;
+	}
+
+	if (!smb_is_charging(chip)) {
+		*val = 0;
+		return rc;
+	}
+
+	*val = DIV_ROUND_CLOSEST(*val * 100, buck_scale);
+
+	return rc;
+}
+
 static int smb_set_current_limit(struct smb_chip *chip, unsigned int val)
 {
 	unsigned char val_raw;
@@ -492,12 +560,7 @@ static void smb_status_change_work(struct work_struct *work)
 static int smb_get_iio_chan(struct smb_chip *chip, struct iio_channel *chan,
 			     int *val)
 {
-	int rc;
-	union power_supply_propval status;
-
-	rc = power_supply_get_property(chip->chg_psy, POWER_SUPPLY_PROP_STATUS,
-				       &status);
-	if (rc < 0 || status.intval != POWER_SUPPLY_STATUS_CHARGING) {
+	if (!smb_is_charging(chip)) {
 		*val = 0;
 		return 0;
 	}
@@ -610,8 +673,7 @@ static int smb_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		return smb_get_current_limit(chip, &val->intval);
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-		return smb_get_iio_chan(chip, chip->usb_in_i_chan,
-					 &val->intval);
+		return smb_get_current_now(chip, &val->intval);
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
 		ret = smb_get_iio_chan(chip, chip->usb_in_v_chan,
 					 &val->intval);
