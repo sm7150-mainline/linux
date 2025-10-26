@@ -31,13 +31,6 @@
 };
 
 / {
-	/*
-	 * Xiaomi Mi 9T
-	 * Xiaomi Redmi K20
-	 */
-	model = "Xiaomi Mi 9T";
-	compatible = "xiaomi,davinci", "qcom,sm7150";
-
 	qcom,board-id = <40 0>;
 
 	vreg_ibb: regulator-ibb {
@@ -328,8 +321,6 @@
 };
 
 &panel {
-	compatible = "samsung,ams639rq08"; // or visionox,g1639fp106
-
 	vsn-supply = <&vreg_ibb>;
 	vsp-supply = <&vreg_lab>;
 };
@@ -366,7 +357,7 @@
 
 &pm6150l_gpios {
 	gpio-line-names = "NC", /* GPIO_1 */
-			  "KYPD_VOLP_N",
+			  "KEY_VOLP_N",
 			  "CAMW_LDO_EN",
 			  "NC",
 			  "NC",
