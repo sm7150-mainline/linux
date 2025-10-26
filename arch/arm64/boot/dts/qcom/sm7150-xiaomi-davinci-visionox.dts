@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2025, Jens Reidel <adrian@mainlining.org>
+ */
+
+/dts-v1/;
+
+#include "sm7150-xiaomi-davinci.dtsi"
+
+/ {
+	/*
+	 * Xiaomi Mi 9T
+	 * Xiaomi Redmi K20
+	 */
+	model = "Xiaomi Mi 9T (Visionox)";
+	compatible = "xiaomi,davinci-visionox", "xiaomi,davinci", "qcom,sm7150";
+};
+
+&panel {
+	compatible = "visionox,g1639fp106";
+};
+
+&touchscreen {
+	touchscreen-inverted-x;
+	touchscreen-inverted-y;
+};
