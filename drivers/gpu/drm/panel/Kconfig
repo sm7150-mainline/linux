@@ -1266,6 +1266,15 @@ config DRM_PANEL_VISIONOX_G2647FB105
 	  Say Y here if you want to enable support for the Visionox
 	  G2647FB105 (2340x1080@60Hz) AMOLED DSI cmd mode panel.
 
+config DRM_PANEL_VISIONOX_G1639FP106
+	tristate "Visionox G1639FP106"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the Visionox
+	  G1639FP106 (2340x1080@60Hz) AMOLED DSI cmd mode panel.
+
 config DRM_PANEL_VISIONOX_R66451
 	tristate "Visionox R66451"
 	depends on OF
