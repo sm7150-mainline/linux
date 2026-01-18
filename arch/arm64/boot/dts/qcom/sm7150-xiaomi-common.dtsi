@@ -112,6 +112,43 @@
 		regulator-always-on;
 		vin-supply = <&vph_pwr>;
 	};
+
+	wcn3998-pmu {
+		compatible = "qcom,wcn3998-pmu";
+
+		pinctrl-0 = <&sw_ctrl_default>;
+		pinctrl-names = "default";
+
+		vddio-supply = <&vreg_l10a_1p8>;
+		vddxo-supply = <&vreg_l1c_1p8>;
+		vddrf-supply = <&vdd_wcss_adc_dac>;
+		vddch0-supply = <&vreg_l10c_3p3>;
+		vddch1-supply = <&vreg_l11c_3p3>;
+
+		swctrl-gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
+
+		regulators {
+			vreg_pmu_io: ldo0 {
+				regulator-name = "vreg_pmu_io";
+			};
+
+			vreg_pmu_xo: ldo1 {
+				regulator-name = "vreg_pmu_xo";
+			};
+
+			vreg_pmu_rf: ldo2 {
+				regulator-name = "vreg_pmu_rf";
+			};
+
+			vreg_pmu_ch0: ldo3 {
+				regulator-name = "vreg_pmu_ch0";
+			};
+
+			vreg_pmu_ch1: ldo4 {
+				regulator-name = "vreg_pmu_ch1";
+			};
+		};
+	};
 };
 
 &apps_rsc {
@@ -742,28 +779,62 @@
 		bias-disable;
 	};
 
+	qup_uart3_default: qup-uart3-default-state {
+		cts-pins {
+			pins = "gpio38";
+			function = "qup03";
+			drive-strength = <2>;
+			bias-bus-hold;
+		};
+
+		rts-pins {
+			pins = "gpio39";
+			function = "qup03";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		tx-pins {
+			pins = "gpio40";
+			function = "qup03";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		rx-pins {
+			pins = "gpio41";
+			function = "qup03";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+
 	qup_uart3_sleep: qup-uart3-sleep-state {
 		cts-pins {
 			pins = "gpio38";
 			function = "gpio";
-			bias-pull-down;
+			drive-strength = <2>;
+			bias-bus-hold;
 		};
 
 		rts-pins {
 			pins = "gpio39";
 			function = "gpio";
+			drive-strength = <2>;
 			bias-pull-down;
 		};
 
 		tx-pins {
 			pins = "gpio40";
 			function = "gpio";
+			drive-strength = <2>;
 			bias-pull-up;
 		};
 
 		rx-pins {
 			pins = "gpio41";
 			function = "gpio";
+			drive-strength = <2>;
 			bias-pull-up;
 		};
 	};
@@ -821,6 +892,13 @@
 			drive-strength = <2>;
 		};
 	};
+
+
+	sw_ctrl_default: sw-ctrl-default-state {
+		pins = "gpio73";
+		function = "gpio";
+		bias-pull-down;
+	};
 };
 
 &uart3 {
@@ -828,17 +906,20 @@
 	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
 			      <&tlmm 41 IRQ_TYPE_EDGE_FALLING>;
 
-	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&qup_uart3_default>;
 	pinctrl-1 = <&qup_uart3_sleep>;
+	pinctrl-names = "default", "sleep";
+
 	status = "okay";
 
 	bluetooth: bluetooth {
-		compatible = "qcom,wcn3990-bt";
+		compatible = "qcom,wcn3998-bt";
 
-		vddio-supply = <&vreg_l10a_1p8>;
-		vddxo-supply = <&vreg_l1c_1p8>;
-		vddrf-supply = <&vdd_wcss_adc_dac>;
-		vddch0-supply = <&vreg_l10c_3p3>;
+		vddio-supply = <&vreg_pmu_io>;
+		vddxo-supply = <&vreg_pmu_xo>;
+		vddrf-supply = <&vreg_pmu_rf>;
+		vddch0-supply = <&vreg_pmu_ch0>;
+
 		max-speed = <3200000>;
 	};
 };
@@ -893,10 +974,14 @@
 };
 
 &wifi {
+	/* SoC */
 	vdd-0.8-cx-mx-supply = <&vdd_wcss_cx>;
-	vdd-1.8-xo-supply = <&vreg_l1c_1p8>;
-	vdd-1.3-rfa-supply = <&vdd_wcss_adc_dac>;
-	vdd-3.3-ch0-supply = <&vreg_l10c_3p3>;
-	vdd-3.3-ch1-supply = <&vreg_l11c_3p3>;
+
+	/* WiFi / BT PMU */
+	vdd-1.8-xo-supply = <&vreg_pmu_xo>;
+	vdd-1.3-rfa-supply = <&vreg_pmu_rf>;
+	vdd-3.3-ch0-supply = <&vreg_pmu_ch0>;
+	vdd-3.3-ch1-supply = <&vreg_pmu_ch1>;
+
 	status = "okay";
 };
