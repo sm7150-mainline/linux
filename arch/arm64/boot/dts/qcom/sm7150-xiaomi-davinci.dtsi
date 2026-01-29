@@ -119,7 +119,8 @@
 		regulator-max-microvolt = <2800000>;
 		regulator-enable-ramp-delay = <100>;
 		enable-active-high;
-		gpio = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
+		// FIXME: shared GPIO with the other fixed camt regulators
+		//gpio = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
 		// FIXME: vin is bob here, l9c is vbat for dvdd
 		//vin-supply = <&vreg_bob>;
 		vin-supply = <&vreg_l9c_3p1>;
