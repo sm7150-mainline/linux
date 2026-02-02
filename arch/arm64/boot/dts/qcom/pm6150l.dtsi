@@ -109,6 +109,15 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		pm6150l_pwm: qcom,pwms@bc00 {
+			compatible = "qcom,pwm-lpg";
+			reg = <0xbc00 0x200>;
+			reg-names = "lpg-base";
+			#pwm-cells = <2>;
+			qcom,num-lpg-channels = <2>;
+			status = "disabled";
+		};
+
 		pm6150l_flash: led-controller@d300 {
 			compatible = "qcom,pm6150l-flash-led", "qcom,spmi-flash-led";
 			reg = <0xd300>;

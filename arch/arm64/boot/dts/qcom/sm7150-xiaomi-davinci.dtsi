@@ -369,6 +369,49 @@
 			  "MOTOR_STEP_CLK", /* GPIO_10 */
 			  "CAMT_VCM_2P8_EN",
 			  "NC";
+
+	pwm_out_gpio10 {
+		pwm_out_gpio10_default: pwm_out_gpio10_default {
+			pins = "gpio10";
+			function = "func1";
+			bias-disable;
+			power-source = <1>;
+			output-low;
+			qcom,drive-strength = <3>;
+			drive-push-pull;
+		};
+	};
+};
+
+/* Front motor */
+&pm6150l_pwm {
+	status = "okay";
+};
+
+&soc {
+	ti,drv8846@0 {
+		cell-index = <0>;
+		reg = <0x00 0x00 0x00 0x00>;
+		compatible = "ti,drv8846";
+		pwms = <&pm6150l_pwm 1 1000000>;
+		motor,gpio-mode0 = <&tlmm 91 0x00>;
+		motor,gpio-mode1 = <&tlmm 66 0x00>;
+		motor,gpio-sleep = <&tlmm 88 0x00>;
+		motor,gpio-dir = <&tlmm 55 0x00>;
+		motor,gpio-pwren = <&tlmm 90 0x00>;
+
+		motor,rampup-pwm-period-ns = <625000>;
+		motor,rampup-duration-ms = <50>;
+		motor,high-pwm-period-ns = <52083>;
+		motor,high-duration-ms = <720>;
+		motor,rampdown-pwm-period-ns = <625000>;
+		motor,rampdown-duration-ms = <50>;
+		motor,step-mode = <2>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwm_out_gpio10_default &motor_gpio_default &motor_gpio_fault>;
+		status = "okay";
+	};
 };
 
 &pm6150l_lpg {
@@ -584,6 +627,34 @@
 		drive-strength = <2>;
 		bias-pull-up;
 		input-enable;
+	};
+
+	motor_gpio_default: motor_gpio_default {
+		mux {
+			/* DIR, M0, M1, SLEEP, EN */
+			pins = "gpio55", "gpio91", "gpio66", "gpio88", "gpio90";
+			function = "gpio";
+		};
+
+		config {
+			/* DIR, M0, M1, SLEEP, EN */
+			pins = "gpio55", "gpio91", "gpio66", "gpio88", "gpio90";
+			bias-pull-up; /* No PULL */
+			drive-strength = <2>; /* 2 MA */
+		};
+	};
+
+	motor_gpio_fault: motor_gpio_fault {
+		mux {
+			pins = "gpio43";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio43";
+			bias-pull-up; /* No PULL */
+			drive-strength = <2>; /* 2 MA */
+		};
 	};
 };
 
