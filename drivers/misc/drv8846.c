@@ -559,21 +559,21 @@ static int drv8846_probe(struct platform_device *pdev)
 	int32_t rc = 0;
 	struct drv8846_soc_ctrl *mctrl = NULL;
 
-	pr_debug("Enter");
+	pr_info("Enter");
 	if (!pdev->dev.of_node) {
 		pr_err("of_node NULL");
 		return -EINVAL;
 	}
 
-	// mctrl = kzalloc(sizeof(struct drv8846_soc_ctrl), GFP_KERNEL);
-	// if (!mctrl)
-	// 	return -ENOMEM;
+	mctrl = kzalloc(sizeof(struct drv8846_soc_ctrl), GFP_KERNEL);
+	if (!mctrl)
+		return -ENOMEM;
 
-	// pr_debug("mctrl: %p\n", mctrl);
-	// mctrl->pdev = pdev;
-	// platform_set_drvdata(pdev, mctrl);
+	pr_debug("mctrl: %p\n", mctrl);
+	mctrl->pdev = pdev;
+	platform_set_drvdata(pdev, mctrl);
 
-	// mutex_init(&mctrl->motor_mutex);
+	mutex_init(&mctrl->motor_mutex);
 
 	// rc = drv8846_parse_dt(mctrl);
 	// if (rc < 0) {
@@ -597,10 +597,10 @@ static int drv8846_probe(struct platform_device *pdev)
 	// 	goto fail;
 	// }
 
-	// INIT_WORK(&mctrl->pwm_apply_work, pwm_config_work);
+	INIT_WORK(&mctrl->pwm_apply_work, pwm_config_work);
 
-	// hrtimer_init(&mctrl->pwm_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	// mctrl->pwm_timer.function = pwm_hrtimer_handler;
+	hrtimer_setup(&mctrl->pwm_timer, pwm_hrtimer_handler, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+
 
 	mctrl->miscdev.minor = MISC_DYNAMIC_MINOR;
 	mctrl->miscdev.name	= DRV8846_MISC_NAME;
@@ -695,6 +695,7 @@ static struct platform_driver drv8846_driver = {
 
 static int __init drv8846_init(void)
 {
+	pr_info("Hello world 2.\n"); 
 	return platform_driver_register(&drv8846_driver);
 }
 
