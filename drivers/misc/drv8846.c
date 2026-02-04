@@ -109,12 +109,12 @@ static int __drv8846_config_pwm(struct drv8846_soc_ctrl *mctrl, struct pwm_setti
 	pstate.enabled = !!(pwm->duty_ns != 0);
 	pstate.period = pwm->period_ns;
 	pstate.duty_cycle = pwm->duty_ns;
-	// pstate.output_type = PWM_OUTPUT_FIXED;
-	// pstate.output_pattern = NULL;
-	// pr_debug("enable %d\n", pstate.enabled);
-	// rc = pwm_apply_state(mctrl->pwm_dev, &pstate);
-	// if (rc < 0)
-	// 	pr_err("Apply PWM state failed, rc=%d\n", rc);
+
+	pr_debug("enable %d, period %llu, duty %llu\n", pstate.enabled, pstate.period, pstate.duty_cycle);
+
+	rc = pwm_apply_might_sleep(mctrl->pwm_dev, &pstate);
+	if (rc < 0)
+		pr_err("Apply PWM state failed, rc=%d\n", rc);
 
 	if (pstate.enabled == false) {
 		gpiod_direction_output(mctrl->gpio_sleep, 0);
@@ -134,7 +134,7 @@ static void pwm_config_work(struct work_struct *work)
 
 	setting = mctrl->pwm_setting;
 
-	// __drv8846_config_pwm(mctrl, &setting);
+	__drv8846_config_pwm(mctrl, &setting);
 }
 
 static enum hrtimer_restart pwm_hrtimer_handler(struct hrtimer *timer)
@@ -238,65 +238,65 @@ static long drv8846_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 	struct op_parameter parameters;
 	struct drv8846_soc_ctrl *mctrl = filp->private_data;
 
-	// pr_debug("enter, mctrl %p", mctrl);
+	pr_debug("enter, mctrl %p", mctrl);
 
-	// if (mctrl == NULL)
-	// 	return -EFAULT;
+	if (mctrl == NULL)
+		return -EFAULT;
 
-	// switch (cmd) {
-	// case MOTOR_IOC_SET_AUTORUN:
-	// 	pr_debug("MOTOR_IOCAUTORUN.");
-	// 	if (copy_from_user(&direction, (uint8_t *)arg, sizeof(uint8_t))) {
-	// 		pr_err("Failed to copy direction from user to kernel\n");
-	// 		rc = -EFAULT;
-	// 		break;
-	// 	}
-	// 	drv8846_move(mctrl, direction);
-	// 	break;
-	// case MOTOR_IOC_SET_MANUALRUN:
-	// 	pr_debug("MOTOR_IOCMANUAL\n");
-	// 	if (copy_from_user(&parameters, (struct op_parameter *)arg, sizeof(struct op_parameter))) {
-	// 		pr_err("Failed to copy target position from user to kernel\n");
-	// 		rc = -EFAULT;
-	// 		break;
-	// 	}
-	// 	pr_debug("dir %d, duration %dms, period %dns.", parameters.dir, parameters.duration_ms, parameters.period_ns);
+	switch (cmd) {
+	case MOTOR_IOC_SET_AUTORUN:
+		pr_debug("MOTOR_IOCAUTORUN.");
+		if (copy_from_user(&direction, (uint8_t *)arg, sizeof(uint8_t))) {
+			pr_err("Failed to copy direction from user to kernel\n");
+			rc = -EFAULT;
+			break;
+		}
+		drv8846_move(mctrl, direction);
+		break;
+	case MOTOR_IOC_SET_MANUALRUN:
+		pr_debug("MOTOR_IOCMANUAL\n");
+		if (copy_from_user(&parameters, (struct op_parameter *)arg, sizeof(struct op_parameter))) {
+			pr_err("Failed to copy target position from user to kernel\n");
+			rc = -EFAULT;
+			break;
+		}
+		pr_debug("dir %d, duration %dms, period %dns.", parameters.dir, parameters.duration_ms, parameters.period_ns);
 
-	// 	/* configure pwm */
-	// 	gpiod_direction_output(mctrl->gpio_dir, (parameters.dir == UP) ? 0 : 1);
-	// 	gpiod_direction_output(mctrl->gpio_sleep, 1);
+		/* configure pwm */
+		gpiod_direction_output(mctrl->gpio_dir, (parameters.dir == UP) ? 0 : 1);
+		gpiod_direction_output(mctrl->gpio_sleep, 1);
 
-	// 	mctrl->pwm_setting.period_ns = parameters.period_ns;
-	// 	mctrl->pwm_setting.pre_period_ns = parameters.period_ns;
-	// 	mctrl->pwm_setting.duty_ns = parameters.period_ns >> 1;
-	// 	schedule_work(&mctrl->pwm_apply_work);
-	// 	/* start hrtimer */
-	// 	hrtimer_start(&mctrl->pwm_timer,
-	// 		ktime_set(parameters.duration_ms / MSEC_PER_SEC,
-	// 		(parameters.duration_ms % MSEC_PER_SEC) * NSEC_PER_MSEC),
-	// 		HRTIMER_MODE_REL);
-	// 	mctrl->state = UNIFORMSPEED;
-	// 	break;
-	// case MOTOR_IOC_GET_REMAIN_TIME:
-	// 	if (hrtimer_active(&mctrl->pwm_timer)) {
-	// 		time_rem = hrtimer_get_remaining(&mctrl->pwm_timer);
-	// 		time_ms = (long)ktime_to_ms(time_rem);
-	// 	}
-	// 	if (copy_to_user((void __user *)arg, &time_ms, sizeof(long))) {
-	// 		pr_err("copy_to_user failed.");
-	// 		return -EFAULT;
-	// 	}
-	// 	break;
-	// case MOTOR_IOC_GET_STATE:
-	// 	if (copy_to_user((void __user *)arg, &mctrl->state, sizeof(enum running_state))) {
-	// 		pr_err("copy_to_user failed.");
-	// 		return -EFAULT;
-	// 	}
-	// 	break;
-	// default:
-	// 	pr_warn("unsupport cmd:0x%x\n", cmd);
-	// 	break;
-	// }
+		mctrl->pwm_setting.period_ns = parameters.period_ns;
+		mctrl->pwm_setting.pre_period_ns = parameters.period_ns;
+		mctrl->pwm_setting.duty_ns = parameters.period_ns >> 1;
+		schedule_work(&mctrl->pwm_apply_work);
+		/* start hrtimer */
+		hrtimer_start(&mctrl->pwm_timer,
+			ktime_set(parameters.duration_ms / MSEC_PER_SEC,
+			(parameters.duration_ms % MSEC_PER_SEC) * NSEC_PER_MSEC),
+			HRTIMER_MODE_REL);
+		mctrl->state = UNIFORMSPEED;
+		break;
+	case MOTOR_IOC_GET_REMAIN_TIME:
+		if (hrtimer_active(&mctrl->pwm_timer)) {
+			time_rem = hrtimer_get_remaining(&mctrl->pwm_timer);
+			time_ms = (long)ktime_to_ms(time_rem);
+		}
+		if (copy_to_user((void __user *)arg, &time_ms, sizeof(long))) {
+			pr_err("copy_to_user failed.");
+			return -EFAULT;
+		}
+		break;
+	case MOTOR_IOC_GET_STATE:
+		if (copy_to_user((void __user *)arg, &mctrl->state, sizeof(enum running_state))) {
+			pr_err("copy_to_user failed.");
+			return -EFAULT;
+		}
+		break;
+	default:
+		pr_warn("unsupport cmd:0x%x\n", cmd);
+		break;
+	}
 
 	return rc;
 }
@@ -383,31 +383,31 @@ static int drv8846_gpio_config(struct drv8846_soc_ctrl *mctrl)
 
 	rc = gpiod_direction_output(mctrl->gpio_mode0, (mctrl->step_mode & 0x01));
 	if (rc) {
-        dev_err(&mctrl->pdev->dev, "Failed to set mode0 output to %d: error: %d\n", mctrl->step_mode & 0x01, rc);
+        dev_err(&mctrl->pdev->dev, "Failed to set mode0 output: %d\n", rc);
         return rc;
     }
 
 	rc = gpiod_direction_output(mctrl->gpio_mode1, (mctrl->step_mode & 0x02));
 	if (rc) {
-		dev_err(&mctrl->pdev->dev, "Failed to set mode1 output to %d: error: %d\n", mctrl->step_mode & 0x02, rc);
+		dev_err(&mctrl->pdev->dev, "Failed to set mode1 output: %d\n", rc);
 		return rc;
 	}
 
 	rc = gpiod_direction_output(mctrl->gpio_dir, 0);
 	if (rc) {
-		dev_err(&mctrl->pdev->dev, "Failed to set dir output to %d: error: %d\n", mctrl->gpio_dir, rc);
+		dev_err(&mctrl->pdev->dev, "Failed to set dir output: %d\n", rc);
 		return rc;
 	}
 
 	rc = gpiod_direction_output(mctrl->gpio_sleep, 0);
 	if (rc) {
-		dev_err(&mctrl->pdev->dev, "Failed to set dir output to %d: error: %d\n", mctrl->gpio_sleep, rc);
+		dev_err(&mctrl->pdev->dev, "Failed to set sleep output: %d\n", rc);
 		return rc;
 	}
 
 	rc = gpiod_direction_output(mctrl->gpio_pwren, 1);
 	if (rc) {
-		dev_err(&mctrl->pdev->dev, "Failed to set pwren output to %d: error: %d\n", mctrl->gpio_pwren, rc);
+		dev_err(&mctrl->pdev->dev, "Failed to set pwren output: %d\n", rc);
 		return rc;
 	}
 
