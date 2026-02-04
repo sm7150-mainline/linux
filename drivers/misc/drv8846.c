@@ -359,8 +359,7 @@ static int drv8846_pinctrl_init(struct drv8846_soc_ctrl *mctrl)
 		goto err_pinctrl_get;
 	}
 
-	mctrl->pinctrl_default
-		= pinctrl_lookup_state(mctrl->pinctrl, "default");
+	mctrl->pinctrl_default = pinctrl_lookup_state(mctrl->pinctrl, "default");
 
 	if (IS_ERR_OR_NULL(mctrl->pinctrl_default)) {
 		rc = PTR_ERR(mctrl->pinctrl_default);
@@ -378,62 +377,42 @@ err_pinctrl_get:
 	return rc;
 }
 
-// static int drv8846_gpio_config(struct drv8846_soc_ctrl *mctrl)
-// {
-// 	int32_t rc = 0;
+static int drv8846_gpio_config(struct drv8846_soc_ctrl *mctrl)
+{
+	int32_t rc = 0;
 
-// 	rc = gpio_request_one(mctrl->gpio_mode0, GPIOF_OUT_INIT_HIGH, "motor-mode0");
-// 	if (rc < 0) {
-// 		pr_err("Failed to request mode0 GPIO %d", mctrl->gpio_mode0);
-// 		goto fail0;
-// 	}
-// 	gpiod_direction_output(mctrl->gpio_mode0, (mctrl->step_mode & 0x01));
+	rc = gpiod_direction_output(mctrl->gpio_mode0, (mctrl->step_mode & 0x01));
+	if (rc) {
+        dev_err(&mctrl->pdev->dev, "Failed to set mode0 output to %d: error: %d\n", mctrl->step_mode & 0x01, rc);
+        return rc;
+    }
 
-// 	rc = gpio_request_one(mctrl->gpio_mode1, GPIOF_OUT_INIT_HIGH, "motor-mode1");
-// 	if( rc < 0) {
-// 		pr_err("Failed to request mode1 GPIO %d", mctrl->gpio_mode1);
-// 		goto fail1;
-// 	}
-// 	gpiod_direction_output(mctrl->gpio_mode1, (mctrl->step_mode & 0x02));
+	rc = gpiod_direction_output(mctrl->gpio_mode1, (mctrl->step_mode & 0x02));
+	if (rc) {
+		dev_err(&mctrl->pdev->dev, "Failed to set mode1 output to %d: error: %d\n", mctrl->step_mode & 0x02, rc);
+		return rc;
+	}
 
-// 	rc = gpio_request_one(mctrl->gpio_dir, GPIOF_OUT_INIT_HIGH, "motor-dir");
-// 	if (rc < 0) {
-// 		pr_err("Failed to request dir GPIO %d\n", mctrl->gpio_dir);
-// 		goto fail2;
-// 	}
-// 	gpiod_direction_output(mctrl->gpio_dir, 0);
+	rc = gpiod_direction_output(mctrl->gpio_dir, 0);
+	if (rc) {
+		dev_err(&mctrl->pdev->dev, "Failed to set dir output to %d: error: %d\n", mctrl->gpio_dir, rc);
+		return rc;
+	}
 
-// 	rc = gpio_request_one(mctrl->gpio_sleep, GPIOF_OUT_INIT_HIGH, "motor-sleep");
-// 	if (rc < 0) {
-// 		pr_err("Failed to request sleep GPIO %d", mctrl->gpio_sleep);
-// 		goto fail3;
-// 	}
-// 	gpiod_direction_output(mctrl->gpio_sleep, 0);
+	rc = gpiod_direction_output(mctrl->gpio_sleep, 0);
+	if (rc) {
+		dev_err(&mctrl->pdev->dev, "Failed to set dir output to %d: error: %d\n", mctrl->gpio_sleep, rc);
+		return rc;
+	}
 
-// 	rc = gpio_request_one(mctrl->gpio_pwren, GPIOF_OUT_INIT_HIGH, "motor-pwr");
-// 	if (rc < 0) {
-// 		pr_err("Failed to request power enable GPIO %d", mctrl->gpio_pwren);
-// 		goto fail4;
-// 	}
-// 	gpiod_direction_output(mctrl->gpio_pwren, 1);
+	rc = gpiod_direction_output(mctrl->gpio_pwren, 1);
+	if (rc) {
+		dev_err(&mctrl->pdev->dev, "Failed to set pwren output to %d: error: %d\n", mctrl->gpio_pwren, rc);
+		return rc;
+	}
 
-// 	return 0;
-
-// fail4:
-// 	if (gpio_is_valid(mctrl->gpio_sleep))
-// 		gpio_free(mctrl->gpio_sleep);
-// fail3:
-// 	if (gpio_is_valid(mctrl->gpio_dir))
-// 		gpio_free(mctrl->gpio_dir);
-// fail2:
-// 	if (gpio_is_valid(mctrl->gpio_mode1))
-// 		gpio_free(mctrl->gpio_mode1);
-// fail1:
-// 	if (gpio_is_valid(mctrl->gpio_mode0))
-// 		gpio_free(mctrl->gpio_mode0);
-// fail0:
-// 	return rc;
-// }
+	return 0;
+}
 
 int drv8846_parse_dt(struct drv8846_soc_ctrl *mctrl)
 {
@@ -592,21 +571,21 @@ static int drv8846_probe(struct platform_device *pdev)
 		goto fail;
 	}
 
-	// rc = drv8846_pinctrl_init(mctrl);
-	// if (!rc && mctrl->pinctrl) {
-	// 	rc = pinctrl_select_state(mctrl->pinctrl, mctrl->pinctrl_default);
-	// 	if (rc < 0) {
-	// 		pr_err("Failed to select default pinstate %d\n", rc);
-	// 	}
-	// } else {
-	// 	pr_err("Failed to init pinctrl\n");
-	// }
+	rc = drv8846_pinctrl_init(mctrl);
+	if (!rc && mctrl->pinctrl) {
+		rc = pinctrl_select_state(mctrl->pinctrl, mctrl->pinctrl_default);
+		if (rc < 0) {
+			pr_err("Failed to select default pinstate %d\n", rc);
+		}
+	} else {
+		pr_err("Failed to init pinctrl\n");
+	}
 
-	// rc = drv8846_gpio_config(mctrl);
-	// if (rc < 0) {
-	// 	pr_err("Failed to config gpio\n");
-	// 	goto fail;
-	// }
+	rc = drv8846_gpio_config(mctrl);
+	if (rc < 0) {
+		pr_err("Failed to config gpio\n");
+		goto fail;
+	}
 
 	INIT_WORK(&mctrl->pwm_apply_work, pwm_config_work);
 
