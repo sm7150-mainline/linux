@@ -383,11 +383,6 @@
 	};
 };
 
-/* Front motor */
-&pm6150l_pwm {
-	status = "okay";
-};
-
 &pm6150l_lpg {
 	status = "okay";
 
