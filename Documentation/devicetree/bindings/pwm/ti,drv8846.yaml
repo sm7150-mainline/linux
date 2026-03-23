@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/ti,drv8846.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DRV8846 Dual H-Bridge Stepper Motor Controller
+
+description: |
+  The DRV8846 has two H-bridges and a microstepping indexer and
+  is intended to drive a bipolar stepper motor.
+
+  See https://www.ti.com/lit/ds/symlink/drv8846.pdf for more details.
+
+maintainers:
+  - Stanislaw <stadac@disroot.org>
+
+properties:
+  compatible:
+    const: ti,drv8846
+
+  pwms:
+    maxItems: 1
+
+  ti,mode0-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: GPIO for step mode selection bit 0 (MODE0)
+
+  ti,mode1-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: GPIO for step mode selection bit 1 (MODE1)
+
+  ti,sleep-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: GPIO for sleep/wake control (active high = awake)
+
+  ti,dir-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: GPIO for motor rotation direction control
+
+  ti,pwren-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: GPIO for power enable
+
+  ti,rampup-pwm-period-ns:
+    description: PWM period in nanoseconds during ramp-up phase
+
+  ti,rampup-duration-ms:
+    description: Duration of ramp-up phase in milliseconds
+
+  ti,high-pwm-period-ns:
+    description: PWM period in nanoseconds during full-speed phase
+
+  ti,high-duration-ms:
+    description: Duration of full-speed phase in milliseconds
+
+  ti,rampdown-pwm-period-ns:
+    description: PWM period in nanoseconds during ramp-down phase
+
+  ti,rampdown-duration-ms:
+    description: Duration of ramp-down phase in milliseconds
+
+  ti,step-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+    description: |
+      Microstepping mode selection.
+        0 = Full step
+        1 = Half step
+        2 = 1/4 step
+        3 = 1/8 step
+
+  pinctrl-names:
+    const: default
+
+  pinctrl-0: true
+
+additionalProperties: false
+
+required:
+  - compatible
+  - pwms
+  - ti,mode0-gpio
+  - ti,mode1-gpio
+  - ti,sleep-gpio
+  - ti,dir-gpio
+  - ti,pwren-gpio
+  - ti,rampup-pwm-period-ns
+  - ti,rampup-duration-ms
+  - ti,high-pwm-period-ns
+  - ti,high-duration-ms
+  - ti,rampdown-pwm-period-ns
+  - ti,rampdown-duration-ms
+  - ti,step-mode
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    soc {
+        ti,drv8846 {
+            compatible = "ti,drv8846";
+            pwms = <&lpg 4 1000000>;
+            ti,mode0-gpio = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+            ti,mode1-gpio = <&tlmm 66 GPIO_ACTIVE_HIGH>;
+            ti,sleep-gpio = <&tlmm 88 GPIO_ACTIVE_HIGH>;
+            ti,dir-gpio = <&tlmm 55 GPIO_ACTIVE_HIGH>;
+            ti,pwren-gpio = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+            ti,rampup-pwm-period-ns = <625000>;
+            ti,rampup-duration-ms = <50>;
+            ti,high-pwm-period-ns = <52083>;
+            ti,high-duration-ms = <720>;
+            ti,rampdown-pwm-period-ns = <625000>;
+            ti,rampdown-duration-ms = <50>;
+            ti,step-mode = <2>;
+        };
+    };
