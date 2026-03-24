@@ -643,6 +643,15 @@ config MCHP_LAN966X_PCI
 	    - lan966x-miim (MDIO_MSCC_MIIM)
 	    - lan966x-switch (LAN966X_SWITCH)
 
+config TI_DRV8846
+	tristate "TI step motor driver IC"
+	depends on PWM
+	help
+	  Say 'y' here to include support for the TI DRV8846 H-Bridge Stepper
+	  Motor Driver. The MISC peripheral holds the pwm and the driver
+	  provides an API to drive stepper motor. It allows to control a
+	  motorized pop-up front camera.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
