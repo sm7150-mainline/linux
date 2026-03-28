@@ -1764,10 +1764,10 @@ static const struct camss_subdev_resources csiphy_res_7150[] = {
 			{ .supply = "vdda-pll", .init_load_uA = 0 }
 		},
 		.clock = { "csiphy3", "csiphy3_timer_src", "csiphy3_timer", "cphy_rx_src" },
-		.clock_rate = { { 300000000, 384000000, 400000000 },
-				{ 0 },
+		.clock_rate = { { 0 },
 				{ 300000000 },
-				{ 0 } },
+				{ 0 },
+				{ 384000000, 400000000, 400000000 } },
 		.reg = { "csiphy3" },
 		.interrupt = { "csiphy3" },
 		.csiphy = {
