@@ -1933,6 +1933,8 @@ int q6afe_vote_lpass_core_hw(struct device *dev, uint32_t hw_block_id,
 	strscpy(vote_cfg->client_name, client_name,
 			sizeof(vote_cfg->client_name));
 
+	printk(KERN_INFO "%s: voting for lpass core hw with id %d\n", __func__, hw_block_id);
+
 	ret = afe_apr_send_pkt(afe, pkt, NULL,
 			       AFE_CMD_RSP_REMOTE_LPASS_CORE_HW_VOTE_REQUEST);
 	if (ret)

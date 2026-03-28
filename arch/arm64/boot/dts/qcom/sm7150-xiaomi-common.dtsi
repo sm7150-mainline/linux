@@ -122,6 +122,25 @@
 		vin-supply = <&vph_pwr>;
 	};
 
+	wcd937x: audio-codec {
+		compatible = "qcom,wcd9375-codec";
+
+		reset-gpios = <&lpass_tlmm 24 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&wcd9375_reset_active>;
+		pinctrl-1 = <&wcd9375_reset_sleep>;
+		pinctrl-names = "default", "sleep";
+
+		vdd-buck-supply = <&vreg_l15a_1p8>;
+		vdd-rxtx-supply = <&vreg_l10a_1p8>;
+		vdd-px-supply = <&vreg_l10a_1p8>;
+		vdd-mic-bias-supply = <&vreg_bob>;
+
+		qcom,rx-device = <&wcd_rx>;
+		qcom,tx-device = <&wcd_tx>;
+
+		#sound-dai-cells = <1>;
+	};
+
 	wcn3998-pmu {
 		compatible = "qcom,wcn3998-pmu";
 
@@ -724,6 +743,10 @@
 	status = "okay";
 };
 
+&rxmacro {
+	status = "okay";
+};
+
 &sdhc_2 {
 	cd-gpios = <&tlmm 69 GPIO_ACTIVE_LOW>;
 
@@ -733,6 +756,27 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&sdc2_on>;
 	pinctrl-1 = <&sdc2_off>;
+};
+
+&swr1 {
+	status = "okay";
+
+	wcd_rx: codec@0,4 {
+		compatible = "sdw20217010a00";
+		reg = <0 4>;
+
+		qcom,rx-port-mapping = <1 2 3 4 5>;
+	};
+};
+
+&swr2 {
+	status = "okay";
+	wcd_tx: codec@0,3 {
+		compatible = "sdw20217010a00";
+		reg = <0 3>;
+
+		qcom,tx-port-mapping = <2 3 4 5>;
+	};
 };
 
 &tlmm {
@@ -889,6 +933,10 @@
 	};
 };
 
+&txmacro {
+	status = "okay";
+};
+
 &uart3 {
 	/delete-property/interrupts;
 	interrupts-extended = <&intc GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
@@ -954,6 +1002,10 @@
 	vdd-supply = <&vdd_usb_hs_core>;
 	vdda-pll-supply = <&vdda_usb_hs_1p8>;
 	vdda-phy-dpdm-supply = <&vdda_usb_hs_3p1>;
+	status = "okay";
+};
+
+&vamacro {
 	status = "okay";
 };
 
