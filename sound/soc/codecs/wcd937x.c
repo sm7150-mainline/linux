@@ -2961,12 +2961,16 @@ static int wcd937x_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+	printk(KERN_INFO "wcd937x probe over\n");
+
 	pm_runtime_set_autosuspend_delay(dev, 1000);
 	pm_runtime_use_autosuspend(dev);
 	pm_runtime_mark_last_busy(dev);
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 	pm_runtime_idle(dev);
+
+	printk(KERN_INFO "wcd937x pm stuff over\n");
 
 	return 0;
 }
