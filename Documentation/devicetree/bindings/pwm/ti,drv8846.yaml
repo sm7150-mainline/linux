@@ -1,0 +1,160 @@
+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/ti,drv8846.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DRV8846 Dual H-Bridge Stepper Motor Controller
+
+description: |
+  The DRV8846 is a stepper motor driver which contains two identical
+  H-bridge motor drivers with current-control PWM circuitry.
+
+  See https://www.ti.com/lit/ds/symlink/drv8846.pdf for more details.
+
+maintainers:
+  - Stanislaw <stadac@disroot.org>
+
+properties:
+  compatible:
+    const: ti,drv8846
+
+  pwms:
+    maxItems: 1
+
+  iscal0-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Torque DAC current scalar for pin I0.
+        Scales the current from 100% to 12.5% in 12.5% steps; tri-level pin.
+
+  iscal1-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Torque DAC current scalar for pin I1.
+        Scales the current from 100% to 12.5% in 12.5% steps; tri-level pin.
+
+  mode0-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Microstepping mode setting pin M0.
+        Controls step mode (full, half, up to 1/32-step) and single- or dual-
+        edge clocking; tri-level pin.
+
+  mode1-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Microstepping mode setting pin M1.
+        Controls step mode (full, half, up to 1/32-step) and single- or dual-
+        edge clocking; tri-level pin.
+
+  sleep-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Sleep mode input.
+        Logic high to enable device; logic low to enter low-power sleep mode;
+        internal pulldown.
+
+  adec-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Smart tune enable.
+        Logic low sets decay modes by DEC0 and DEC1 pins; logic high –
+        smart tune operation is enabled; must be set prior to coming out of
+        sleep; internal pulldown.
+
+  dec0-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Decay mode setting pin DEC0.
+        Controls decay mode (supports fast, slow, mixed, and smart tune modes).
+
+  dec1-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Decay mode setting pin DEC1.
+        Controls decay mode (supports fast, slow, mixed, and smart tune modes).
+
+  dir-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Logic level sets the direction of stepping; internal pulldown
+
+  pwren-gpio:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+        Enable driver output.
+        Logic low to enable device outputs and internal indexer; logic high to
+        disable; internal pulldown.
+
+  rampup-pwm-period-ns:
+    description: PWM period in nanoseconds during ramp-up phase
+
+  rampup-duration-ms:
+    description: Duration of ramp-up phase in milliseconds
+
+  high-pwm-period-ns:
+    description: PWM period in nanoseconds during full-speed phase
+
+  high-duration-ms:
+    description: Duration of full-speed phase in milliseconds
+
+  rampdown-pwm-period-ns:
+    description: PWM period in nanoseconds during ramp-down phase
+
+  rampdown-duration-ms:
+    description: Duration of ramp-down phase in milliseconds
+
+  step-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5]
+    description: |
+      Microstepping mode selection.
+        0 = Full step
+        1 = Half step
+        2 = 1/4 step
+        3 = 1/8 step
+        4 = 1/16 step
+        5 = 1/32 step
+
+  pinctrl-names:
+    const: default
+
+  pinctrl-0: true
+
+additionalProperties: false
+
+required:
+  - compatible
+  - pwms
+  - mode0-gpio
+  - mode1-gpio
+  - sleep-gpio
+  - dir-gpio
+  - pwren-gpio
+  - rampup-pwm-period-ns
+  - rampup-duration-ms
+  - high-pwm-period-ns
+  - high-duration-ms
+  - rampdown-pwm-period-ns
+  - rampdown-duration-ms
+  - step-mode
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    drv8846 {
+        compatible = "ti,drv8846";
+        pwms = <&lpg 4 1000000>;
+        mode0-gpio = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+        mode1-gpio = <&tlmm 66 GPIO_ACTIVE_HIGH>;
+        sleep-gpio = <&tlmm 88 GPIO_ACTIVE_HIGH>;
+        dir-gpio = <&tlmm 55 GPIO_ACTIVE_HIGH>;
+        pwren-gpio = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+        rampup-pwm-period-ns = <625000>;
+        rampup-duration-ms = <50>;
+        high-pwm-period-ns = <52083>;
+        high-duration-ms = <720>;
+        rampdown-pwm-period-ns = <625000>;
+        rampdown-duration-ms = <50>;
+        step-mode = <2>;
+    };

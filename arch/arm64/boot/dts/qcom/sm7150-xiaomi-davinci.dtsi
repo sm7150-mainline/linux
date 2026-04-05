@@ -136,6 +136,27 @@
 		gpio = <&pm6150l_gpios 8 GPIO_ACTIVE_HIGH>;
 		vin-supply = <&vreg_s8c_1p35>;
 	};
+
+	drv8846 {
+		compatible = "ti,drv8846";
+		pwms = <&pm6150l_lpg 4 1000000>;
+		mode0-gpio = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		mode1-gpio = <&tlmm 66 GPIO_ACTIVE_HIGH>;
+		sleep-gpio = <&tlmm 88 GPIO_ACTIVE_HIGH>;
+		dir-gpio = <&tlmm 55 GPIO_ACTIVE_HIGH>;
+		pwren-gpio = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+
+		rampup-pwm-period-ns = <625000>;
+		rampup-duration-ms = <50>;
+		high-pwm-period-ns = <52083>;
+		high-duration-ms = <720>;
+		rampdown-pwm-period-ns = <625000>;
+		rampdown-duration-ms = <50>;
+		step-mode = <2>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwm_out_gpio10_default &motor_gpio_default &motor_gpio_fault>;
+	};
 };
 
 &battery {
@@ -369,6 +390,16 @@
 			  "MOTOR_STEP_CLK", /* GPIO_10 */
 			  "CAMT_VCM_2P8_EN",
 			  "NC";
+
+	pwm_out_gpio10_default: pwm_out_gpio10-state {
+		pins = "gpio10";
+		function = PMIC_GPIO_FUNC_FUNC1;
+		bias-disable;
+		power-source = <1>;
+		output-low;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+		drive-push-pull;
+	};
 };
 
 &pm6150l_lpg {
@@ -584,6 +615,34 @@
 		drive-strength = <2>;
 		bias-pull-up;
 		input-enable;
+	};
+
+	motor_gpio_default: motor_gpio_default {
+		mux {
+			/* DIR, M0, M1, SLEEP, EN */
+			pins = "gpio55", "gpio91", "gpio66", "gpio88", "gpio90";
+			function = "gpio";
+		};
+
+		config {
+			/* DIR, M0, M1, SLEEP, EN */
+			pins = "gpio55", "gpio91", "gpio66", "gpio88", "gpio90";
+			bias-disable;
+			drive-strength = <PMIC_GPIO_STRENGTH_MED>; /* 2 MA */
+		};
+	};
+
+	motor_gpio_fault: motor_gpio_fault {
+		mux {
+			pins = "gpio43";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio43";
+			bias-disable;
+			drive-strength = <PMIC_GPIO_STRENGTH_MED>; /* 2 MA */
+		};
 	};
 };
 
