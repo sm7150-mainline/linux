@@ -7,6 +7,7 @@
  * Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2015-2018 Linaro Ltd.
  */
+#define DEBUG
 #include <linux/slab.h>
 #include <media/media-entity.h>
 #include <media/v4l2-dev.h>
@@ -91,8 +92,10 @@ static int video_get_subdev_format(struct camss_video *video,
 	int ret;
 
 	subdev = video_remote_subdev(video, &pad);
-	if (subdev == NULL)
+	if (subdev == NULL) {
+		printk(KERN_INFO "subdev is null\n");
 		return -EPIPE;
+	}
 
 	fmt.pad = pad;
 
@@ -219,8 +222,10 @@ static int video_check_format(struct camss_video *video)
 	    pix->height != sd_pix->height ||
 	    pix->width != sd_pix->width ||
 	    pix->num_planes != sd_pix->num_planes ||
-	    pix->field != format.fmt.pix_mp.field)
+	    pix->field != format.fmt.pix_mp.field) {
+		printk(KERN_INFO "format mismatch\n");
 		return -EPIPE;
+	}
 
 	return 0;
 }
@@ -231,6 +236,7 @@ static int video_prepare_streaming(struct vb2_queue *q)
 	struct video_device *vdev = &video->vdev;
 	int ret;
 
+	printk(KERN_INFO "video_prepare_streaming called\n");
 	ret = v4l2_pipeline_pm_get(&vdev->entity);
 	if (ret < 0) {
 		dev_err(video->camss->dev, "Failed to power up pipeline: %d\n",
@@ -543,8 +549,10 @@ static int video_s_fmt(struct file *file, void *fh, struct v4l2_format *f)
 	struct camss_video *video = video_drvdata(file);
 	int ret;
 
-	if (vb2_is_busy(&video->vb2_q))
+	if (vb2_is_busy(&video->vb2_q)) {
+		printk(KERN_INFO "video_s_fmt\n");
 		return -EBUSY;
+	}
 
 	ret = __video_try_fmt(video, f);
 	if (ret < 0)

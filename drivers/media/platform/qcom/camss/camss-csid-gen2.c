@@ -355,6 +355,7 @@ static int csid_configure_testgen_pattern(struct csid_device *csid, s32 val)
  */
 static irqreturn_t csid_isr(int irq, void *dev)
 {
+	printk(KERN_INFO "CSID got IRQ\n");
 	struct csid_device *csid = dev;
 	u32 val;
 	u8 reset_done;
@@ -391,6 +392,7 @@ static irqreturn_t csid_isr(int irq, void *dev)
  */
 static int csid_reset(struct csid_device *csid)
 {
+	printk(KERN_INFO "csid_reset called\n");
 	unsigned long time;
 	u32 val;
 

@@ -7,6 +7,7 @@
  * Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2015-2018 Linaro Ltd.
  */
+#define DEBUG
 #include <linux/clk.h>
 #include <linux/completion.h>
 #include <linux/interrupt.h>
@@ -28,7 +29,7 @@
 #define MSM_VFE_NAME "msm_vfe"
 
 /* VFE reset timeout */
-#define VFE_RESET_TIMEOUT_MS 50
+#define VFE_RESET_TIMEOUT_MS 500
 
 #define SCALER_RATIO_MAX 16
 
@@ -739,6 +740,8 @@ int vfe_reserve_wm(struct vfe_device *vfe, enum vfe_line_id line_id)
 		}
 	}
 
+	printk("vfe_reserve_wm ret=%d\n", ret);
+
 	return ret;
 }
 
@@ -1068,8 +1071,10 @@ static int vfe_check_clock_rates(struct vfe_device *vfe)
 			camss_add_clock_margin(&min_rate);
 
 			rate = clk_get_rate(clock->clk);
-			if (rate < min_rate)
+			if (rate < min_rate) {
+				printk(KERN_INFO "vfe_check_clock_rates name=%s rate=%lu min_rate=%llu\n", clock->name, rate, min_rate);
 				return -EBUSY;
+			}
 		}
 	}
 
@@ -1825,7 +1830,7 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 	}
 
 	/* Memory */
-
+	printk(KERN_INFO "vfe physical memory is %s\n", res->reg[0]);
 	vfe->base = devm_platform_ioremap_resource_byname(pdev, res->reg[0]);
 	if (IS_ERR(vfe->base)) {
 		dev_err(dev, "could not map memory\n");
@@ -1960,8 +1965,10 @@ static int vfe_link_setup(struct media_entity *entity,
 			  const struct media_pad *remote, u32 flags)
 {
 	if (flags & MEDIA_LNK_FL_ENABLED)
-		if (media_pad_remote_pad_first(local))
+		if (media_pad_remote_pad_first(local)) {
+			printk("vfe_link_set media_pad_remote_pad_first\n");
 			return -EBUSY;
+		}
 
 	return 0;
 }
