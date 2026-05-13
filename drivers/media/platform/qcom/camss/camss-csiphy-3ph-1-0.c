@@ -7,6 +7,7 @@
  * Copyright (c) 2011-2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2016-2018 Linaro Ltd.
  */
+#define DEBUG
 
 #include "camss.h"
 #include "camss-csiphy.h"
@@ -954,6 +955,8 @@ static void csiphy_reset(struct csiphy_device *csiphy)
 {
 	struct csiphy_device_regs *regs = csiphy->regs;
 
+	printk(KERN_DEBUG "csiphy_reset id %d with base %p and offset %d\n", csiphy->id, csiphy->base, regs->offset);
+
 	writel_relaxed(0x1, csiphy->base +
 		      CSIPHY_3PH_CMN_CSI_COMMON_CTRLn(regs->offset, 0));
 	usleep_range(5000, 8000);
@@ -966,6 +969,8 @@ static irqreturn_t csiphy_isr(int irq, void *dev)
 	struct csiphy_device *csiphy = dev;
 	struct csiphy_device_regs *regs = csiphy->regs;
 	int i;
+
+	printk(KERN_DEBUG "csiphy_isr called\n");
 
 	for (i = 0; i < 11; i++) {
 		int c = i + 22;
@@ -1225,6 +1230,10 @@ static int csiphy_init(struct csiphy_device *csiphy)
 	case CAMSS_6150:
 		regs->lane_regs = &lane_regs_qcm2290[0];
 		regs->lane_array_size = ARRAY_SIZE(lane_regs_qcm2290);
+		break;
+	case CAMSS_7150:
+		regs->lane_regs = &lane_regs_sm7150[0];
+		regs->lane_array_size = ARRAY_SIZE(lane_regs_sm7150);
 		break;
 	case CAMSS_7280:
 	case CAMSS_8250:

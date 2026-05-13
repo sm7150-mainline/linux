@@ -3641,6 +3641,7 @@
 				    "vfe0",
 				    "vfe1",
 				    "vfe_lite";
+			// FIXME: missing regs
 
 			clocks = <&gcc GCC_CAMERA_HF_AXI_CLK>,
 				 <&gcc GCC_CAMERA_SF_AXI_CLK>,
@@ -3677,7 +3678,28 @@
 				 <&camcc CAMCC_IFE_LITE_CLK_SRC>,
 				 <&camcc CAMCC_IFE_LITE_CPHY_RX_CLK>,
 				 <&camcc CAMCC_IFE_LITE_CSID_CLK>,
-				 <&camcc CAMCC_IFE_LITE_CSID_CLK_SRC>;
+				 <&camcc CAMCC_IFE_LITE_CSID_CLK_SRC>,
+				 <&camcc CAMCC_BPS_CLK>,
+				 <&camcc CAMCC_BPS_CLK_SRC>,
+				 <&camcc CAMCC_BPS_AHB_CLK>,
+				 <&camcc CAMCC_BPS_AXI_CLK>,
+				 <&camcc CAMCC_BPS_AREG_CLK>,
+				 <&camcc CAMCC_ICP_CLK>,
+				 <&camcc CAMCC_ICP_CLK_SRC>,
+				 <&camcc CAMCC_ICP_AHB_CLK>,
+				 <&camcc CAMCC_IPE_0_CLK>,
+				 <&camcc CAMCC_IPE_0_CLK_SRC>,
+				 <&camcc CAMCC_IPE_0_AHB_CLK>,
+				 <&camcc CAMCC_IPE_0_AREG_CLK>,
+				 <&camcc CAMCC_IPE_0_AXI_CLK>,
+				 <&camcc CAMCC_IPE_1_CLK>,
+				 <&camcc CAMCC_IPE_1_AHB_CLK>,
+				 <&camcc CAMCC_IPE_1_AREG_CLK>,
+				 <&camcc CAMCC_IPE_1_AXI_CLK>,
+				 <&camcc CAMCC_JPEG_CLK>,
+				 <&camcc CAMCC_JPEG_CLK_SRC>,
+				 <&camcc CAMCC_LRME_CLK>,
+				 <&camcc CAMCC_LRME_CLK_SRC>;
 			clock-names = "cam_hf_axi",
 				      "cam_sf_axi",
 				      "camnoc_axi",
@@ -3713,30 +3735,74 @@
 				      "vfe_lite_src",
 				      "vfe_lite_cphy_rx",
 				      "vfe_lite_csid",
-				      "vfe_lite_csid_src";
+				      "vfe_lite_csid_src",
+				      "bps",
+				      "bps_src",
+				      "bps_ahb",
+				      "bps_axi",
+				      "bps_areg",
+				      "icp",
+				      "icp_src",
+				      "icp_ahb",
+				      "ipe0",
+				      "ipe0_src",
+				      "ipe0_ahb",
+				      "ipe0_areg",
+				      "ipe0_axi",
+				      "ipe1",
+				      "ipe1_ahb",
+				      "ipe1_areg",
+				      "ipe1_axi",
+				      "jpeg",
+				      "jpeg_src",
+				      "lrme",
+				      "lrme_src";
 
-			interrupts = <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 607 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
-				     <GIC_SPI 434 IRQ_TYPE_EDGE_RISING>;
+			interrupts = <GIC_SPI 477 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 478 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 479 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 607 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 464 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 466 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 438 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 465 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 467 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 434 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 459 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 468 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 463 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 475 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 474 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 476 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "csiphy0",
 					  "csiphy1",
 					  "csiphy2",
 					  "csiphy3",
 					  "csid0",
 					  "csid1",
+					  "csid_lite",
 					  "vfe0",
 					  "vfe1",
-					  "vfe_lite";
+					  "vfe_lite",
+					  "camnoc",
+					  "cdm",
+					  "icp",
+					  "jpeg_dma",
+					  "jpeg_enc",
+					  "lrme";
 
 			power-domains = <&camcc IFE_0_GDSC>,
 					<&camcc IFE_1_GDSC>,
-					<&camcc TITAN_TOP_GDSC>;
+					<&camcc TITAN_TOP_GDSC>,
+					<&camcc BPS_GDSC>,
+					<&camcc IPE_0_GDSC>,
+					<&camcc IPE_1_GDSC>;
+			power-domain-names = "ife0",
+					     "ife1",
+					     "top",
+					     "bps",
+					     "ipe0",
+					     "ipe1";
 
 			iommus = <&apps_smmu 0x900 0x460>,
 				 <&apps_smmu 0xd00 0x460>,
@@ -3753,14 +3819,18 @@
 				 <&apps_smmu 0x8c0 0x460>,
 				 <&apps_smmu 0xcc0 0x460>;
 
-			/*interconnects = <&gem_noc MASTER_AMPSS_M0 0 &config_noc SLAVE_CAMERA_CFG 0>,
-					<&mmss_noc MASTER_CAMNOC_HF 0 &mc_virt SLAVE_EBI_CH0 0>,
-					<&mmss_noc MASTER_CAMNOC_SF 0 &mc_virt SLAVE_EBI_CH0 0>,
-					<&mmss_noc MASTER_CAMNOC_ICP 0 &mc_virt SLAVE_EBI_CH0 0>;
+			interconnects = <&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ACTIVE_ONLY
+					 &config_noc SLAVE_CAMERA_CFG QCOM_ICC_TAG_ACTIVE_ONLY>,
+					<&mmss_noc MASTER_CAMNOC_HF0 QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>,
+					<&mmss_noc MASTER_CAMNOC_SF QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>,
+					<&mmss_noc MASTER_CAMNOC_RT QCOM_ICC_TAG_ALWAYS
+					 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 			interconnect-names = "cam_ahb",
 					     "cam_hf_0_mnoc",
 					     "cam_sf_0_mnoc",
-					     "cam_sf_icp_mnoc";*/
+					     "cam_sf_icp_mnoc";
 
 			status = "disabled";
 
