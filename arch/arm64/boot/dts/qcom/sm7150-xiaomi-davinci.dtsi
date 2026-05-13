@@ -538,7 +538,6 @@
 		function = "gpio";
 		drive-strength = <2>;
 		bias-disable;
-		bias-pull-down;
 		output-low;
 	};
 
