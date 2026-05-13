@@ -797,36 +797,6 @@
 		bias-disable;
 	};
 
-	qup_uart3_default: qup-uart3-default-state {
-		cts-pins {
-			pins = "gpio38";
-			function = "qup03";
-			drive-strength = <2>;
-			bias-bus-hold;
-		};
-
-		rts-pins {
-			pins = "gpio39";
-			function = "qup03";
-			drive-strength = <2>;
-			bias-disable;
-		};
-
-		tx-pins {
-			pins = "gpio40";
-			function = "qup03";
-			drive-strength = <2>;
-			bias-disable;
-		};
-
-		rx-pins {
-			pins = "gpio41";
-			function = "qup03";
-			drive-strength = <2>;
-			bias-pull-up;
-		};
-	};
-
 	qup_uart3_sleep: qup-uart3-sleep-state {
 		cts-pins {
 			pins = "gpio38";
