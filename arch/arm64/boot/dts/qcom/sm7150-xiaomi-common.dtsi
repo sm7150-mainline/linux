@@ -532,6 +532,10 @@
 	status = "okay";
 };
 
+&lpass_tlmm {
+	gpio-reserved-ranges = <0 18>;
+};
+
 &mdss {
 	status = "okay";
 };
