@@ -586,6 +586,41 @@
 	};
 };
 
+&swr1 {
+	status = "okay";
+
+	wcd_rx: codec@0,4 {
+		compatible = "sdw20217010a00";
+		reg = <0 4>;
+
+		qcom,rx-port-mapping = <1 2 3 4 5>;
+		qcom,rx-channel-mapping = /bits/ 8 <1 2 1 1 2 1 1 2>;
+	};
+};
+
+&swr2 {
+	status = "okay";
+	wcd_tx: codec@0,3 {
+		compatible = "sdw20217010a00";
+		reg = <0 3>;
+
+		qcom,tx-port-mapping = <2 3 4 5>;\
+		qcom,tx-channel-mapping = /bits/ 8 <1 1 2 1 2 4 1 2 4 8>;
+	};
+};
+
+&vamacro {
+	status = "okay";
+};
+
+&txmacro {
+	status = "okay";
+};
+
+&rxmacro {
+	status = "okay";
+};
+
 &venus {
 	firmware-name = "qcom/sm7150/xiaomi/davinci/venus.mbn";
 };
