@@ -464,8 +464,6 @@ int lpi_pinctrl_probe(struct platform_device *pdev)
 	struct lpi_pinctrl *pctrl;
 	int ret;
 
-	printk(KERN_INFO "lpass-lpi probed successfully\n");
-
 	pctrl = devm_kzalloc(dev, sizeof(*pctrl), GFP_KERNEL);
 	if (!pctrl)
 		return -ENOMEM;
@@ -495,8 +493,6 @@ int lpi_pinctrl_probe(struct platform_device *pdev)
 		if (IS_ERR(pctrl->slew_base))
 			return dev_err_probe(dev, PTR_ERR(pctrl->slew_base),
 					     "Slew resource not provided\n");
-		iowrite32(0x3333, pctrl->slew_base);
-		iowrite32(0xF, pctrl->slew_base + 4);
 	}
 
 	ret = devm_clk_bulk_get_optional(dev, MAX_LPI_NUM_CLKS, pctrl->clks);
@@ -539,8 +535,6 @@ int lpi_pinctrl_probe(struct platform_device *pdev)
 		dev_err(pctrl->dev, "can't add gpio chip\n");
 		goto err_pinctrl;
 	}
-
-	printk(KERN_INFO "lpass-lpi probed successfully\n");
 
 	return 0;
 
