@@ -400,7 +400,7 @@ retry:
 		/*
 		 * If the inode was already deleted, skip over it.
 		 */
-		if (error == -ENOENT) {
+		if (error == -ENOENT || error == -EINVAL) {
 			iter->rec_idx++;
 			goto retry;
 		}
@@ -1221,7 +1221,7 @@ out_put_oz:
 	if (data->oz)
 		xfs_open_zone_put(data->oz);
 out_free_gc_data:
-	kfree(data);
+	xfs_zone_gc_data_free(data);
 	return error;
 }
 

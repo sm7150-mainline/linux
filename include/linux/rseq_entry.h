@@ -635,10 +635,11 @@ static __always_inline bool rseq_exit_user_update(struct pt_regs *regs, struct t
 		return true;
 	}
 
+	int cpu = task_cpu(t);
 	struct rseq_ids ids = {
-		.cpu_id	 = task_cpu(t),
+		.cpu_id	 = cpu,
 		.mm_cid	 = task_mm_cid(t),
-		.node_id = cpu_to_node(ids.cpu_id),
+		.node_id = cpu_to_node(cpu),
 	};
 
 	return rseq_update_usr(t, regs, &ids);
@@ -749,24 +750,6 @@ static __always_inline void rseq_irqentry_exit_to_user_mode(void)
 	ev->events = 0;
 }
 
-/* Required to keep ARM64 working */
-static __always_inline void rseq_exit_to_user_mode_legacy(void)
-{
-	struct rseq_event *ev = &current->rseq.event;
-
-	rseq_stat_inc(rseq_stats.exit);
-
-	if (static_branch_unlikely(&rseq_debug_enabled))
-		WARN_ON_ONCE(ev->sched_switch);
-
-	/*
-	 * Ensure that event (especially user_irq) is cleared when the
-	 * interrupt did not result in a schedule and therefore the
-	 * rseq processing did not clear it.
-	 */
-	ev->events = 0;
-}
-
 void __rseq_debug_syscall_return(struct pt_regs *regs);
 
 static __always_inline void rseq_debug_syscall_return(struct pt_regs *regs)
@@ -782,7 +765,6 @@ static inline bool rseq_exit_to_user_mode_restart(struct pt_regs *regs, unsigned
 }
 static inline void rseq_syscall_exit_to_user_mode(void) { }
 static inline void rseq_irqentry_exit_to_user_mode(void) { }
-static inline void rseq_exit_to_user_mode_legacy(void) { }
 static inline void rseq_debug_syscall_return(struct pt_regs *regs) { }
 static inline bool rseq_grant_slice_extension(unsigned long ti_work, unsigned long mask) { return false; }
 #endif /* !CONFIG_RSEQ */

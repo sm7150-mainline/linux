@@ -35,10 +35,8 @@ bool hsr_addr_is_self(struct hsr_priv *hsr, unsigned char *addr)
 
 	rcu_read_lock();
 	sn = rcu_dereference(hsr->self_node);
-	if (!sn) {
-		WARN_ONCE(1, "HSR: No self node\n");
+	if (!sn)
 		goto out;
-	}
 
 	if (ether_addr_equal(addr, sn->macaddress_A) ||
 	    ether_addr_equal(addr, sn->macaddress_B))
@@ -163,8 +161,8 @@ void hsr_del_nodes(struct list_head *node_db)
 	struct hsr_node *tmp;
 
 	list_for_each_entry_safe(node, tmp, node_db, mac_list) {
-		list_del(&node->mac_list);
-		hsr_free_node(node);
+		list_del_rcu(&node->mac_list);
+		call_rcu(&node->rcu_head, hsr_free_node_rcu);
 	}
 }
 
@@ -889,7 +887,10 @@ int hsr_get_node_data(struct hsr_priv *hsr,
 
 	if (node->addr_B_port != HSR_PT_NONE) {
 		port = hsr_port_get_hsr(hsr, node->addr_B_port);
-		*addr_b_ifindex = port->dev->ifindex;
+		if (port)
+			*addr_b_ifindex = port->dev->ifindex;
+		else
+			*addr_b_ifindex = -1;
 	} else {
 		*addr_b_ifindex = -1;
 	}
