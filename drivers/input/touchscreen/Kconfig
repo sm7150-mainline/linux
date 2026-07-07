@@ -1279,6 +1279,16 @@ config TOUCHSCREEN_STMFTS
 	  To compile this driver as a module, choose M here: the
 	  module will be called stmfts.
 
+config TOUCHSCREEN_FTM5
+	tristate "STMicroelectronics FTM5 touchscreen"
+	depends on I2C
+	help
+	  Say Y here to support the STMicroelectronics FTM5 (FingerTip)
+	  touchscreen found e.g. on the Google Pixel 4a (sunfish).
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ftm5.
+
 config TOUCHSCREEN_STMPE
 	tristate "STMicroelectronics STMPE touchscreens"
 	depends on MFD_STMPE
