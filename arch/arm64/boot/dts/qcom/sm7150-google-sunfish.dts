@@ -557,7 +557,33 @@
 	status = "okay";
 	clock-frequency = <1000000>;
 
-	/* st,fts touchscreen@49 */
+	/*
+	 * Pixel 4a (this unit) uses the STMicroelectronics FTM5 controller
+	 * @ 0x49 (chip id 0x4836). Driven by the mainline "st,fts" (ftm5)
+	 * driver. Power: pm6150 gpio4 load-switch held high via pinctrl while
+	 * the driver is bound; reset gpio8 and AP/SLPI mux gpio72 are driven
+	 * by the driver via gpiod; IRQ on tlmm gpio9 (level low).
+	 */
+	touchscreen@49 {
+		compatible = "st,fts";
+		reg = <0x49>;
+
+		/* Couples touch sensing to the panel power state. */
+		panel = <&panel>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+
+		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
+		st,switch-gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&touch_power_default>,
+			    <&touch_int_default>;
+
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2340>;
+	};
 };
 
 &i2c9 {
@@ -640,6 +666,17 @@
 &mdss_dsi0_phy {
 	vdds-supply = <&vdda_mipi_dsi0_pll>;
 	status = "okay";
+};
+
+&pm6150_gpios {
+	touch_power_default: touch-power-default-state {
+		pins = "gpio4";
+		function = "normal";
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+		power-source = <1>;
+		bias-disable;
+		output-high;
+	};
 };
 
 &pm6150_resin {
@@ -837,6 +874,29 @@
 			function = "gpio";
 			bias-pull-up;
 		};
+	};
+
+	touch_int_default: touch-int-default-state {
+		pins = "gpio9";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	touch_reset_default: touch-reset-default-state {
+		pins = "gpio8";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		output-high;
+	};
+
+	touch_switch_default: touch-switch-default-state {
+		pins = "gpio72";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		output-low;
 	};
 };
 
