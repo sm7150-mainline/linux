@@ -658,8 +658,14 @@
 	status = "okay";
 };
 
+&pm6150_charger {
+	monitored-battery = <&battery>;
+	status = "okay";
+};
+
 &pm6150_qgauge {
 	monitored-battery = <&battery>;
+	power-supplies = <&pm6150_charger>;
 	status = "okay";
 };
 
@@ -680,12 +686,17 @@
 	connector {
 		compatible = "usb-c-connector";
 
-		power-role = "source";
+		op-sink-microwatt = <10000000>;
+		power-role = "dual";
 		data-role = "dual";
 		self-powered;
 
 		source-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
 			       PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)>;
+
+		sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
+			     PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)
+			     PDO_VAR(5000, 9000, 3000)>;
 
 		ports {
 			#address-cells = <1>;
