@@ -74,6 +74,22 @@
 		};
 	};
 
+	/*
+	 * Values match Google's downstream sunfish ATL/LSN cell profiles
+	 * (3080 mAh, 4.45 V max, 3.30 V min). The downstream kernel
+	 * dynamically selects per-cell profiles via a battery-ID resistor;
+	 * the DT-only path here picks the original pack data shared by
+	 * both vendors. Phones whose LSN cells received the post-incident
+	 * software mitigation (max charge limited to 3.95 V) will see
+	 * qcom_qg's voltage-based SOC plateau well below 100 %.
+	 */
+	battery: battery {
+		compatible = "simple-battery";
+		voltage-min-design-microvolt = <3300000>;
+		voltage-max-design-microvolt = <4450000>;
+		charge-full-design-microamp-hours = <3080000>;
+	};
+
 	reserved-memory {
 		mpss_mem: memory@8b000000 {
 			reg = <0x0 0x8b000000 0x0 0x9800000>;
@@ -639,6 +655,11 @@
 
 &mdss_dsi0_phy {
 	vdds-supply = <&vdda_mipi_dsi0_pll>;
+	status = "okay";
+};
+
+&pm6150_qgauge {
+	monitored-battery = <&battery>;
 	status = "okay";
 };
 
