@@ -2141,26 +2141,39 @@ static const struct camss_subdev_resources vfe_res_7150[] = {
 	},
 };
 
+/*
+ * Twice the figure the rest of this file carries. On this platform the smaller
+ * one is not enough: the fastest of the four sensors, 2592x1940 raw at 30 fps,
+ * loses CSI-2 lane FIFOs to overflow within a few frames whenever the CPU is
+ * also working the memory, and the receiver takes the whole stream down with
+ * it. Measured on the device, one run of that sensor per step: 2 GiB/s and
+ * 3 GiB/s both fail, 4 GiB/s and 6 GiB/s both run clean.
+ *
+ * Note the ratio this is not: the sensor itself writes some 190 MB/s, twenty
+ * times less than what it takes to keep it alive. The request is not paying for
+ * the camera's own traffic, it is asking the fabric and the DDR behind it to
+ * run at a point where a busy memory bus still leaves the receiver served.
+ */
 static const struct resources_icc icc_res_sm7150[] = {
 	{
 		.name = "cam_ahb",
-		.icc_bw_tbl.avg = 60000,
-		.icc_bw_tbl.peak = 120000,
+		.icc_bw_tbl.avg = 120000,
+		.icc_bw_tbl.peak = 240000,
 	},
 	{
 		.name = "cam_hf_0_mnoc",
-		.icc_bw_tbl.avg = 2097152,
-		.icc_bw_tbl.peak = 2097152,
+		.icc_bw_tbl.avg = 4194304,
+		.icc_bw_tbl.peak = 4194304,
 	},
 	{
 		.name = "cam_sf_0_mnoc",
 		.icc_bw_tbl.avg = 0,
-		.icc_bw_tbl.peak = 2097152,
+		.icc_bw_tbl.peak = 4194304,
 	},
 	{
 		.name = "cam_sf_icp_mnoc",
-		.icc_bw_tbl.avg = 2097152,
-		.icc_bw_tbl.peak = 2097152,
+		.icc_bw_tbl.avg = 4194304,
+		.icc_bw_tbl.peak = 4194304,
 	},
 };
 
