@@ -81,7 +81,14 @@ static const char * const swr_tx_data_groups[] = { "gpio1", "gpio2", "gpio5" };
 
 static const struct lpi_pingroup sm7150_groups[] = {
 	LPI_PINGROUP(0, 0, slimbus_clk, swr_tx_clk, _, _),
-	LPI_PINGROUP(1, 2, swr_tx_data, audio_ref, _, _),
+	/*
+	 * The SoundWire TX data line on this pin answers to the third mux
+	 * value, not the first: the vendor tree programs func3 here while it
+	 * uses func2 for the same signal on the neighbouring pin. Selecting the
+	 * first slot leaves the line off the bus, and the controller reports a
+	 * bus clash while the TX side of the codec never enumerates.
+	 */
+	LPI_PINGROUP(1, 2, _, audio_ref, swr_tx_data, _),
 	LPI_PINGROUP(2, 4, slimbus_data, swr_tx_data, _, _),
 	LPI_PINGROUP(3, 8, slimbus_data, swr_rx_clk, _, _),
 	LPI_PINGROUP(4, 10, slimbus_data, swr_rx_data, prim_mclk_a, _),
