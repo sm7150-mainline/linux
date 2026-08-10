@@ -4739,6 +4739,8 @@
 			#clock-cells = <0>;
 			clock-output-names = "mclk";
 			#sound-dai-cells = <1>;
+
+			status = "disabled";
 		};
 
 
@@ -4786,6 +4788,8 @@
 			#clock-cells = <0>;
 			clock-output-names = "fsgen";
 			#sound-dai-cells = <1>;
+
+			status = "disabled";
 		};
 
 		lpass_tlmm: pinctrl@62b52000 {
