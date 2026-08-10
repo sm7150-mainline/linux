@@ -89,10 +89,85 @@
 		pinctrl-names = "default";
 		model = "Xiaomi Mi 9T";
 
+		/*
+		 * Matches the vendor tree. Note the ADCs sit on SoundWire
+		 * inputs 0 and 2, not on consecutive ones. The vendor also
+		 * lists "MIC BIAS" -> "Analog MicN" links, but no such widgets
+		 * exist in the mainline codec driver.
+		 */
+		audio-routing = "AMIC1", "MIC BIAS1",
+				"AMIC2", "MIC BIAS2",
+				"AMIC3", "MIC BIAS3",
+				"TX SWR_ADC0", "ADC1_OUTPUT",
+				"TX SWR_ADC2", "ADC2_OUTPUT";
+
 		mm1-dai-link {
 			link-name = "MultiMedia1";
 			cpu {
 				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		/*
+		 * Capture needs a frontend of its own. With only MultiMedia1
+		 * both directions share a single PCM, and capture cannot set
+		 * hw params while playback is running, so userspace can never
+		 * have a source and a sink at the same time. Other boards do
+		 * the same, e.g. Qualcomm RB5 plays on MultiMedia2 and
+		 * captures on MultiMedia3.
+		 */
+		mm2-dai-link {
+			link-name = "MultiMedia2";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA2>;
+			};
+		};
+
+		/*
+		 * Capture through the WCD9375: the analogue mics reach the
+		 * codec's own ADCs and come back over the TX SoundWire bus,
+		 * the digital mics wired to the LPASS go through the VA macro.
+		 */
+		wcd-capture-dai-link {
+			link-name = "WCD Capture";
+
+			cpu {
+				sound-dai = <&q6afedai TX_CODEC_DMA_TX_3>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			/*
+			 * Use DAI 1 of swr2, not DAI 0. The controller registers
+			 * one DAI per port and assigns the direction by index
+			 * (qcom_swrm_register_dais()): the first num_dout_ports
+			 * DAIs are playback only, the rest are capture only.
+			 * The sm7150 TX controller has one dout port, so "SDW
+			 * Pin0" is playback and never gets hw_params in a capture
+			 * link - and sdw_stream_add_master() is called from there,
+			 * leaving the master ports unprogrammed. qcm6490-idp can
+			 * use <&swr1 0> because its TX controller has no dout port.
+			 */
+			codec {
+				sound-dai = <&wcd9375 1>, <&swr2 1>, <&txmacro 0>;
+			};
+		};
+
+		va-dai-link {
+			link-name = "VA Capture";
+
+			cpu {
+				sound-dai = <&q6afedai VA_CODEC_DMA_TX_0>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&vamacro 0>;
 			};
 		};
 
