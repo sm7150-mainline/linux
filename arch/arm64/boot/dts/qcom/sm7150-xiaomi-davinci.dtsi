@@ -604,8 +604,23 @@
 		compatible = "sdw20217010a00";
 		reg = <0 3>;
 
-		qcom,tx-port-mapping = <2 3 4 5>;\
-		qcom,tx-channel-mapping = /bits/ 8 <1 1 2 1 2 4 1 2 4 8>;
+		/*
+		 * Port topology belongs to the codec itself:
+		 *   TX Port 1 (ADC1)                <=> SWR Port 2
+		 *   TX Port 2 (ADC2, ADC3)          <=> SWR Port 2
+		 *   TX Port 3 (DMIC0..3 and MBHC)   <=> SWR Port 3
+		 *   TX Port 4 (DMIC4..7)            <=> SWR Port 4
+		 * Twelve channels: adc1, adc2, adc3, dmic0, dmic1, mbhc,
+		 * dmic2, dmic3, dmic4, dmic5, dmic6, dmic7.
+		 *
+		 * The master port numbers differ by one from qcm6490-idp,
+		 * which uses <1 1 2 3>: the driver looks the port config up
+		 * as pconfig[m_port], and the sm7150 TX controller has one
+		 * dout port, so the microphone inputs start at port 2 - which
+		 * is also why the qcom,ports-* arrays of swr2 begin with 0xff.
+		 */
+		qcom,tx-port-mapping = <2 2 3 4>;
+		qcom,tx-channel-mapping = /bits/ 8 <1 2 1 1 2 3 3 4 1 2 3 4>;
 	};
 };
 
