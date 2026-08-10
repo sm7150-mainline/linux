@@ -89,10 +89,85 @@
 		pinctrl-names = "default";
 		model = "Xiaomi Mi 9T";
 
+		/*
+		 * Matches the vendor tree. Note the ADCs sit on SoundWire
+		 * inputs 0 and 2, not on consecutive ones. The vendor also
+		 * lists "MIC BIAS" -> "Analog MicN" links, but no such widgets
+		 * exist in the mainline codec driver.
+		 */
+		audio-routing = "AMIC1", "MIC BIAS1",
+				"AMIC2", "MIC BIAS2",
+				"AMIC3", "MIC BIAS3",
+				"TX SWR_ADC0", "ADC1_OUTPUT",
+				"TX SWR_ADC2", "ADC2_OUTPUT";
+
 		mm1-dai-link {
 			link-name = "MultiMedia1";
 			cpu {
 				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		/*
+		 * Capture needs a frontend of its own. With only MultiMedia1
+		 * both directions share a single PCM, and capture cannot set
+		 * hw params while playback is running, so userspace can never
+		 * have a source and a sink at the same time. Other boards do
+		 * the same, e.g. Qualcomm RB5 plays on MultiMedia2 and
+		 * captures on MultiMedia3.
+		 */
+		mm2-dai-link {
+			link-name = "MultiMedia2";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA2>;
+			};
+		};
+
+		/*
+		 * Capture through the WCD9375: the analogue mics reach the
+		 * codec's own ADCs and come back over the TX SoundWire bus,
+		 * the digital mics wired to the LPASS go through the VA macro.
+		 */
+		wcd-capture-dai-link {
+			link-name = "WCD Capture";
+
+			cpu {
+				sound-dai = <&q6afedai TX_CODEC_DMA_TX_3>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			/*
+			 * Use DAI 1 of swr2, not DAI 0. The controller registers
+			 * one DAI per port and assigns the direction by index
+			 * (qcom_swrm_register_dais()): the first num_dout_ports
+			 * DAIs are playback only, the rest are capture only.
+			 * The sm7150 TX controller has one dout port, so "SDW
+			 * Pin0" is playback and never gets hw_params in a capture
+			 * link - and sdw_stream_add_master() is called from there,
+			 * leaving the master ports unprogrammed. qcm6490-idp can
+			 * use <&swr1 0> because its TX controller has no dout port.
+			 */
+			codec {
+				sound-dai = <&wcd9375 1>, <&swr2 1>, <&txmacro 0>;
+			};
+		};
+
+		va-dai-link {
+			link-name = "VA Capture";
+
+			cpu {
+				sound-dai = <&q6afedai VA_CODEC_DMA_TX_0>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&vamacro 0>;
 			};
 		};
 
@@ -110,6 +185,33 @@
 				sound-dai = <&tfa9874>;
 			};
 		};
+	};
+
+	/*
+	 * WCD9375. Reset is LPI pin 6 - the vendor tree calls it 24, counting
+	 * from a base 0x12000 lower than the one mainline uses. Supplies are
+	 * taken from the vendor tree for this board: L10A for the rxtx and px
+	 * rails, L15A for the buck, BOB for the mic bias.
+	 */
+	wcd9375: audio-codec-0 {
+		compatible = "qcom,wcd9375-codec";
+
+		reset-gpios = <&lpass_tlmm 6 GPIO_ACTIVE_LOW>;
+
+		vdd-buck-supply = <&vreg_l15a_1p8>;
+		vdd-rxtx-supply = <&vreg_l10a_1p8>;
+		vdd-px-supply = <&vreg_l10a_1p8>;
+		vdd-mic-bias-supply = <&vreg_bob>;
+
+		/* From the vendor tree: 2750/1800/2750 mV, not all the same */
+		qcom,micbias1-microvolt = <2750000>;
+		qcom,micbias2-microvolt = <1800000>;
+		qcom,micbias3-microvolt = <2750000>;
+
+		qcom,rx-device = <&wcd_rx>;
+		qcom,tx-device = <&wcd_tx>;
+
+		#sound-dai-cells = <1>;
 	};
 
 	camt_avdd_2p8: regulator-camt-avdd-2p8 {
@@ -584,6 +686,56 @@
 		bias-pull-up;
 		input-enable;
 	};
+};
+
+&swr1 {
+	status = "okay";
+
+	wcd_rx: codec@0,4 {
+		compatible = "sdw20217010a00";
+		reg = <0 4>;
+
+		qcom,rx-port-mapping = <1 2 3 4 5>;
+		qcom,rx-channel-mapping = /bits/ 8 <1 2 1 1 2 1 1 2>;
+	};
+};
+
+&swr2 {
+	status = "okay";
+	wcd_tx: codec@0,3 {
+		compatible = "sdw20217010a00";
+		reg = <0 3>;
+
+		/*
+		 * Port topology belongs to the codec itself:
+		 *   TX Port 1 (ADC1)                <=> SWR Port 2
+		 *   TX Port 2 (ADC2, ADC3)          <=> SWR Port 2
+		 *   TX Port 3 (DMIC0..3 and MBHC)   <=> SWR Port 3
+		 *   TX Port 4 (DMIC4..7)            <=> SWR Port 4
+		 * Twelve channels: adc1, adc2, adc3, dmic0, dmic1, mbhc,
+		 * dmic2, dmic3, dmic4, dmic5, dmic6, dmic7.
+		 *
+		 * The master port numbers differ by one from qcm6490-idp,
+		 * which uses <1 1 2 3>: the driver looks the port config up
+		 * as pconfig[m_port], and the sm7150 TX controller has one
+		 * dout port, so the microphone inputs start at port 2 - which
+		 * is also why the qcom,ports-* arrays of swr2 begin with 0xff.
+		 */
+		qcom,tx-port-mapping = <2 2 3 4>;
+		qcom,tx-channel-mapping = /bits/ 8 <1 2 1 1 2 3 3 4 1 2 3 4>;
+	};
+};
+
+&vamacro {
+	status = "okay";
+};
+
+&txmacro {
+	status = "okay";
+};
+
+&rxmacro {
+	status = "okay";
 };
 
 &venus {

@@ -81,11 +81,26 @@ static const char * const swr_tx_data_groups[] = { "gpio1", "gpio2", "gpio5" };
 
 static const struct lpi_pingroup sm7150_groups[] = {
 	LPI_PINGROUP(0, 0, slimbus_clk, swr_tx_clk, _, _),
-	LPI_PINGROUP(1, 2, swr_tx_data, audio_ref, _, _),
+	/*
+	 * The SoundWire TX data line on this pin answers to the third mux
+	 * value, not the first: the vendor tree programs func3 here while it
+	 * uses func2 for the same signal on the neighbouring pin. Selecting the
+	 * first slot leaves the line off the bus, and the controller reports a
+	 * bus clash while the TX side of the codec never enumerates.
+	 */
+	LPI_PINGROUP(1, 2, _, audio_ref, swr_tx_data, _),
 	LPI_PINGROUP(2, 4, slimbus_data, swr_tx_data, _, _),
 	LPI_PINGROUP(3, 8, slimbus_data, swr_rx_clk, _, _),
 	LPI_PINGROUP(4, 10, slimbus_data, swr_rx_data, prim_mclk_a, _),
-	LPI_PINGROUP(5, 6, qua_mi2s_sclk, _, swr_rx_data, swr_tx_data),
+	/*
+	 * Same off-by-one slot as GPIO1 above, on the second SoundWire RX data
+	 * line: the vendor tree programs func2 for gpio23, while listing
+	 * swr_rx_data third here makes the driver select 3. The bus enumerates
+	 * either way, so this only shows up once playback data actually flows -
+	 * the controller then reports MASTER_CLASH_DET and the stream dies
+	 * after a fraction of a second.
+	 */
+	LPI_PINGROUP(5, 6, qua_mi2s_sclk, swr_rx_data, _, swr_tx_data),
 	LPI_PINGROUP(6, LPI_NO_SLEW, qua_mi2s_ws, cdc_pdm_rx, _, _),
 	LPI_PINGROUP(7, LPI_NO_SLEW, qua_mi2s_data, _, _, _),
 	LPI_PINGROUP(8, LPI_NO_SLEW, qua_mi2s_data, dmic1_clk, _, _),
