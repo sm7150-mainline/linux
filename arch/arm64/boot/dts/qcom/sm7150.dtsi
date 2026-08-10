@@ -4688,7 +4688,18 @@
 			reg = <0 0x62ed0000 0 0x2000>;
 			compatible = "qcom,soundwire-v1.5.1";
 			status = "disabled";
-			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>;
+			/*
+			 * The TX bus needs the second, wakeup interrupt: capture
+			 * traffic originates at the codec, so the bus has to wake
+			 * itself. Without it the SoundWire device never leaves
+			 * runtime suspend, regmap-irq keeps reporting "IRQ sync
+			 * failed to resume" and the sound card fails to probe.
+			 * The RX bus does not need it - it is woken by the
+			 * playback side.
+			 */
+			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 500 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "core", "wakeup";
 
 			clocks = <&txmacro>;
 			clock-names = "iface";
