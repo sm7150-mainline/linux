@@ -112,6 +112,33 @@
 		};
 	};
 
+	/*
+	 * WCD9375. Reset is LPI pin 6 - the vendor tree calls it 24, counting
+	 * from a base 0x12000 lower than the one mainline uses. Supplies are
+	 * taken from the vendor tree for this board: L10A for the rxtx and px
+	 * rails, L15A for the buck, BOB for the mic bias.
+	 */
+	wcd9375: audio-codec-0 {
+		compatible = "qcom,wcd9375-codec";
+
+		reset-gpios = <&lpass_tlmm 6 GPIO_ACTIVE_LOW>;
+
+		vdd-buck-supply = <&vreg_l15a_1p8>;
+		vdd-rxtx-supply = <&vreg_l10a_1p8>;
+		vdd-px-supply = <&vreg_l10a_1p8>;
+		vdd-mic-bias-supply = <&vreg_bob>;
+
+		/* From the vendor tree: 2750/1800/2750 mV, not all the same */
+		qcom,micbias1-microvolt = <2750000>;
+		qcom,micbias2-microvolt = <1800000>;
+		qcom,micbias3-microvolt = <2750000>;
+
+		qcom,rx-device = <&wcd_rx>;
+		qcom,tx-device = <&wcd_tx>;
+
+		#sound-dai-cells = <1>;
+	};
+
 	camt_avdd_2p8: regulator-camt-avdd-2p8 {
 		compatible = "regulator-fixed";
 		regulator-name = "camt_avdd_2p8";
