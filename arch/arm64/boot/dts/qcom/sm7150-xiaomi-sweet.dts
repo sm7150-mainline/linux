@@ -129,6 +129,29 @@
 	};
 };
 
+&battery {
+	charge-full-design-microamp-hours = <5020000>;
+	/* Also the DCP input current limit of the charger, AICL backs off on weak adapters */
+	constant-charge-current-max-microamp = <2000000>;
+	/* K6 Sunwoda 5020 mAh profile from the downstream qpnp-qg battery data, 25 degC */
+	factory-internal-resistance-micro-ohms = <200000>;
+	ocv-capacity-celsius = <25>;
+	ocv-capacity-table-0 = <4433500 100>, <4416800 98>, <4399000 96>, <4380200 94>,
+		<4360400 92>, <4339300 90>, <4316400 88>, <4292500 86>,
+		<4268400 84>, <4243800 82>, <4219400 80>, <4195100 78>,
+		<4171300 76>, <4148000 74>, <4125300 72>, <4103300 70>,
+		<4081900 68>, <4061100 66>, <4041400 64>, <4023000 62>,
+		<4002100 60>, <3973100 58>, <3943500 56>, <3924400 54>,
+		<3910600 52>, <3898200 50>, <3886500 48>, <3875600 46>,
+		<3865200 44>, <3855100 42>, <3845900 40>, <3837700 38>,
+		<3830200 36>, <3823400 34>, <3817200 32>, <3811500 30>,
+		<3806300 28>, <3801100 26>, <3793700 24>, <3783300 22>,
+		<3771500 20>, <3758600 18>, <3744500 16>, <3728000 14>,
+		<3715300 12>, <3707800 10>, <3705700 9>, <3704200 8>,
+		<3701200 7>, <3688500 6>, <3652500 5>, <3604600 4>,
+		<3542800 3>, <3458300 2>, <3325600 1>, <3000000 0>;
+};
+
 &dispcc {
 	status = "okay";
 };
@@ -227,6 +250,20 @@
 
 	vsn-supply = <&vreg_ibb>;
 	vsp-supply = <&vreg_lab>;
+};
+
+&pm6150_qgauge {
+	power-supplies = <&pm6150_charger>;
+};
+
+&pm6150_typec {
+	connector {
+		op-sink-microwatt = <15000000>;
+		power-role = "dual";
+
+		sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_DUAL_ROLE |
+			     PDO_FIXED_USB_COMM | PDO_FIXED_DATA_SWAP)>;
+	};
 };
 
 &q6afedai {

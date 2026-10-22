@@ -265,6 +265,9 @@ struct smb_match_data {
 	const struct smb_init_register *init_seq;
 	unsigned int current_step_size_ua;
 	unsigned int current_limit_max_ua;
+	int fv_min_uv;
+	int fv_max_uv;
+	int fv_step_uv;
 };
 
 static enum power_supply_property smb_properties[] = {
@@ -406,6 +409,14 @@ static int smb_get_prop_status(struct smb_chip *chip, int *val)
 	}
 
 	stat = stat & BATTERY_CHARGER_STATUS_MASK;
+
+	/* SMB5 reports inhibit as 0 and pause as 6, the other states match */
+	if (chip->gen == SMB5) {
+		if (stat == 0)
+			stat = INHIBIT_CHARGE;
+		else if (stat == 6)
+			stat = DISABLE_CHARGE;
+	}
 
 	switch (stat) {
 	case TRICKLE_CHARGE:
@@ -661,7 +672,6 @@ static int smb_get_property(struct power_supply *psy,
 			     union power_supply_propval *val)
 {
 	struct smb_chip *chip = power_supply_get_drvdata(psy);
-	int ret;
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_MANUFACTURER:
@@ -675,13 +685,7 @@ static int smb_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 		return smb_get_current_now(chip, &val->intval);
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-		ret = smb_get_iio_chan(chip, chip->usb_in_v_chan,
-					 &val->intval);
-		if (!ret) {
-			if (chip->gen == SMB5)
-				val->intval *= 16;
-		}
-		return ret;
+		return smb_get_iio_chan(chip, chip->usb_in_v_chan, &val->intval);
 	case POWER_SUPPLY_PROP_ONLINE:
 		return smb_get_prop_usb_online(chip, &val->intval);
 	case POWER_SUPPLY_PROP_STATUS:
@@ -965,6 +969,9 @@ struct smb_match_data pmi8998_match_data = {
 	.gen = SMB2,
 	.current_step_size_ua = 25000,
 	.current_limit_max_ua = 4800000,
+	.fv_min_uv = 3487500,
+	.fv_max_uv = 4920000,
+	.fv_step_uv = 7500,
 };
 
 struct smb_match_data pm660_match_data = {
@@ -974,6 +981,9 @@ struct smb_match_data pm660_match_data = {
 	.gen = SMB2,
 	.current_step_size_ua = 25000,
 	.current_limit_max_ua = 4800000,
+	.fv_min_uv = 3487500,
+	.fv_max_uv = 4920000,
+	.fv_step_uv = 7500,
 };
 
 struct smb_match_data pm8150b_match_data = {
@@ -983,6 +993,9 @@ struct smb_match_data pm8150b_match_data = {
 	.gen = SMB5,
 	.current_step_size_ua = 50000,
 	.current_limit_max_ua = 5000000,
+	.fv_min_uv = 3600000,
+	.fv_max_uv = 4790000,
+	.fv_step_uv = 10000,
 };
 
 struct smb_match_data pm7250b_match_data = {
@@ -992,6 +1005,9 @@ struct smb_match_data pm7250b_match_data = {
 	.gen = SMB5,
 	.current_step_size_ua = 50000,
 	.current_limit_max_ua = 5000000,
+	.fv_min_uv = 3600000,
+	.fv_max_uv = 4790000,
+	.fv_step_uv = 10000,
 };
 
 
@@ -1043,7 +1059,7 @@ static int smb_probe(struct platform_device *pdev)
 	struct power_supply_desc *desc;
 	struct smb_chip *chip;
 	const struct smb_match_data *match_data;
-	int rc, irq;
+	int rc, irq, fv_uv;
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
@@ -1117,11 +1133,18 @@ static int smb_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to init status change work\n");
 
-	rc = (chip->batt_info->voltage_max_design_uv - 3487500) / 7500 + 1;
-	rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
-				FLOAT_VOLTAGE_SETTING_MASK, rc);
-	if (rc < 0)
-		return dev_err_probe(chip->dev, rc, "Couldn't set vbat max\n");
+	fv_uv = chip->batt_info->voltage_max_design_uv;
+	if (fv_uv < match_data->fv_min_uv || fv_uv > match_data->fv_max_uv) {
+		dev_warn(chip->dev,
+			 "Battery max voltage %d uV out of range, preserving hardware setting\n",
+			 fv_uv);
+	} else {
+		rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
+					FLOAT_VOLTAGE_SETTING_MASK,
+					(fv_uv - match_data->fv_min_uv) / match_data->fv_step_uv);
+		if (rc < 0)
+			return dev_err_probe(chip->dev, rc, "Couldn't set vbat max\n");
+	}
 
 	rc = smb_init_irq(chip, &irq, "bat-ov", smb_handle_batt_overvoltage);
 	if (rc < 0)
