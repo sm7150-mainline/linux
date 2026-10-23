@@ -1424,11 +1424,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1460,11 +1460,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1497,11 +1497,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1533,11 +1533,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1570,11 +1570,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1606,11 +1606,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1643,7 +1643,7 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&system_noc A1NOC_SNOC_MAS QCOM_ICC_TAG_ALWAYS
 						 &gem_noc SLAVE_LLCC QCOM_ICC_TAG_ALWAYS>;
@@ -1668,11 +1668,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1704,11 +1704,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1740,11 +1740,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1777,7 +1777,7 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&system_noc A1NOC_SNOC_MAS QCOM_ICC_TAG_ALWAYS
 						 &gem_noc SLAVE_LLCC QCOM_ICC_TAG_ALWAYS>;
@@ -1802,11 +1802,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				required-opps = <&rpmhpd_opp_low_svs>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1838,11 +1838,11 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&gem_noc MASTER_AMPSS_M0 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
-						<&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+						<&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &mc_virt SLAVE_EBI_CH0 QCOM_ICC_TAG_ALWAYS>;
 				interconnect-names = "qup-core",
 						     "qup-config",
@@ -1875,7 +1875,7 @@
 				power-domains = <&rpmhpd RPMHPD_CX>;
 				operating-points-v2 = <&qup_opp_table>;
 
-				interconnects = <&aggre1_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
+				interconnects = <&aggre2_noc MASTER_QUP_1 QCOM_ICC_TAG_ALWAYS
 						 &config_noc SLAVE_QUP_1 QCOM_ICC_TAG_ALWAYS>,
 						<&system_noc A1NOC_SNOC_MAS QCOM_ICC_TAG_ALWAYS
 						 &gem_noc SLAVE_LLCC QCOM_ICC_TAG_ALWAYS>;
