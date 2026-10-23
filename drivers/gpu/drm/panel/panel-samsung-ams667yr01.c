@@ -14,10 +14,10 @@
 
 #include <drm/display/drm_dsc.h>
 #include <drm/display/drm_dsc_helper.h>
+#include <drm/drm_connector.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
-#include <drm/drm_probe_helper.h>
 
 struct ams667yr01 {
 	struct drm_panel panel;
@@ -172,65 +172,56 @@ static int ams667yr01_unprepare(struct drm_panel *panel)
 	return 0;
 }
 
+/*
+ * The panel changes its refresh rate like the downstream driver does
+ * (dfps_immediate_porch_mode_vfp): the pixel clock stays at the 120Hz rate
+ * and the vertical front porch is stretched. Scaling the clock instead
+ * garbles the picture on at least some panels.
+ */
+#define AMS667YR01_MODE(_vfp)						\
+	{								\
+		.clock = (1080 + 120 + 28 + 120) *			\
+			 (2400 + 20 + 2 + 10) * 120 / 1000,		\
+		.hdisplay = 1080,					\
+		.hsync_start = 1080 + 120,				\
+		.hsync_end = 1080 + 120 + 28,				\
+		.htotal = 1080 + 120 + 28 + 120,			\
+		.vdisplay = 2400,					\
+		.vsync_start = 2400 + (_vfp),				\
+		.vsync_end = 2400 + (_vfp) + 2,				\
+		.vtotal = 2400 + (_vfp) + 2 + 10,			\
+		.width_mm = 69,						\
+		.height_mm = 154,					\
+	}
+
 static const struct drm_display_mode ams667yr01_modes[] = {
-	{
-		/* 120Hz mode */
-		.clock = (1080 + 120 + 28 + 120) * (2400 + 20 + 2 + 10) * 120 /
-			 1000,
-		.hdisplay = 1080,
-		.hsync_start = 1080 + 120,
-		.hsync_end = 1080 + 120 + 28,
-		.htotal = 1080 + 120 + 28 + 120,
-		.vdisplay = 2400,
-		.vsync_start = 2400 + 20,
-		.vsync_end = 2400 + 20 + 2,
-		.vtotal = 2400 + 20 + 2 + 10,
-		.width_mm = 69,
-		.height_mm = 154,
-	},
-	{
-		/* 90Hz mode */
-		.clock = (1080 + 120 + 28 + 120) * (2400 + 20 + 2 + 10) * 90 /
-			 1000,
-		.hdisplay = 1080,
-		.hsync_start = 1080 + 120,
-		.hsync_end = 1080 + 120 + 28,
-		.htotal = 1080 + 120 + 28 + 120,
-		.vdisplay = 2400,
-		.vsync_start = 2400 + 20,
-		.vsync_end = 2400 + 20 + 2,
-		.vtotal = 2400 + 20 + 2 + 10,
-		.width_mm = 69,
-		.height_mm = 154,
-	},
-	{
-		/* 60Hz mode */
-		.clock = (1080 + 120 + 28 + 120) * (2400 + 20 + 2 + 10) * 60 /
-			 1000,
-		.hdisplay = 1080,
-		.hsync_start = 1080 + 120,
-		.hsync_end = 1080 + 120 + 28,
-		.htotal = 1080 + 120 + 28 + 120,
-		.vdisplay = 2400,
-		.vsync_start = 2400 + 20,
-		.vsync_end = 2400 + 20 + 2,
-		.vtotal = 2400 + 20 + 2 + 10,
-		.width_mm = 69,
-		.height_mm = 154,
-	},
+	/* 120Hz mode */
+	AMS667YR01_MODE(20),
+	/* 60Hz mode, twice the vtotal of the 120Hz mode */
+	AMS667YR01_MODE(20 + 2400 + 20 + 2 + 10),
 };
 
 static int ams667yr01_get_modes(struct drm_panel *panel,
 				struct drm_connector *connector)
 {
-	int count = 0;
-
 	for (int i = 0; i < ARRAY_SIZE(ams667yr01_modes); i++) {
-		count += drm_connector_helper_get_modes_fixed(
-			connector, &ams667yr01_modes[i]);
+		struct drm_display_mode *mode;
+
+		mode = drm_mode_duplicate(connector->dev, &ams667yr01_modes[i]);
+		if (!mode)
+			return -ENOMEM;
+
+		drm_mode_set_name(mode);
+		mode->type = DRM_MODE_TYPE_DRIVER;
+		if (i == 0)
+			mode->type |= DRM_MODE_TYPE_PREFERRED;
+		drm_mode_probed_add(connector, mode);
 	}
 
-	return count;
+	connector->display_info.width_mm = ams667yr01_modes[0].width_mm;
+	connector->display_info.height_mm = ams667yr01_modes[0].height_mm;
+
+	return ARRAY_SIZE(ams667yr01_modes);
 }
 
 static const struct drm_panel_funcs ams667yr01_panel_funcs = {
