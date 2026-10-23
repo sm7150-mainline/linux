@@ -222,6 +222,8 @@ struct qcom_swrm_ctrl {
 	u32 slave_status;
 	u32 wr_fifo_depth;
 	bool clock_stop_not_supported;
+	/* hclk could not be enabled in runtime resume, MMIO is dead */
+	bool clk_failed;
 };
 
 struct qcom_swrm_data {
@@ -334,6 +336,9 @@ static int qcom_swrm_ahb_reg_read(struct qcom_swrm_ctrl *ctrl, int reg,
 	struct regmap *wcd_regmap = ctrl->regmap;
 	int ret;
 
+	if (ctrl->clk_failed)
+		return -ENODEV;
+
 	/* pg register + offset */
 	ret = regmap_bulk_write(wcd_regmap, SWRM_AHB_BRIDGE_RD_ADDR_0,
 			  (u8 *)&reg, 4);
@@ -353,6 +358,10 @@ static int qcom_swrm_ahb_reg_write(struct qcom_swrm_ctrl *ctrl,
 {
 	struct regmap *wcd_regmap = ctrl->regmap;
 	int ret;
+
+	if (ctrl->clk_failed)
+		return -ENODEV;
+
 	/* pg register + offset */
 	ret = regmap_bulk_write(wcd_regmap, SWRM_AHB_BRIDGE_WR_DATA_0,
 			  (u8 *)&val, 4);
@@ -371,6 +380,9 @@ static int qcom_swrm_ahb_reg_write(struct qcom_swrm_ctrl *ctrl,
 static int qcom_swrm_cpu_reg_read(struct qcom_swrm_ctrl *ctrl, int reg,
 				  u32 *val)
 {
+	if (ctrl->clk_failed)
+		return -ENODEV;
+
 	*val = readl(ctrl->mmio + reg);
 	return SDW_CMD_OK;
 }
@@ -378,6 +390,9 @@ static int qcom_swrm_cpu_reg_read(struct qcom_swrm_ctrl *ctrl, int reg,
 static int qcom_swrm_cpu_reg_write(struct qcom_swrm_ctrl *ctrl, int reg,
 				   int val)
 {
+	if (ctrl->clk_failed)
+		return -ENODEV;
+
 	writel(val, ctrl->mmio + reg);
 	return SDW_CMD_OK;
 }
@@ -1704,6 +1719,7 @@ static void qcom_swrm_remove(struct platform_device *pdev)
 static int __maybe_unused swrm_runtime_resume(struct device *dev)
 {
 	struct qcom_swrm_ctrl *ctrl = dev_get_drvdata(dev);
+	bool needs_reinit;
 	int ret;
 
 	if (ctrl->wake_irq > 0) {
@@ -1711,9 +1727,23 @@ static int __maybe_unused swrm_runtime_resume(struct device *dev)
 			disable_irq_nosync(ctrl->wake_irq);
 	}
 
-	clk_prepare_enable(ctrl->hclk);
+	ret = clk_prepare_enable(ctrl->hclk);
+	if (ret) {
+		/*
+		 * The iface clock comes from the LPASS macro and needs the
+		 * ADSP. Touching the controller without it raises a NoC
+		 * error, and returning the error latches runtime_error for
+		 * every slave. Skip the bus init until the clock is back.
+		 */
+		dev_err(dev, "unable to enable iface clock (%d), skipping bus init\n", ret);
+		ctrl->clk_failed = true;
+		return 0;
+	}
 
-	if (ctrl->clock_stop_not_supported) {
+	needs_reinit = ctrl->clk_failed;
+	ctrl->clk_failed = false;
+
+	if (ctrl->clock_stop_not_supported || needs_reinit) {
 		reinit_completion(&ctrl->enumeration);
 		ctrl->reg_write(ctrl, SWRM_COMP_SW_RESET, 0x01);
 		usleep_range(100, 105);
@@ -1771,6 +1801,16 @@ static int __maybe_unused swrm_runtime_suspend(struct device *dev)
 	struct qcom_swrm_ctrl *ctrl = dev_get_drvdata(dev);
 	int ret;
 
+	if (ctrl->clk_failed) {
+		/* hclk was never enabled and MMIO is dead, nothing to stop */
+		ctrl->clk_failed = false;
+		if (ctrl->wake_irq > 0) {
+			if (irqd_irq_disabled(irq_get_irq_data(ctrl->wake_irq)))
+				enable_irq(ctrl->wake_irq);
+		}
+		return 0;
+	}
+
 	swrm_wait_for_wr_fifo_done(ctrl);
 	if (!ctrl->clock_stop_not_supported) {
 		/* Mask bus clash interrupt */
@@ -1784,15 +1824,16 @@ static int __maybe_unused swrm_runtime_suspend(struct device *dev)
 		/* Prepare slaves for clock stop */
 		ret = sdw_bus_prep_clk_stop(&ctrl->bus);
 		if (ret < 0 && ret != -ENODATA) {
-			dev_err(dev, "prepare clock stop failed %d", ret);
-			return ret;
+			dev_err(dev, "prepare clock stop failed %d\n", ret);
+		} else {
+			ret = sdw_bus_clk_stop(&ctrl->bus);
+			if (ret < 0 && ret != -ENODATA)
+				dev_err(dev, "bus clock stop failed %d\n", ret);
 		}
-
-		ret = sdw_bus_clk_stop(&ctrl->bus);
-		if (ret < 0 && ret != -ENODATA) {
-			dev_err(dev, "bus clock stop failed %d", ret);
-			return ret;
-		}
+		/*
+		 * Don't fail the suspend: a latched runtime_error would make
+		 * every slave resume fail with -EBUSY. Resume re-inits the bus.
+		 */
 	}
 
 	clk_disable_unprepare(ctrl->hclk);

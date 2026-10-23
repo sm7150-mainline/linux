@@ -75,15 +75,32 @@
 	};
 
 	sound {
-		compatible = "qcom,sm8250-sndcard";
+		compatible = "xiaomi,sweet-sndcard";
 		pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
 		pinctrl-names = "default";
 		model = "Redmi Note 10 Pro";
+		widgets = "Speaker", "Speaker Spk",
+			  "Speaker", "Microphone Spk";
+		audio-routing = "Speaker Spk", "Speaker DAC Output",
+				"Microphone Spk", "Microphone DAC Output",
+				"Speaker AIF_RX", "PRI_MI2S_RX",
+				"Microphone AIF_RX", "PRI_MI2S_RX",
+				"AMIC1", "MIC BIAS1",
+				"AMIC2", "MIC BIAS2",
+				"AMIC3", "MIC BIAS3",
+				"TX SWR_ADC0", "ADC1_OUTPUT";
 
 		mm1-dai-link {
 			link-name = "MultiMedia1";
 			cpu {
 				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		mm2-dai-link {
+			link-name = "MultiMedia2";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA2>;
 			};
 		};
 
@@ -98,7 +115,22 @@
 			};
 
 			codec {
-				sound-dai = <&speaker_amp>;
+				sound-dai = <&speaker_amp>, <&mic_amp>;
+			};
+		};
+
+		mic_capture_dai {
+			link-name = "WCD937x Capture";
+			cpu {
+				sound-dai = <&q6afedai TX_CODEC_DMA_TX_3>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&wcd9370 1>, <&swr_tx 0>, <&txmacro 0>;
 			};
 		};
 	};
@@ -126,6 +158,30 @@
 		enable-active-high;
 		regulator-boot-on;
 		startup-delay-us = <4000>;
+	};
+
+	wcd9370: audio-codec {
+		compatible = "qcom,wcd9370-codec";
+		pinctrl-0 = <&wcd9375_reset_active>;
+		pinctrl-names = "default";
+
+		reset-gpios = <&lpass_tlmm 6 GPIO_ACTIVE_LOW>;
+
+		vdd-buck-supply = <&vreg_l15a_1p8>;
+		vdd-rxtx-supply = <&vreg_l10a_1p8>;
+		vdd-px-supply = <&vreg_l10a_1p8>;
+		vdd-mic-bias-supply = <&vreg_bob>;
+
+		qcom,micbias1-microvolt = <2750000>;
+		qcom,micbias2-microvolt = <2750000>;
+		qcom,micbias3-microvolt = <2750000>;
+		qcom,mbhc-buttons-vthreshold-microvolt = <75000 150000 237000 500000
+							  500000 500000 500000 500000>;
+
+		qcom,rx-device = <&wcd937x_rx>;
+		qcom,tx-device = <&wcd937x_tx>;
+
+		#sound-dai-cells = <1>;
 	};
 };
 
@@ -155,7 +211,6 @@
 		pinctrl-0 = <&amp_t_int_default>;
 
 		awinic,audio-channel = <0>;
-		awinic,sync-flag;
 
 		sound-name-prefix = "Speaker";
 		#sound-dai-cells = <0>;
@@ -173,7 +228,6 @@
 		pinctrl-0 = <&amp_b_int_default>;
 
 		awinic,audio-channel = <1>;
-		awinic,sync-flag;
 
 		sound-name-prefix = "Microphone";
 		#sound-dai-cells = <0>;
@@ -234,11 +288,19 @@
 		reg = <PRIMARY_MI2S_RX>;
 		qcom,sd-lines = <0>;
 	};
+
+	dai@120 {
+		reg = <TX_CODEC_DMA_TX_3>;
+	};
 };
 
 &q6asmdai {
 	dai@0 {
 		reg = <MSM_FRONTEND_DAI_MULTIMEDIA1>;
+	};
+
+	dai@1 {
+		reg = <MSM_FRONTEND_DAI_MULTIMEDIA2>;
 	};
 };
 
@@ -254,8 +316,36 @@
 	firmware-name = "qcom/sm7150/xiaomi/sweet/modem.mbn";
 };
 
+&rxmacro {
+	status = "okay";
+};
+
 &sdhc_2 {
 	status = "okay";
+};
+
+&swr_rx {
+	status = "okay";
+
+	wcd937x_rx: codec@0,4 {
+		compatible = "sdw20217010a00";
+		reg = <0 4>;
+		qcom,rx-port-mapping = <1 2 3 4 5>;
+		qcom,rx-channel-mapping = /bits/ 8 <1 2 1 1 2 1 1 2>;
+		#sound-dai-cells = <1>;
+	};
+};
+
+&swr_tx {
+	status = "okay";
+
+	wcd937x_tx: codec@0,3 {
+		compatible = "sdw20217010a00";
+		reg = <0 3>;
+		qcom,tx-port-mapping = <2 3 4 5>;
+		qcom,tx-channel-mapping = /bits/ 8 <1 1 2 1 2 3 3 4 1 2 3 4>;
+		#sound-dai-cells = <1>;
+	};
 };
 
 &tlmm {
@@ -276,8 +366,16 @@
 	};
 };
 
+&txmacro {
+	status = "okay";
+};
+
 &uart8 {
 	status = "disabled";
+};
+
+&vamacro {
+	status = "okay";
 };
 
 &venus {

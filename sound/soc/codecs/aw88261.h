@@ -541,6 +541,22 @@
 #define AW88261_REG_TO_DB		(0x3f)
 #define AW88261_INIT_PROFILE		(0)
 
+/*
+ * AW88263S register layout differences. Unlike the AW88261_*_MASK
+ * defines these are plain (not inverted) masks.
+ * SYSCTRL2 (0x05): VOL[15:6] | HDCCE[5] | HMUTE[4] | BST_IPEAK[3:0]
+ */
+#define AW88263S_VOL_SHIFT		(6)
+#define AW88263S_VOL_MASK		GENMASK(15, 6)
+#define AW88263S_HMUTE_MASK		BIT(4)
+#define AW88263S_HMUTE_ENABLE		BIT(4)
+#define AW88263S_HMUTE_DISABLE		(0)
+/* I2STXEN is bit 0 of 0x07, 0x08 holds the slot configuration */
+#define AW88263S_I2SCFG1_REG		(0x07)
+#define AW88263S_I2STXEN_MASK		BIT(0)
+#define AW88263S_I2STXEN_ENABLE		BIT(0)
+#define AW88263S_I2STXEN_DISABLE	(0)
+
 #define REG_VAL_TO_DB(value)		((((value) >> AW88261_VOL_6DB_START) * \
 					AW88261_VOLUME_STEP_DB) + \
 					((value) & AW88261_REG_TO_DB))

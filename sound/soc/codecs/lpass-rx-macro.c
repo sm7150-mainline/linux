@@ -666,6 +666,8 @@ struct rx_macro {
 	struct clk *dcodec;
 	struct clk *fsgen;
 	struct clk_hw hw;
+	/* clocks could not be enabled in runtime resume (ADSP down) */
+	bool clk_failed;
 };
 #define to_rx_macro(_hw) container_of(_hw, struct rx_macro, hw)
 
@@ -3973,6 +3975,11 @@ static int rx_macro_runtime_suspend(struct device *dev)
 	regcache_cache_only(rx->regmap, true);
 	regcache_mark_dirty(rx->regmap);
 
+	if (rx->clk_failed) {
+		rx->clk_failed = false;
+		return 0;
+	}
+
 	clk_disable_unprepare(rx->fsgen);
 	clk_disable_unprepare(rx->npl);
 	clk_disable_unprepare(rx->mclk);
@@ -3987,8 +3994,10 @@ static int rx_macro_runtime_resume(struct device *dev)
 
 	ret = clk_prepare_enable(rx->mclk);
 	if (ret) {
-		dev_err(dev, "unable to prepare mclk\n");
-		return ret;
+		/* see lpass-va-macro: don't latch runtime_error, stay cache-only */
+		dev_err(dev, "unable to prepare mclk (%d), staying cache-only\n", ret);
+		rx->clk_failed = true;
+		return 0;
 	}
 
 	ret = clk_prepare_enable(rx->npl);
@@ -4002,6 +4011,7 @@ static int rx_macro_runtime_resume(struct device *dev)
 		dev_err(dev, "unable to prepare fsgen\n");
 		goto err_fsgen;
 	}
+	rx->clk_failed = false;
 	regcache_cache_only(rx->regmap, false);
 	regcache_sync(rx->regmap);
 
@@ -4010,8 +4020,9 @@ err_fsgen:
 	clk_disable_unprepare(rx->npl);
 err_npl:
 	clk_disable_unprepare(rx->mclk);
+	rx->clk_failed = true;
 
-	return ret;
+	return 0;
 }
 
 static const struct dev_pm_ops rx_macro_pm_ops = {

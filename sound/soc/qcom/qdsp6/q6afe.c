@@ -1014,7 +1014,8 @@ static int q6afe_callback(struct apr_device *adev, const struct apr_resp_pkt *da
 		break;
 	case AFE_CMD_RSP_REMOTE_LPASS_CORE_HW_VOTE_REQUEST:
 		afe->result.opcode = hdr->opcode;
-		afe->result.status = res->status;
+		/* The payload is only the client handle, there is no status word */
+		afe->result.status = 0;
 		//printk(KERN_ERR "%s: hdr->token=%d res->opcode=%d\n", __func__, hdr->token, res->opcode);
 		if (hdr->token < Q6AFE_LPASS_CORE_HW_VOTE_MAX) {
 			afe->lpass_hw_core_client_hdl[hdr->token] = res->opcode;

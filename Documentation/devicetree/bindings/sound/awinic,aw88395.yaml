@@ -21,6 +21,7 @@ properties:
       - awinic,aw88083
       - awinic,aw88166
       - awinic,aw88261
+      - awinic,aw88263s
       - awinic,aw88395
       - awinic,aw88399
 

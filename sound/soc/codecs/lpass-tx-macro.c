@@ -285,6 +285,8 @@ struct tx_macro {
 	int dec_mode[NUM_DECIMATORS];
 	struct lpass_macro *pds;
 	bool bcs_clk_en;
+	/* clocks could not be enabled in runtime resume (ADSP down) */
+	bool clk_failed;
 };
 #define to_tx_macro(_hw) container_of(_hw, struct tx_macro, hw)
 
@@ -2406,6 +2408,11 @@ static int tx_macro_runtime_suspend(struct device *dev)
 	regcache_cache_only(tx->regmap, true);
 	regcache_mark_dirty(tx->regmap);
 
+	if (tx->clk_failed) {
+		tx->clk_failed = false;
+		return 0;
+	}
+
 	clk_disable_unprepare(tx->fsgen);
 	clk_disable_unprepare(tx->npl);
 	clk_disable_unprepare(tx->mclk);
@@ -2420,8 +2427,10 @@ static int tx_macro_runtime_resume(struct device *dev)
 
 	ret = clk_prepare_enable(tx->mclk);
 	if (ret) {
-		dev_err(dev, "unable to prepare mclk\n");
-		return ret;
+		/* see lpass-va-macro: don't latch runtime_error, stay cache-only */
+		dev_err(dev, "unable to prepare mclk (%d), staying cache-only\n", ret);
+		tx->clk_failed = true;
+		return 0;
 	}
 
 	ret = clk_prepare_enable(tx->npl);
@@ -2436,6 +2445,7 @@ static int tx_macro_runtime_resume(struct device *dev)
 		goto err_fsgen;
 	}
 
+	tx->clk_failed = false;
 	regcache_cache_only(tx->regmap, false);
 	regcache_sync(tx->regmap);
 
@@ -2444,8 +2454,9 @@ err_fsgen:
 	clk_disable_unprepare(tx->npl);
 err_npl:
 	clk_disable_unprepare(tx->mclk);
+	tx->clk_failed = true;
 
-	return ret;
+	return 0;
 }
 
 static const struct dev_pm_ops tx_macro_pm_ops = {

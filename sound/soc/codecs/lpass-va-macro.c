@@ -209,6 +209,8 @@ struct va_macro {
 	u16 dmic_clk_div;
 	bool has_swr_master;
 	bool has_npl_clk;
+	/* clocks could not be enabled in runtime resume (ADSP down) */
+	bool clk_failed;
 
 	int dec_mode[VA_MACRO_NUM_DECIMATORS];
 	struct regmap *regmap;
@@ -1715,6 +1717,11 @@ static int va_macro_runtime_suspend(struct device *dev)
 	regcache_cache_only(va->regmap, true);
 	regcache_mark_dirty(va->regmap);
 
+	if (va->clk_failed) {
+		va->clk_failed = false;
+		return 0;
+	}
+
 	if (va->has_npl_clk)
 		clk_disable_unprepare(va->npl);
 
@@ -1730,19 +1737,26 @@ static int va_macro_runtime_resume(struct device *dev)
 
 	ret = clk_prepare_enable(va->mclk);
 	if (ret) {
-		dev_err(va->dev, "unable to prepare mclk\n");
-		return ret;
+		/*
+		 * Don't return the error: it would latch runtime_error and
+		 * break every consumer until reboot. Stay cache-only.
+		 */
+		dev_err(va->dev, "unable to prepare mclk (%d), staying cache-only\n", ret);
+		va->clk_failed = true;
+		return 0;
 	}
 
 	if (va->has_npl_clk) {
 		ret = clk_prepare_enable(va->npl);
 		if (ret) {
 			clk_disable_unprepare(va->mclk);
-			dev_err(va->dev, "unable to prepare npl\n");
-			return ret;
+			dev_err(va->dev, "unable to prepare npl (%d), staying cache-only\n", ret);
+			va->clk_failed = true;
+			return 0;
 		}
 	}
 
+	va->clk_failed = false;
 	regcache_cache_only(va->regmap, false);
 	regcache_sync(va->regmap);
 
