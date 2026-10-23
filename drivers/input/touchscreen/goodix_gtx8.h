@@ -2,6 +2,8 @@
 #ifndef __GOODIX_GTX8_H__
 #define __GOODIX_GTX8_H__
 
+#include <drm/drm_panel.h>
+
 #define GOODIX_GTX8_NORMAL_RESET_DELAY_MS	100
 #define GOODIX_GTX8_POWER_ON_DELAY_MS		300
 
@@ -122,6 +124,9 @@ struct goodix_gtx8_fw_version {
 
 struct goodix_gtx8_core {
 	struct device *dev;
+	struct drm_panel_follower panel_follower;
+	bool is_panel_follower;
+	bool powered;
 	struct regmap *regmap;
 	struct regulator *avdd;
 	struct regulator *vddio;

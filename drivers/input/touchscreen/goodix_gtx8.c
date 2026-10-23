@@ -397,12 +397,42 @@ static void goodix_gtx8_power_off(struct goodix_gtx8_core *cd)
 	regulator_disable(cd->vddio);
 }
 
+static void goodix_gtx8_stop(struct goodix_gtx8_core *cd)
+{
+	if (!cd->powered)
+		return;
+
+	disable_irq(cd->irq);
+	goodix_gtx8_power_off(cd);
+	cd->powered = false;
+}
+
+static int goodix_gtx8_start(struct goodix_gtx8_core *cd)
+{
+	int error;
+
+	if (cd->powered)
+		return 0;
+
+	error = goodix_gtx8_power_on(cd);
+	if (error)
+		return error;
+
+	cd->powered = true;
+	enable_irq(cd->irq);
+
+	return 0;
+}
+
 static int goodix_gtx8_suspend(struct device *dev)
 {
 	struct goodix_gtx8_core *cd = dev_get_drvdata(dev);
 
-	disable_irq(cd->irq);
-	goodix_gtx8_power_off(cd);
+	/* A panel follower is powered along with the panel */
+	if (cd->is_panel_follower)
+		return 0;
+
+	goodix_gtx8_stop(cd);
 
 	return 0;
 }
@@ -410,16 +440,43 @@ static int goodix_gtx8_suspend(struct device *dev)
 static int goodix_gtx8_resume(struct device *dev)
 {
 	struct goodix_gtx8_core *cd = dev_get_drvdata(dev);
-	int error;
 
-	error = goodix_gtx8_power_on(cd);
-	if (error)
-		return error;
+	if (cd->is_panel_follower)
+		return 0;
 
-	enable_irq(cd->irq);
+	return goodix_gtx8_start(cd);
+}
+
+/*
+ * On panels with an integrated touch controller the controller goes down
+ * together with the panel. Its level-triggered interrupt line then stays
+ * asserted and the interrupt handler keeps failing to talk to it, so stop
+ * the controller before the panel is turned off and restart it afterwards.
+ */
+static int goodix_gtx8_panel_enabled(struct drm_panel_follower *follower)
+{
+	struct goodix_gtx8_core *cd =
+		container_of(follower, struct goodix_gtx8_core, panel_follower);
+
+	return goodix_gtx8_start(cd);
+}
+
+static int goodix_gtx8_panel_disabling(struct drm_panel_follower *follower)
+{
+	struct goodix_gtx8_core *cd =
+		container_of(follower, struct goodix_gtx8_core, panel_follower);
+
+	goodix_gtx8_stop(cd);
 
 	return 0;
 }
+
+static const struct drm_panel_follower_funcs goodix_gtx8_panel_follower_funcs = {
+	.panel_enabled = goodix_gtx8_panel_enabled,
+	.panel_disabling = goodix_gtx8_panel_disabling,
+	/* In case the panel gets powered off without being disabled first */
+	.panel_unpreparing = goodix_gtx8_panel_disabling,
+};
 
 EXPORT_GPL_SIMPLE_DEV_PM_OPS(goodix_gtx8_pm_ops, goodix_gtx8_suspend,
 			     goodix_gtx8_resume);
@@ -428,7 +485,9 @@ static void goodix_gtx8_power_off_act(void *data)
 {
 	struct goodix_gtx8_core *cd = data;
 
-	goodix_gtx8_power_off(cd);
+	if (cd->powered)
+		goodix_gtx8_power_off(cd);
+	cd->powered = false;
 }
 
 static int goodix_gtx8_probe(struct i2c_client *client)
@@ -476,6 +535,7 @@ static int goodix_gtx8_probe(struct i2c_client *client)
 		dev_err(cd->dev, "failed power on");
 		return error;
 	}
+	cd->powered = true;
 
 	error = devm_add_action_or_reset(cd->dev, goodix_gtx8_power_off_act,
 					 cd);
@@ -503,6 +563,23 @@ static int goodix_gtx8_probe(struct i2c_client *client)
 	}
 
 	dev_set_drvdata(cd->dev, cd);
+
+	if (drm_is_panel_follower(cd->dev)) {
+		cd->is_panel_follower = true;
+		cd->panel_follower.funcs = &goodix_gtx8_panel_follower_funcs;
+		/*
+		 * Start the controller only once the panel is up: powering it
+		 * while the panel is being initialised can leave the display
+		 * side of an integrated controller garbled. If the panel is
+		 * already enabled, adding the follower starts it right away.
+		 */
+		goodix_gtx8_stop(cd);
+		error = devm_drm_panel_add_follower(cd->dev,
+						    &cd->panel_follower);
+		if (error)
+			return dev_err_probe(cd->dev, error,
+					     "failed to follow the panel\n");
+	}
 
 	dev_dbg(cd->dev,
 		"Goodix GT%c%c%c%c Touchscreen Controller, Version %d.%d.%d.%d\n",

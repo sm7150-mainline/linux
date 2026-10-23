@@ -191,6 +191,7 @@
 		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
 		avdd-supply = <&vreg_l11c_3p3>;
 		vddio-supply = <&vreg_ts_vddio>;
+		panel = <&panel>;
 		touchscreen-size-x = <1080>;
 		touchscreen-size-y = <2400>;
 	};
