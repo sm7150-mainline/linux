@@ -337,7 +337,8 @@ static int ams667yr01_probe(struct mipi_dsi_device *dsi)
 	/* This panel only supports DSC; unconditionally enable it */
 	dsi->dsc = &ctx->dsc;
 
-	/* TODO: Pass slice_per_pkt = 2 */
+	/* Both slices of a line go in one packet, like downstream */
+	dsi->dsc_slice_per_pkt = 2;
 	ctx->dsc.dsc_version_major = 1;
 	ctx->dsc.dsc_version_minor = 1;
 	ctx->dsc.slice_height = 20;
