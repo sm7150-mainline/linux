@@ -363,7 +363,7 @@ static int smbx_ov_status(struct smb_chip *chip)
 		mask = SMB2_CHARGER_ERROR_STATUS_BAT_OV_BIT;
 		break;
 	case SMB5:
-		reg = BATTERY_CHARGER_STATUS_7;
+		reg = BATTERY_CHARGER_STATUS_2;
 		mask = SMB5_CHARGER_ERROR_STATUS_BAT_OV_BIT;
 		break;
 	}
@@ -372,7 +372,7 @@ static int smbx_ov_status(struct smb_chip *chip)
 	if (rc)
 		return rc;
 
-	return !!(reg & mask);
+	return !!(val & mask);
 }
 
 static int smb_get_prop_status(struct smb_chip *chip, int *val)
